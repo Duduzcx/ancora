@@ -17,28 +17,32 @@ const AnimatedBackground = () => {
         `
       }} />
 
-      {/* Apenas 3 Âncoras com movimento ultra-lento via GPU */}
-      {[...Array(3)].map((_, i) => (
+      {/* Frota de 30 Âncoras com Performance Otimizada */}
+      {[...Array(30)].map((_, i) => (
         <motion.div
           key={i}
-          className="absolute text-slate-900/5"
+          className="absolute text-slate-900/10"
           initial={{ 
-            top: `${20 + i * 30}%`, 
-            left: `${10 + i * 35}%`, 
-            rotate: i * 45 
+            top: `${Math.random() * 100}%`, 
+            left: `${Math.random() * 100}%`, 
+            rotate: Math.random() * 360,
+            scale: 0.5 + Math.random() * 0.5
           }}
           animate={{
-            y: [0, -20, 0],
-            rotate: [i * 45, i * 45 + 5, i * 45],
+            y: [0, -30, 0],
+            rotate: [0, 10, 0],
           }}
           transition={{
-            duration: 10 + i * 5,
+            duration: 15 + Math.random() * 10,
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          style={{ transform: 'translateZ(0)' }} // Força aceleração de hardware
+          style={{ 
+            willChange: 'transform',
+            transform: 'translateZ(0)' // Força aceleração de hardware total
+          }}
         >
-          <Anchor size={120} />
+          <Anchor size={40 + Math.random() * 60} />
         </motion.div>
       ))}
 
