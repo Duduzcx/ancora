@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,9 +9,9 @@ import { createClient } from '@/lib/supabase';
 import ChatSidebar from '@/components/ChatSidebar';
 import Link from 'next/link';
 
-export default function PortoPage() {
+// Componente Interno que utiliza os hooks de busca
+function PortoContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const mood = searchParams.get('mood');
   const [chatId, setChatId] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
@@ -33,7 +33,6 @@ export default function PortoPage() {
     }
   });
 
-  // 1. Efeito de Montagem e Auth
   useEffect(() => {
     setIsMounted(true);
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -41,36 +40,30 @@ export default function PortoPage() {
     });
     supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
     return () => subscription.unsubscribe();
-  }, []);
+  }, [supabase]);
 
-  // 2. Efeito de Mensagem Inicial (Estabilizado e Robusto)
   useEffect(() => {
     if (!isMounted || hasAppendedInitial.current || typeof append !== 'function') return;
 
-    const triggerMessage = async () => {
-      if (mood) {
-        hasAppendedInitial.current = true;
-        const timer = setTimeout(() => {
-          append({ 
-            role: 'user', 
-            content: `SISTEMA: O usuário clicou no humor "${mood}". Inicie um acolhimento caloroso e empático focado neste estado de espírito.` 
-          });
-        }, 500);
-        return () => clearTimeout(timer);
-      } else if (messages.length === 0) {
-        hasAppendedInitial.current = true;
-        setMessages([
-          {
-            id: 'welcome',
-            role: 'assistant',
-            content: "Olá! Que bom que você veio ao Porto. Este é um espaço seguro para você. Como você está se sentindo hoje? Se precisar desabafar ou apenas conversar um pouco, estou aqui para te ouvir."
-          }
-        ]);
-      }
-    };
-
-    triggerMessage();
-    // Mantemos as dependências constantes para evitar o erro de tamanho
+    if (mood) {
+      hasAppendedInitial.current = true;
+      const timer = setTimeout(() => {
+        append({ 
+          role: 'user', 
+          content: `SISTEMA: O usuário clicou no humor "${mood}". Inicie um acolhimento caloroso e empático focado neste estado de espírito.` 
+        });
+      }, 500);
+      return () => clearTimeout(timer);
+    } else if (messages.length === 0) {
+      hasAppendedInitial.current = true;
+      setMessages([
+        {
+          id: 'welcome',
+          role: 'assistant',
+          content: "Olá! Que bom que você veio ao Porto. Este é um espaço seguro para você. Como você está se sentindo hoje? Se precisar desabafar ou apenas conversar um pouco, estou aqui para te ouvir."
+        }
+      ]);
+    }
   }, [isMounted, mood, append, messages.length, setMessages]);
 
   const handleCustomSubmit = async (e: React.FormEvent) => {
@@ -134,7 +127,6 @@ export default function PortoPage() {
 
   if (!isMounted) return null;
 
-  // Filtra mensagens do sistema para que o usuário não as veja
   const visibleMessages = messages.filter(m => !m.content.startsWith('SISTEMA:'));
 
   return (
@@ -264,5 +256,21 @@ export default function PortoPage() {
         </footer>
       </main>
     </div>
+  );
+}
+
+// Componente Principal com Suspense para evitar erro de Prerender no Netlify
+export default function PortoPage() {
+  return (
+    <Suspense fallback={
+      <div className="fixed inset-0 bg-white flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Anchor size={48} className="text-slate-900 animate-spin-slow" />
+          <p className="text-sm font-black text-slate-400 uppercase tracking-widest">Iniciando o Porto...</p>
+        </div>
+      </div>
+    }>
+      <PortoContent />
+    </Suspense>
   );
 }
