@@ -156,6 +156,7 @@ function PortoContent() {
 
   return (
     <div className="fixed inset-0 z-[9999] bg-white flex h-screen overflow-hidden">
+      <AnimatedBackground subtle />
       <AnimatePresence>
         {user && (
           <motion.div 

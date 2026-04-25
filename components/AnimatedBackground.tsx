@@ -4,10 +4,14 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Anchor } from 'lucide-react';
 
-const AnimatedBackground = () => {
+interface AnimatedBackgroundProps {
+  subtle?: boolean;
+}
+
+const AnimatedBackground = ({ subtle = false }: AnimatedBackgroundProps) => {
   return (
     <div className="fixed inset-0 -z-50 overflow-hidden pointer-events-none bg-[#f8fafc]">
-      {/* Malha de Gradiente CSS Estática (Zero CPU) */}
+      {/* Malha de Gradiente CSS Estática */}
       <div className="absolute inset-0 opacity-40" style={{
         backgroundImage: `
           radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
@@ -17,11 +21,11 @@ const AnimatedBackground = () => {
         `
       }} />
 
-      {/* Frota de 30 Âncoras com Performance Otimizada */}
+      {/* Frota de 30 Âncoras */}
       {[...Array(30)].map((_, i) => (
         <motion.div
           key={i}
-          className="absolute text-slate-900/10"
+          className={`absolute ${subtle ? 'text-slate-900/[0.03]' : 'text-slate-900/10'}`}
           initial={{ 
             top: `${Math.random() * 100}%`, 
             left: `${Math.random() * 100}%`, 
@@ -39,7 +43,7 @@ const AnimatedBackground = () => {
           }}
           style={{ 
             willChange: 'transform',
-            transform: 'translateZ(0)' // Força aceleração de hardware total
+            transform: 'translateZ(0)'
           }}
         >
           <Anchor size={40 + Math.random() * 60} />

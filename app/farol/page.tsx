@@ -73,7 +73,7 @@ export default function FarolPage() {
 
   return (
     <main className="min-h-screen bg-slate-50 p-4 md:p-8 lg:p-12 relative overflow-hidden flex flex-col items-center custom-scrollbar">
-      <AnimatedBackground />
+      <AnimatedBackground subtle />
 
       {/* Efeito de Feixe de Varredura (Radar) */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
