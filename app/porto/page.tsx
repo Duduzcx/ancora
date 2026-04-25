@@ -8,6 +8,7 @@ import { Send, Bot, User, ShieldCheck, Sparkles, AlertCircle, ArrowLeft, Anchor 
 import { createClient } from '@/lib/supabase';
 import ChatSidebar from '@/components/ChatSidebar';
 import Link from 'next/link';
+import AnimatedBackground from '@/components/AnimatedBackground';
 
 function PortoContent() {
   const searchParams = useSearchParams();
