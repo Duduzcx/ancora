@@ -56,13 +56,18 @@ export default function Sidebar() {
       if (session?.user) fetchUser(session.user);
     });
 
+    // Pré-carrega rotas principais para navegação instantânea
+    menuItems.forEach(item => {
+      router.prefetch(item.href);
+    });
+
     // Escuta mudanças (Login/Logout)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       fetchUser(session?.user ?? null);
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [router, supabase]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
