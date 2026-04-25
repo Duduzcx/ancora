@@ -73,8 +73,10 @@ export default function LogPage() {
   const [showReflection, setShowReflection] = useState(false);
   const [currentReflection, setCurrentReflection] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
     // Carrega dados do localStorage ao iniciar
     const saved = localStorage.getItem('ancora-tasks');
     if (saved) {
@@ -83,6 +85,7 @@ export default function LogPage() {
   }, []);
 
   useEffect(() => {
+    if (!isMounted) return;
     const count = tasks.filter(t => t.completed).length;
     setPearls(count);
     const newProgress = (count / tasks.length) * 100;
@@ -121,6 +124,17 @@ export default function LogPage() {
   };
 
   const categories: Task["category"][] = ["Corpo", "Mente", "Ambiente", "Conexão"];
+
+  if (!isMounted) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Anchor size={48} className="text-slate-900 animate-spin-slow" />
+          <p className="text-sm font-black text-slate-400 uppercase tracking-widest">Sincronizando Ecossistema...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-transparent p-4 md:p-8 relative overflow-hidden">

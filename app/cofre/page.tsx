@@ -1,28 +1,34 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Flame, Lock, ShieldAlert, CheckCircle2 } from 'lucide-react';
+import { Flame, Lock, ShieldAlert, CheckCircle2, ShieldCheck, Key } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function CofrePage() {
   const [text, setText] = useState('');
   const [isBurning, setIsBurning] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showSavedToast, setShowSavedToast] = useState(false);
+  const router = useRouter();
 
   const handleSave = () => {
     if (!text) return;
     setIsSaving(true);
+    
     // Simula salvamento local
     localStorage.setItem('ancora_vault_latest', text);
     
     setTimeout(() => {
       setIsSaving(false);
       setShowSavedToast(true);
-      setText(''); // A mensagem some após ser guardada
-      setTimeout(() => setShowSavedToast(false), 3000);
-    }, 1000);
-
+      setText(''); // O texto some para "dentro" do cofre
+      
+      // Pequeno delay para o usuário sentir o salvamento antes de fechar ou limpar
+      setTimeout(() => {
+        setShowSavedToast(false);
+      }, 4000);
+    }, 1500);
   };
 
   const handleBurn = () => {
@@ -37,17 +43,52 @@ export default function CofrePage() {
   return (
     <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center overflow-hidden">
       
-      {/* Toast de Salvamento */}
+      {/* BACKGROUND DE PARTÍCULAS (DISCRETO) */}
+      <div className="absolute inset-0 pointer-events-none opacity-20">
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            animate={{ 
+              y: [-10, 10, -10],
+              opacity: [0.1, 0.3, 0.1]
+            }}
+            transition={{ duration: 3 + i, repeat: Infinity }}
+            className="absolute w-px h-px bg-emerald-500 rounded-full shadow-[0_0_10px_#10b981]"
+            style={{ top: `${Math.random() * 100}%`, left: `${Math.random() * 100}%` }}
+          />
+        ))}
+      </div>
+
+      {/* RITUAL DE SALVAMENTO: MENSAGEM DE SEGURANÇA */}
       <AnimatePresence>
         {showSavedToast && (
           <motion.div 
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="absolute top-12 left-1/2 -translate-x-1/2 px-6 py-3 bg-emerald-500 text-black font-black rounded-full flex items-center gap-3 shadow-[0_0_30px_rgba(16,185,129,0.4)] z-[110]"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            className="absolute inset-0 z-[120] bg-black/90 backdrop-blur-3xl flex flex-col items-center justify-center text-center space-y-6 p-8"
           >
-            <CheckCircle2 size={18} />
-            PENSAMENTO GUARDADO NO COFRE
+            <motion.div 
+              initial={{ scale: 0 }}
+              animate={{ scale: [0, 1.2, 1], rotate: [0, 10, 0] }}
+              className="w-24 h-24 bg-emerald-500/10 border border-emerald-500/40 rounded-full flex items-center justify-center text-emerald-400 shadow-[0_0_50px_rgba(16,185,129,0.2)]"
+            >
+              <ShieldCheck size={48} />
+            </motion.div>
+            <div className="space-y-2">
+              <h2 className="text-2xl font-black text-white tracking-tighter uppercase italic">Segredo Guardado</h2>
+              <p className="text-emerald-500/60 font-mono text-[10px] tracking-[0.4em] uppercase">
+                A sete chaves. Aqui sua mente encontra solo firme.
+              </p>
+            </div>
+            <motion.button 
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowSavedToast(false)}
+              className="px-10 py-4 bg-white text-black font-black rounded-full text-xs uppercase tracking-widest mt-8"
+            >
+              Voltar ao Silêncio
+            </motion.button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -55,40 +96,51 @@ export default function CofrePage() {
       <motion.div 
         animate={isBurning ? { x: [-3, 3, -3, 3, 0], y: [-2, 2, -2, 2, 0] } : {}}
         transition={{ duration: 0.1, repeat: 10 }}
-        className="w-full max-w-5xl h-full flex flex-col p-12"
+        className="w-full max-w-6xl h-full flex flex-col p-8 md:p-16 relative z-10"
       >
         
-        <div className="flex justify-between items-center mb-12">
-          <div className="flex items-center gap-3">
-            <motion.div 
-              animate={isSaving ? { scale: [1, 1.4, 1], rotate: [0, 180, 360] } : {}}
-              className="w-8 h-8 flex items-center justify-center text-emerald-500/50"
+        {/* INTERFACE TERMINAL */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-16">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => router.push('/')}
+              className="p-3 border border-white/5 text-white/20 hover:text-white hover:border-white/20 rounded-2xl transition-all"
             >
-              <Lock size={20} />
-            </motion.div>
-            <span className="text-[10px] font-mono tracking-[0.4em] text-emerald-500/30 uppercase">
-              Terminal_Cofre_V3.2
-            </span>
+              <ArrowLeft size={20} />
+            </button>
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_#10b981]" />
+              <span className="text-[10px] font-mono tracking-[0.4em] text-emerald-500/40 uppercase">
+                Terminal_Private_Vault_Active
+              </span>
+            </div>
           </div>
 
-          <div className="flex gap-6">
-            <button 
+          <div className="flex gap-4">
+            <motion.button 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={handleSave}
-              disabled={isSaving || !text}
-              className="px-10 py-4 rounded-full border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 transition-all uppercase tracking-widest text-xs font-black disabled:opacity-30"
+              disabled={isSaving || isBurning || !text}
+              className="px-8 py-4 bg-emerald-500 text-black rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-[0_0_30px_rgba(16,185,129,0.3)] disabled:opacity-20 flex items-center gap-2"
             >
-              {isSaving ? 'TRANCANDO...' : 'Guardar no Cofre'}
-            </button>
-            <button 
+              <Lock size={14} />
+              {isSaving ? 'TRANCANDO...' : 'Selar Segredo'}
+            </motion.button>
+            <motion.button 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={handleBurn}
-              disabled={isBurning || !text}
-              className="px-10 py-4 rounded-full border border-orange-500/30 text-orange-400 hover:bg-orange-500/10 hover:text-orange-300 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)] transition-all uppercase tracking-widest text-xs font-black disabled:opacity-30"
+              disabled={isBurning || isSaving || !text}
+              className="px-8 py-4 border border-orange-500/30 text-orange-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-orange-500/10 disabled:opacity-20 flex items-center gap-2"
             >
-              Queimar Mensagem
-            </button>
+              <Flame size={14} />
+              Queimar
+            </motion.button>
           </div>
         </div>
 
+        {/* ÁREA DE TEXTO */}
         <div className="flex-1 relative">
           <AnimatePresence mode="wait">
             <motion.textarea
@@ -100,44 +152,65 @@ export default function CofrePage() {
               animate={isBurning ? { 
                 color: ["#10b981", "#f97316", "#ef4444"],
                 y: -150,
-                filter: "blur(25px) drop-shadow(0 0 50px #ef4444)",
+                filter: "blur(30px) drop-shadow(0 0 50px #ef4444)",
                 opacity: 0,
                 scale: 0.8
-              } : (isSaving ? { opacity: 0.3, scale: 0.98 } : { opacity: 1, scale: 1 })}
+              } : (isSaving ? { 
+                opacity: 0, 
+                scale: 0.9, 
+                filter: "blur(20px)",
+                y: 50 
+              } : { opacity: 1, scale: 1 })}
               transition={{ 
-                duration: 2, 
-                ease: "easeOut" 
+                duration: isSaving ? 1.5 : 2, 
+                ease: "easeInOut" 
               }}
-              placeholder="TRANSFIRA SEUS PENSAMENTOS PARA O TERMINAL..."
+              placeholder="TRANSFIRA O PESO DOS SEUS PENSAMENTOS PARA O SILÊNCIO..."
               className={`
-                w-full h-full bg-transparent font-mono text-2xl md:text-5xl 
-                outline-none resize-none leading-relaxed tracking-tighter
-                placeholder:text-slate-500/40 scrollbar-hide
-                ${isBurning || isSaving ? 'pointer-events-none' : 'text-emerald-400'}
+                w-full h-full bg-transparent font-mono text-3xl md:text-6xl 
+                outline-none resize-none leading-[1.1] tracking-tighter
+                placeholder:text-emerald-500/10 scrollbar-hide
+                ${isBurning || isSaving ? 'pointer-events-none' : 'text-emerald-500/80'}
               `}
             />
           </AnimatePresence>
 
+          {/* Efeito Visual de Fogo */}
           {isBurning && (
             <motion.div 
               initial={{ opacity: 0 }}
-              animate={{ opacity: [0, 0.5, 0], y: -200, scale: [1, 2, 3] }}
+              animate={{ opacity: [0, 0.4, 0], y: -300, scale: [1, 2, 4] }}
               transition={{ duration: 2.5 }}
               className="absolute inset-0 flex items-center justify-center pointer-events-none"
             >
-              <Flame size={200} className="text-orange-600/30 blur-3xl" />
+              <Flame size={300} className="text-orange-500/40 blur-[80px]" />
             </motion.div>
           )}
         </div>
 
-        <div className="mt-12 flex items-center gap-4 border-t border-white/5 pt-8">
-          <ShieldAlert size={14} className="text-emerald-500/40" />
-          <p className="text-xs font-mono text-emerald-500/60 tracking-[0.3em] uppercase">
-            O QUE ACONTECE NA ÂNCORA, FICA NA ÂNCORA.
+        {/* FOOTER */}
+        <div className="mt-12 flex flex-col md:flex-row items-center gap-6 border-t border-white/5 pt-8 opacity-40">
+          <div className="flex items-center gap-3">
+            <Key size={12} className="text-emerald-500" />
+            <p className="text-[9px] font-mono text-emerald-500 tracking-[0.4em] uppercase">
+              Criptografia Neural Ativa
+            </p>
+          </div>
+          <div className="h-px flex-1 bg-white/5 hidden md:block" />
+          <p className="text-[9px] font-mono text-emerald-500 tracking-[0.4em] uppercase">
+            Ninguém além de você lê o que está aqui.
           </p>
         </div>
 
       </motion.div>
     </div>
+  );
+}
+
+function ArrowLeft({ size, className }: any) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+      <path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>
+    </svg>
   );
 }
