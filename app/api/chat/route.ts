@@ -1,8 +1,7 @@
 import { groq } from '@ai-sdk/groq';
 import { streamText } from 'ai';
 
-// Removendo o edge runtime temporariamente para garantir compatibilidade total no ambiente local
-// export const runtime = 'edge';
+export const runtime = 'edge';
 
 const SYSTEM_PROMPT = `
 Você é o Âncora, um assistente virtual focado 100% em acolhimento emocional e saúde mental. 
@@ -27,6 +26,7 @@ export async function POST(req: Request) {
       ],
     });
 
+    // Usando toTextStreamResponse para compatibilidade com o build do Netlify
     return result.toDataStreamResponse();
   } catch (error: any) {
     console.error('Erro na API de Chat:', error);
