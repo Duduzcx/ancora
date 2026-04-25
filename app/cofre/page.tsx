@@ -141,7 +141,7 @@ export default function CofrePage() {
         </div>
 
         {/* ÁREA DE TEXTO */}
-        <div className="flex-1 relative">
+        <div className="flex-1 relative pt-12 md:pt-20 px-4 md:px-0">
           <AnimatePresence mode="wait">
             <motion.textarea
               key="terminal-input"
@@ -167,7 +167,7 @@ export default function CofrePage() {
               }}
               placeholder="TRANSFIRA O PESO DOS SEUS PENSAMENTOS PARA O SILÊNCIO..."
               className={`
-                w-full h-full bg-transparent font-mono text-3xl md:text-6xl 
+                w-full h-full bg-transparent font-mono text-2xl md:text-6xl 
                 outline-none resize-none leading-[1.1] tracking-tighter
                 placeholder:text-emerald-500/10 scrollbar-hide
                 ${isBurning || isSaving ? 'pointer-events-none' : 'text-emerald-500/80'}
