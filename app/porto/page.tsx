@@ -99,11 +99,20 @@ function PortoContent() {
     if (user) {
       let currentChatId = chatId;
       if (!currentChatId) {
-        const { data } = await supabase
+        // Gera um título limpo a partir da primeira mensagem
+        const cleanTitle = input.trim().length > 30 
+          ? input.trim().substring(0, 30) + "..." 
+          : input.trim();
+
+        const { data, error: chatError } = await supabase
           .from('chats')
-          .insert({ user_id: user.id, title: input.substring(0, 30) + '...' })
+          .insert({ 
+            user_id: user.id, 
+            title: cleanTitle || "Nova Conversa" 
+          })
           .select()
           .single();
+        
         if (data) {
           setChatId(data.id);
           currentChatId = data.id;
