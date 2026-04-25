@@ -77,10 +77,18 @@ export default function LogPage() {
 
   useEffect(() => {
     setIsMounted(true);
-    // Carrega dados do localStorage ao iniciar
-    const saved = localStorage.getItem('ancora-tasks');
-    if (saved) {
-      setTasks(JSON.parse(saved));
+    try {
+      // Carrega dados do localStorage ao iniciar de forma segura
+      const saved = localStorage.getItem('ancora-tasks');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setTasks(parsed);
+        }
+      }
+    } catch (e) {
+      console.error("Erro ao carregar tarefas:", e);
+      // Se der erro, mantemos as defaultTasks já inicializadas
     }
   }, []);
 
