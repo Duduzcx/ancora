@@ -12,11 +12,11 @@ import {
 import { createClient } from '@/lib/supabase';
 
 const features = [
-  { title: "O Porto", desc: "Chat anônimo com nossa IA acolhedora.", icon: MessageCircle, href: "/porto", color: "bg-blue-600", subtitle: "ACOLHIMENTO", dark: false },
-  { title: "A Arena", desc: "Simulador neural para treinar diálogos sociais difíceis.", icon: Sword, href: "/arena", color: "bg-rose-600", subtitle: "TREINAMENTO", dark: true },
-  { title: "O Farol", desc: "Inteligência proativa que guia seu progresso.", icon: Lightbulb, href: "/farol", color: "bg-emerald-600", subtitle: "INSIGHTS", dark: true },
-  { title: "Logs de sobrevivencia", desc: "Rastreamento diário de progresso emocional.", icon: CheckCircle, href: "/log", color: "bg-teal-600", subtitle: "HÁBITOS", dark: true },
-  { title: "O Cofre", desc: "Seu diário ultra-seguro para desabafos profundos.", icon: Shield, href: "/cofre", color: "bg-amber-600", subtitle: "PRIVACIDADE", dark: false }
+  { title: "O Porto", desc: "Chat anônimo e seguro com nossa IA acolhedora para desabafos e suporte emocional imediato.", icon: MessageCircle, href: "/porto", color: "bg-blue-600", subtitle: "ACOLHIMENTO", dark: false },
+  { title: "A Arena", desc: "Simulador tático de diálogos. Pratique feedbacks, conflitos e conversas difíceis com IA antes do momento real.", icon: Sword, href: "/arena", color: "bg-rose-600", subtitle: "TREINAMENTO", dark: true },
+  { title: "O Farol", desc: "Inteligência proativa que analisa seu estado e guia seu progresso com insights baseados em dados.", icon: Lightbulb, href: "/farol", color: "bg-emerald-600", subtitle: "INSIGHTS", dark: true },
+  { title: "Logs de sobrevivência", desc: "Rastreamento diário de hábitos e progresso emocional para fortalecer sua resiliência.", icon: CheckCircle, href: "/log", color: "bg-teal-600", subtitle: "HÁBITOS", dark: true },
+  { title: "O Cofre", desc: "Seu diário ultra-seguro para desabafos profundos que precisam ser trancados a sete chaves.", icon: Shield, href: "/cofre", color: "bg-amber-600", subtitle: "PRIVACIDADE", dark: false }
 ];
 
 export default function Home() {
