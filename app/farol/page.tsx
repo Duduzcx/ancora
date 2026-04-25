@@ -6,7 +6,8 @@ import {
   Lightbulb, Sparkles, MessageSquare, ArrowLeft, 
   Target, TrendingUp, CheckCircle2, ShieldAlert,
   ArrowRight, Anchor, Compass, Zap, Waves,
-  ShieldCheck, Star, Ship
+  ShieldCheck, Star, Ship, BarChart3, Map,
+  Activity, Radio
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -47,156 +48,194 @@ export default function FarolPage() {
   let title = "";
   let message = "";
   let moodTrigger = "";
-  let colorClass = "";
-  let iconBg = "";
+  let accentColor = "";
+  let glowColor = "";
 
   if (progress === 0) {
-    title = "O Início da Jornada";
-    message = `${userName}, o Farol notou que as águas estão paradas hoje. Que tal lançarmos a primeira âncora com um passo pequeno, como abrir a janela ou respirar fundo por 1 minuto?`;
+    title = "Radar de Início";
+    message = `${userName}, o Farol detectou águas calmas até demais. Que tal agitar um pouco com o primeiro hábito do dia?`;
     moodTrigger = "ajuda para começar meu dia";
-    colorClass = "text-blue-500";
-    iconBg = "bg-blue-500";
+    accentColor = "text-blue-500";
+    glowColor = "shadow-blue-500/20";
   } else if (progress! < 100) {
-    title = "Navegando com Propósito";
-    message = `Você já está em movimento, ${userName}! Seu ecossistema já tem vida. Continue navegando; o solo firme está cada vez mais visível no horizonte.`;
+    title = "Sinal de Movimento";
+    message = `Você está navegando bem, ${userName}. O radar mostra que você já superou o mais difícil. O solo firme está a poucos nós de distância.`;
     moodTrigger = "motivação para continuar minhas tarefas";
-    colorClass = "text-emerald-500";
-    iconBg = "bg-emerald-500";
+    accentColor = "text-emerald-500";
+    glowColor = "shadow-emerald-500/20";
   } else {
-    title = "Porto Seguro Conquistado";
-    message = `Incrível superação! Você completou todas as missões de hoje. O Farol agora brilha em celebração à sua paz. Aproveite o seu porto seguro, você merece.`;
+    title = "Farol de Vitória";
+    message = `Missão cumprida! O Farol agora emite um sinal de paz total. Seu ecossistema está em equilíbrio perfeito.`;
     moodTrigger = "celebrar minhas vitórias de hoje";
-    colorClass = "text-amber-500";
-    iconBg = "bg-amber-500";
+    accentColor = "text-amber-500";
+    glowColor = "shadow-amber-500/20";
   }
 
   return (
-    <main className="min-h-screen bg-transparent p-4 md:p-12 relative overflow-hidden flex flex-col items-center custom-scrollbar">
+    <main className="min-h-screen bg-slate-50 p-4 md:p-8 lg:p-12 relative overflow-hidden flex flex-col items-center custom-scrollbar">
       <AnimatedBackground />
 
-      {/* FEIXE DE LUZ DO FAROL (ANIMAÇÃO) */}
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-px h-screen bg-gradient-to-b from-emerald-400/40 to-transparent z-0 pointer-events-none origin-top">
+      {/* Efeito de Feixe de Varredura (Radar) */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         <motion.div 
-          animate={{ rotate: [-45, 45, -45] }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          className="w-[1000px] h-[1000px] bg-emerald-400/5 blur-[150px] -ml-[500px]"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200%] h-[200%] bg-gradient-to-tr from-emerald-500/5 via-transparent to-transparent opacity-30"
         />
       </div>
 
-      <div className="max-w-6xl w-full relative z-10 space-y-12 pb-24">
-        {/* HEADER BAR */}
-        <div className="flex items-center justify-between bg-white/40 backdrop-blur-3xl p-6 rounded-[2.5rem] border border-white shadow-xl">
+      <div className="max-w-7xl w-full relative z-10 space-y-8 pb-24">
+        
+        {/* NAV BAR ULTRA-GLASS */}
+        <div className="flex items-center justify-between bg-white/30 backdrop-blur-3xl p-6 rounded-[3rem] border border-white/50 shadow-2xl">
           <div className="flex items-center gap-6">
             <Link href="/">
-              <motion.button whileHover={{ scale: 1.1, x: -5 }} className="p-4 bg-slate-900 text-white rounded-full">
+              <motion.button whileHover={{ scale: 1.1, rotate: -90 }} className="p-4 bg-slate-900 text-white rounded-2xl">
                 <ArrowLeft size={20} />
               </motion.button>
             </Link>
             <div>
-              <h2 className="text-xl font-black text-slate-900">O Farol</h2>
-              <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Inteligência de Jornada</p>
+              <div className="flex items-center gap-2">
+                <Radio size={14} className="text-emerald-500 animate-pulse" />
+                <h2 className="text-xl font-black text-slate-900 tracking-tighter uppercase">O Farol</h2>
+              </div>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Intelligence & Navigation Center</p>
             </div>
           </div>
-          <div className="bg-slate-900 text-white px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest flex items-center gap-2">
-            <Zap size={14} className="text-amber-400" />
-            Status: {timeState}
+          <div className="flex items-center gap-4">
+            <div className="hidden md:flex px-6 py-2 bg-slate-900 text-white rounded-full text-[10px] font-black uppercase tracking-widest gap-2">
+              <Activity size={14} className="text-emerald-400" />
+              Sinal Ativo
+            </div>
           </div>
         </div>
 
-        {/* HERO SECTION */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+        {/* MAIN HUD */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          {/* PAINEL CENTRAL */}
           <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="lg:col-span-8 bg-white/60 backdrop-blur-3xl rounded-[4rem] p-12 md:p-20 border border-white shadow-2xl flex flex-col justify-between"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`lg:col-span-8 bg-white/60 backdrop-blur-3xl rounded-[4rem] p-10 md:p-16 border border-white shadow-2xl relative overflow-hidden group ${glowColor}`}
           >
-            <div className="space-y-8 text-center lg:text-left">
-              <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full ${iconBg}/10 ${colorClass} text-[10px] font-black uppercase tracking-widest border border-current/20`}>
-                <Target size={14} />
-                {title}
+            <div className="relative z-10 space-y-10">
+              <div className="flex items-center gap-4">
+                <div className={`px-4 py-1.5 rounded-full bg-slate-900 text-white text-[10px] font-black uppercase tracking-[0.3em] shadow-lg`}>
+                  {title}
+                </div>
+                <div className="h-px flex-1 bg-slate-900/5" />
               </div>
-              <h1 className="text-5xl md:text-8xl font-black text-slate-900 leading-[0.85] tracking-tighter">
-                Sua jornada <br /> em <span className="italic text-emerald-600 underline decoration-emerald-200 decoration-8 underline-offset-8">Tempo Real.</span>
+
+              <h1 className="text-6xl md:text-8xl font-black text-slate-900 leading-[0.85] tracking-tighter">
+                Sua mente <br /> em <span className="text-emerald-600 italic">Alta Definição.</span>
               </h1>
-              <p className="text-2xl md:text-3xl text-slate-700 font-bold leading-tight max-w-2xl">
-                "{message}"
-              </p>
+
+              <div className="bg-slate-900/5 p-8 rounded-[3rem] border border-slate-900/5 relative group-hover:bg-white/40 transition-all duration-500">
+                <p className="text-2xl md:text-3xl text-slate-700 font-bold leading-tight">
+                  "{message}"
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-6">
+                <Link href="/log">
+                  <motion.button whileHover={{ scale: 1.05, y: -5 }} className="px-12 py-7 bg-slate-900 text-white rounded-[2.5rem] font-black flex items-center gap-4 shadow-2xl hover:bg-slate-800 transition-all">
+                    <Map size={24} className="text-emerald-400" />
+                    Mapa de Progresso
+                  </motion.button>
+                </Link>
+                <motion.button 
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  onClick={() => router.push(`/porto?mood=${encodeURIComponent(moodTrigger)}`)}
+                  className="px-12 py-7 bg-emerald-500 text-white rounded-[2.5rem] font-black flex items-center gap-4 shadow-2xl shadow-emerald-500/20 hover:bg-emerald-600 transition-all"
+                >
+                  <MessageSquare size={24} />
+                  Falar agora
+                </motion.button>
+              </div>
             </div>
 
-            <div className="mt-12 flex flex-wrap items-center gap-6 justify-center lg:justify-start">
-              <Link href="/log">
-                <motion.button whileHover={{ scale: 1.05, y: -5 }} className="px-10 py-6 bg-slate-900 text-white rounded-full font-black flex items-center gap-3 shadow-xl">
-                  <TrendingUp size={20} />
-                  Continuar Jornada
-                </motion.button>
-              </Link>
-              <motion.button 
-                whileHover={{ scale: 1.05, y: -5 }} 
-                onClick={() => router.push(`/porto?mood=${encodeURIComponent(moodTrigger)}`)}
-                className={`px-10 py-6 ${iconBg} text-white rounded-full font-black flex items-center gap-3 shadow-xl`}
-              >
-                <MessageSquare size={20} />
-                Falar sobre isso
-              </motion.button>
+            {/* Grafismos de Fundo */}
+            <div className="absolute -bottom-20 -right-20 text-slate-900/5 opacity-20 pointer-events-none">
+              <Compass size={400} strokeWidth={0.5} />
             </div>
           </motion.div>
 
-          <motion.div 
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="lg:col-span-4 bg-slate-900 rounded-[4rem] p-12 text-white flex flex-col justify-between relative overflow-hidden shadow-2xl"
-          >
-            <div className="absolute top-0 right-0 p-8 text-white/5 rotate-12">
-              <Anchor size={200} strokeWidth={1} />
-            </div>
+          {/* PAINEL LATERAL (MÉTRICAS) */}
+          <div className="lg:col-span-4 space-y-8">
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bg-slate-900 rounded-[4rem] p-10 text-white shadow-2xl relative overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 p-8 text-emerald-500/10 rotate-45">
+                <Target size={180} />
+              </div>
+              
+              <div className="relative z-10 space-y-12">
+                <div className="space-y-2">
+                  <h3 className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.4em]">Estabilidade Atual</h3>
+                  <div className="flex items-end gap-3">
+                    <span className="text-7xl font-black tabular-nums tracking-tighter">{Math.round(progress || 0)}</span>
+                    <span className="text-2xl font-black text-emerald-400 mb-2">%</span>
+                  </div>
+                </div>
 
-            <div className="relative z-10 space-y-12">
-              <div className="space-y-2">
-                <h3 className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.4em]">Progresso Atual</h3>
-                <div className="flex items-end gap-3">
-                  <span className="text-7xl font-black tabular-nums tracking-tighter">{Math.round(progress || 0)}</span>
-                  <span className="text-2xl font-black text-emerald-400 mb-2">%</span>
+                <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden border border-white/5">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progress}%` }}
+                    className="h-full bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
+                  />
+                </div>
+
+                <div className="space-y-6 pt-4">
+                  <HUDItem icon={Zap} label="Energia Mental" value="Otimizada" />
+                  <HUDItem icon={Waves} label="Fluxo Emocional" value="Estável" />
                 </div>
               </div>
+            </motion.div>
 
-              <div className="space-y-6">
-                <InsightItem icon={Waves} text="Fluxo de hoje: Estável" />
-                <InsightItem icon={Zap} text="Energia Mental: Recarregando" />
-                <InsightItem icon={ShieldCheck} text="Zonas de Risco: Protegidas" />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 }}
+              className="bg-white/40 backdrop-blur-3xl rounded-[3.5rem] p-10 border border-white shadow-xl flex flex-col items-center justify-center text-center space-y-6"
+            >
+              <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-3xl flex items-center justify-center shadow-inner">
+                <Ship size={32} />
               </div>
-            </div>
-
-            <div className="relative z-10 pt-12">
-              <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                <motion.div 
-                  initial={{ width: 0 }}
-                  animate={{ width: `${progress}%` }}
-                  className="h-full bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
-                />
+              <div>
+                <h4 className="text-lg font-black text-slate-900 tracking-tight">Status da Embarcação</h4>
+                <p className="text-xs text-slate-500 font-bold mt-2 leading-relaxed">
+                  {progress === 100 ? "Casco blindado. Você está pronto para qualquer mar." : "Casco em manutenção. Continue cultivando seus hábitos."}
+                </p>
               </div>
-              <p className="mt-4 text-[10px] font-black text-white/40 uppercase tracking-widest text-center">
-                Faltam {tasksLeft(progress)} passos para o Porto Seguro
-              </p>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </div>
 
-        {/* BÚSSOLA DE INSIGHTS (FOOTER) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <StatCard 
+        {/* BOTTOM INSIGHTS GRID */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <InsightCard 
             icon={Compass} 
-            title="Norte Emocional" 
-            desc="Seu foco hoje está voltado para o autocuidado e organização."
+            title="Norte" 
+            desc="Sua bússola hoje aponta para o autocuidado físico."
           />
-          <StatCard 
+          <InsightCard 
             icon={Star} 
-            title="Rastro de Luz" 
-            desc="Você já superou os momentos mais críticos desta semana."
+            title="Brilho" 
+            desc="Seu histórico mostra 3 dias de solo firme seguidos."
           />
-          <StatCard 
-            icon={Ship} 
-            title="Sua Embarcação" 
-            desc="Sua resiliência está 15% maior do que na última segunda-feira."
+          <InsightCard 
+            icon={ShieldCheck} 
+            title="Proteção" 
+            desc="Gatilhos de ansiedade reduzidos em 40% hoje."
+          />
+          <InsightCard 
+            icon={BarChart3} 
+            title="Análise" 
+            desc="Tendência positiva de estabilidade para amanhã."
           />
         </div>
       </div>
@@ -204,35 +243,32 @@ export default function FarolPage() {
   );
 }
 
-function tasksLeft(progress: number | null) {
-  if (progress === null) return 21;
-  const done = (progress / 100) * 21;
-  return Math.max(0, Math.round(21 - done));
-}
-
-function InsightItem({ icon: Icon, text }: any) {
+function HUDItem({ icon: Icon, label, value }: any) {
   return (
-    <div className="flex items-center gap-4">
-      <div className="w-8 h-8 bg-white/10 rounded-xl flex items-center justify-center text-emerald-400">
-        <Icon size={16} />
+    <div className="flex items-center justify-between p-4 bg-white/5 rounded-3xl border border-white/5 hover:bg-white/10 transition-all">
+      <div className="flex items-center gap-4">
+        <div className="text-emerald-400">
+          <Icon size={18} />
+        </div>
+        <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">{label}</span>
       </div>
-      <span className="text-sm font-bold text-white/80">{text}</span>
+      <span className="text-xs font-black">{value}</span>
     </div>
   );
 }
 
-function StatCard({ icon: Icon, title, desc }: any) {
+function InsightCard({ icon: Icon, title, desc }: any) {
   return (
     <motion.div 
-      whileHover={{ y: -10 }}
-      className="bg-white/40 backdrop-blur-md p-10 rounded-[3.5rem] border border-white shadow-xl space-y-6"
+      whileHover={{ y: -8, scale: 1.02 }}
+      className="bg-white/40 backdrop-blur-xl p-8 rounded-[3rem] border border-white shadow-lg space-y-4 hover:shadow-2xl transition-all"
     >
-      <div className="w-14 h-14 bg-slate-900 text-emerald-400 rounded-2xl flex items-center justify-center shadow-lg">
-        <Icon size={28} />
+      <div className="w-12 h-12 bg-slate-900 text-emerald-400 rounded-2xl flex items-center justify-center shadow-xl">
+        <Icon size={24} />
       </div>
-      <div className="space-y-2">
-        <h3 className="text-xl font-black text-slate-900 tracking-tight">{title}</h3>
-        <p className="text-slate-600 text-sm font-bold leading-relaxed">{desc}</p>
+      <div className="space-y-1">
+        <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">{title}</h3>
+        <p className="text-[11px] text-slate-500 font-bold leading-relaxed">{desc}</p>
       </div>
     </motion.div>
   );
