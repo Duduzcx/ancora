@@ -51,8 +51,10 @@ export default function Sidebar() {
   };
 
   useEffect(() => {
-    // Check inicial
-    supabase.auth.getUser().then(({ data: { user } }) => fetchUser(user));
+    // Check inicial ultrarrápido via sessão
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) fetchUser(session.user);
+    });
 
     // Escuta mudanças (Login/Logout)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {

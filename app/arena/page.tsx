@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sword, Briefcase, Users, Heart, ArrowLeft, Send, Sparkles, Bot, User } from 'lucide-react';
+import { Sword, Briefcase, Users, Heart, ArrowLeft, Send, Sparkles, Bot, User, Anchor } from 'lucide-react';
 import { useChat } from '@ai-sdk/react';
 
 const scenarios = [
@@ -13,21 +13,28 @@ const scenarios = [
 
 export default function ArenaPage() {
   const [selected, setSelected] = useState<null | typeof scenarios[0]>(null);
+  const [isMounted, setIsMounted] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const hasStarted = useRef(false);
   
   const { messages, input, handleInputChange, handleSubmit, setMessages, append, isLoading } = useChat({
     api: '/api/chat',
   });
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   // Gatilho inicial da simulação
   useEffect(() => {
-    if (selected && messages.length === 0) {
+    if (selected && !hasStarted.current) {
+      hasStarted.current = true;
       append({
         role: 'user',
         content: `SISTEMA: Iniciar Simulação Arena - ${selected.title}. ${selected.desc} Comece o diálogo como o personagem desafiador.`
       });
     }
-  }, [selected, append, messages.length]);
+  }, [selected, append]);
 
   // Scroll automático
   useEffect(() => {
@@ -36,7 +43,19 @@ export default function ArenaPage() {
     }
   }, [messages]);
 
+  if (!isMounted) return (
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <Anchor size={48} className="text-slate-900 animate-spin-slow" />
+    </div>
+  );
+
   const visibleMessages = messages.filter(m => !m.content.startsWith('SISTEMA:'));
+
+  const handleCustomSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || isLoading) return;
+    handleSubmit(e);
+  };
 
   return (
     <div className="min-h-screen p-4 md:p-8 lg:p-16 flex flex-col items-center">
@@ -63,7 +82,10 @@ export default function ArenaPage() {
                 <motion.div
                   key={s.id}
                   whileHover={{ y: -10, scale: 1.02 }}
-                  onClick={() => setSelected(s)}
+                  onClick={() => {
+                    hasStarted.current = false;
+                    setSelected(s);
+                  }}
                   className="bg-slate-900/90 backdrop-blur-xl border border-slate-800 p-10 rounded-[45px] cursor-pointer group transition-all hover:border-emerald-500/50 hover:shadow-[0_0_40px_rgba(16,185,129,0.2)]"
                 >
                   <div className={`mb-6 p-5 rounded-3xl bg-slate-800 w-fit group-hover:bg-emerald-500 group-hover:text-white transition-all ${s.color}`}>
@@ -83,27 +105,24 @@ export default function ArenaPage() {
             exit={{ opacity: 0 }}
             className="max-w-4xl w-full h-[85vh] bg-slate-900 border border-slate-800 rounded-[45px] shadow-2xl flex flex-col overflow-hidden relative"
           >
-            {/* Header da Arena */}
             <div className="p-6 border-b border-slate-800 flex items-center justify-between bg-slate-950/80 backdrop-blur-md z-10">
               <button 
                 onClick={() => {
                   setSelected(null);
                   setMessages([]);
+                  hasStarted.current = false;
                 }}
                 className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group"
               >
                 <div className="p-2 bg-slate-800 rounded-xl group-hover:bg-slate-700">
                   <ArrowLeft size={18} />
                 </div>
-                <span className="font-black text-xs tracking-widest">ENCERRAR SIMULAÇÃO</span>
+                <span className="font-black text-xs tracking-widest uppercase">Encerrar</span>
               </button>
               <div className="flex items-center gap-4">
                 <div className="text-right">
                   <p className="text-xs font-black text-emerald-500 uppercase tracking-[0.2em]">{selected.title}</p>
-                  <div className="flex items-center justify-end gap-1.5">
-                    <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-                    <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">IA EM SINCRONIA</p>
-                  </div>
+                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">IA EM SINCRONIA</p>
                 </div>
                 <div className={`p-3 bg-slate-800 rounded-2xl ${selected.color}`}>
                   <selected.icon size={24} />
@@ -111,7 +130,6 @@ export default function ArenaPage() {
               </div>
             </div>
 
-            {/* Mensagens da Simulação */}
             <div 
               ref={scrollRef}
               className="flex-1 p-8 overflow-y-auto space-y-6 bg-slate-950/30 custom-scrollbar"
@@ -120,8 +138,8 @@ export default function ArenaPage() {
                 {visibleMessages.map((m) => (
                   <motion.div
                     key={m.id}
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
                     className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div className={`flex items-start gap-4 max-w-[85%] ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
@@ -151,10 +169,9 @@ export default function ArenaPage() {
               )}
             </div>
 
-            {/* Input da Arena */}
             <div className="p-8 bg-slate-950/80 backdrop-blur-md">
               <form 
-                onSubmit={handleSubmit}
+                onSubmit={handleCustomSubmit}
                 className="flex gap-4 p-2 bg-slate-800 rounded-full border border-slate-700 shadow-2xl focus-within:border-emerald-500/50 transition-all"
               >
                 <input 
@@ -172,9 +189,6 @@ export default function ArenaPage() {
                   <Send size={22} />
                 </button>
               </form>
-              <p className="text-center mt-4 text-[9px] font-black text-slate-600 uppercase tracking-[0.3em]">
-                O Âncora analisará sua performance após o diálogo
-              </p>
             </div>
           </motion.div>
         )}
