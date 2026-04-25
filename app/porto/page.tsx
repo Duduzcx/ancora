@@ -72,12 +72,15 @@ function PortoContent() {
 
     if (mood) {
       hasAppendedInitial.current = true;
+      // Limpa mensagens anteriores se estiver entrando com um humor novo (Check-in)
+      setMessages([]);
+      
       const timer = setTimeout(() => {
         append({ 
           role: 'user', 
-          content: `SISTEMA: O usuário clicou no humor "${mood}". Inicie um acolhimento caloroso e empático focado neste estado de espírito.` 
+          content: `SISTEMA: O usuário clicou no humor "${mood}". Inicie um acolhimento caloroso, curto e empático focado neste estado de espírito.` 
         });
-      }, 500);
+      }, 300);
       return () => clearTimeout(timer);
     } else if (messages.length === 0) {
       hasAppendedInitial.current = true;
