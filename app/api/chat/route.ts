@@ -1,7 +1,10 @@
-import { groq } from '@ai-sdk/groq';
+import { createGroq } from '@ai-sdk/groq';
 import { streamText } from 'ai';
 
-export const runtime = 'edge';
+// Inicialização explícita para garantir que a chave seja lida em qualquer ambiente
+const groq = createGroq({
+  apiKey: process.env.GROQ_API_KEY,
+});
 
 const SYSTEM_PROMPT = `
 Você é o Âncora, um assistente virtual focado 100% em acolhimento emocional e saúde mental. 
@@ -18,21 +21,31 @@ export async function POST(req: Request) {
   try {
     const { messages } = await req.json();
 
+    if (!process.env.GROQ_API_KEY) {
+      throw new Error("GROQ_API_KEY não configurada no servidor.");
+    }
+
     const result = await streamText({
-      model: groq('llama3-70b-8192'),
+      model: groq('llama-3.3-70b-versatile'),
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
         ...messages,
       ],
     });
 
-    // Usando toTextStreamResponse para compatibilidade com o build do Netlify
     return result.toDataStreamResponse();
   } catch (error: any) {
     console.error('Erro na API de Chat:', error);
-    return new Response(JSON.stringify({ error: error.message }), { 
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    // Retornando erro amigável mas técnico para diagnóstico
+    return new Response(
+      JSON.stringify({ 
+        error: "Erro na conexão com a IA", 
+        details: error.message 
+      }), 
+      { 
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
   }
 }
