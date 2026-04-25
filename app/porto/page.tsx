@@ -9,7 +9,6 @@ import { createClient } from '@/lib/supabase';
 import ChatSidebar from '@/components/ChatSidebar';
 import Link from 'next/link';
 
-// Componente Interno que utiliza os hooks de busca
 function PortoContent() {
   const searchParams = useSearchParams();
   const mood = searchParams.get('mood');
@@ -33,15 +32,41 @@ function PortoContent() {
     }
   });
 
+  // 1. Efeito de Montagem, Auth e Recuperação de Memória (Guest)
   useEffect(() => {
     setIsMounted(true);
+    
+    const initialize = async () => {
+      const { data: { user: sessionUser } } = await supabase.auth.getUser();
+      setUser(sessionUser);
+
+      // Se NÃO tiver usuário, tenta recuperar do localStorage
+      if (!sessionUser) {
+        const savedMessages = localStorage.getItem('ancora-guest-chat');
+        if (savedMessages) {
+          setMessages(JSON.parse(savedMessages));
+          hasAppendedInitial.current = true; // Evita mandar boas-vindas de novo
+        }
+      }
+    };
+
+    initialize();
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
-    supabase.auth.getUser().then(({ data: { user } }) => setUser(user));
-    return () => subscription.unsubscribe();
-  }, [supabase]);
 
+    return () => subscription.unsubscribe();
+  }, [supabase, setMessages]);
+
+  // 2. Persistência de Memória (Guest)
+  useEffect(() => {
+    if (!user && messages.length > 0) {
+      localStorage.setItem('ancora-guest-chat', JSON.stringify(messages));
+    }
+  }, [messages, user]);
+
+  // 3. Efeito de Mensagem Inicial (Robusto)
   useEffect(() => {
     if (!isMounted || hasAppendedInitial.current || typeof append !== 'function') return;
 
@@ -56,13 +81,12 @@ function PortoContent() {
       return () => clearTimeout(timer);
     } else if (messages.length === 0) {
       hasAppendedInitial.current = true;
-      setMessages([
-        {
-          id: 'welcome',
-          role: 'assistant',
-          content: "Olá! Que bom que você veio ao Porto. Este é um espaço seguro para você. Como você está se sentindo hoje? Se precisar desabafar ou apenas conversar um pouco, estou aqui para te ouvir."
-        }
-      ]);
+      const welcomeMsg = {
+        id: 'welcome',
+        role: 'assistant' as const,
+        content: "Fala! Sou o Âncora. Tô aqui pra te ouvir. Como você tá se sentindo agora?"
+      };
+      setMessages([welcomeMsg]);
     }
   }, [isMounted, mood, append, messages.length, setMessages]);
 
@@ -99,11 +123,12 @@ function PortoContent() {
   const loadChat = async (id: string) => {
     if (!id) {
       setChatId(null);
+      // Se limpar o chat logado, volta pro estado inicial ou recupera guest se existir
       setMessages([
         {
           id: 'welcome',
           role: 'assistant',
-          content: "Olá! Que bom que você veio ao Porto. Este é um espaço seguro para você. Como você está se sentindo hoje? Se precisar desabafar ou apenas conversar um pouco, estou aqui para te ouvir."
+          content: "Fala! Sou o Âncora. Tô aqui pra te ouvir. Como você tá se sentindo agora?"
         }
       ]);
       return;
@@ -259,7 +284,6 @@ function PortoContent() {
   );
 }
 
-// Componente Principal com Suspense para evitar erro de Prerender no Netlify
 export default function PortoPage() {
   return (
     <Suspense fallback={
