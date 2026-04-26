@@ -83,7 +83,7 @@ export default function Home() {
           </motion.div>
           
           <div className="space-y-4">
-            <h1 className="text-5xl md:text-8xl font-black text-slate-900 leading-[0.9] tracking-tighter">
+            <h1 className="text-6xl md:text-8xl font-black text-slate-900 leading-[0.9] tracking-tighter">
               <motion.span 
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -124,12 +124,12 @@ export default function Home() {
               <motion.button 
                 whileHover={{ scale: 1.05, y: -5 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-14 py-8 bg-slate-900 text-white rounded-[2.5rem] font-black flex items-center gap-6 shadow-2xl hover:bg-slate-800 transition-all text-xl"
+                className="px-10 md:px-14 py-6 md:py-8 bg-slate-900 text-white rounded-3xl md:rounded-[2.5rem] font-black flex items-center gap-4 md:gap-6 shadow-2xl hover:bg-slate-800 transition-all text-lg md:text-xl"
               >
                 Ir para o Porto
                 <div className="flex items-center gap-2 group-hover:translate-x-2 transition-transform">
-                  <Anchor size={22} className="text-emerald-400" />
-                  <ArrowRight size={24} />
+                  <Anchor size={20} className="text-emerald-400" />
+                  <ArrowRight size={22} />
                 </div>
               </motion.button>
             </Link>
@@ -224,7 +224,32 @@ export default function Home() {
           </div>
         </section>
       </motion.div>
+
+      {/* MOBILE NAVIGATION BAR */}
+      <nav className="lg:hidden fixed bottom-6 inset-x-6 h-20 bg-white/60 backdrop-blur-3xl border border-white rounded-[2.5rem] shadow-2xl z-[100] flex items-center justify-around px-4">
+        <MobileNavLink icon={MessageCircle} href="/porto" active={false} />
+        <MobileNavLink icon={Sword} href="/arena" active={false} />
+        <div className="relative -top-10">
+          <Link href="/">
+            <div className="w-16 h-16 bg-slate-900 text-emerald-400 rounded-3xl flex items-center justify-center shadow-2xl border-4 border-white">
+              <Anchor size={28} />
+            </div>
+          </Link>
+        </div>
+        <MobileNavLink icon={CheckCircle} href="/log" active={false} />
+        <MobileNavLink icon={Shield} href="/cofre" active={false} />
+      </nav>
     </main>
+  );
+}
+
+function MobileNavLink({ icon: Icon, href, active }: { icon: any, href: string, active: boolean }) {
+  return (
+    <Link href={href}>
+      <div className={`p-3 rounded-2xl transition-all ${active ? 'bg-slate-900 text-white' : 'text-slate-400 hover:text-slate-900'}`}>
+        <Icon size={24} />
+      </div>
+    </Link>
   );
 }
 
