@@ -24,7 +24,7 @@ export default function ChatHistorySidebar() {
     setIsLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('chats')
         .select('id, title, created_at')
         .eq('user_id', user.id)
@@ -39,8 +39,6 @@ export default function ChatHistorySidebar() {
 
   useEffect(() => {
     fetchChats();
-
-    // Opcional: Escutar mudanças em tempo real se necessário, mas o fetch inicial e navegação bastam por enquanto
   }, []);
 
   const handleNewChat = () => {
@@ -55,23 +53,23 @@ export default function ChatHistorySidebar() {
     <aside className="w-72 h-screen fixed left-0 md:left-64 top-0 bg-white/20 backdrop-blur-xl border-r border-white/30 p-4 flex flex-col z-20 transition-all">
       <button 
         onClick={handleNewChat}
-        className="w-full mb-8 flex items-center justify-center gap-2 py-4 px-6 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-black transition-all shadow-xl active:scale-95 group"
+        className="w-full mb-8 flex items-center justify-center gap-2 py-4 px-6 bg-slate-900 hover:bg-slate-800 text-white rounded-full font-black transition-all shadow-xl active:scale-95 group"
       >
         <Plus size={20} className="group-hover:rotate-90 transition-transform" />
         <span>Nova Conversa</span>
       </button>
 
-      <div className="flex-1 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
-        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500/60 mb-6 px-2 flex items-center gap-2">
+      <div className="flex-1 overflow-y-auto space-y-1 pr-2 custom-scrollbar">
+        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500/60 mb-4 px-4 flex items-center gap-2">
           <Clock size={12} />
-          Histórico Recente
+          Histórico
         </h3>
 
         <AnimatePresence mode="popLayout">
           {isLoading ? (
-            <div className="space-y-3">
+            <div className="space-y-3 px-2">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="h-14 w-full bg-white/10 animate-pulse rounded-2xl" />
+                <div key={i} className="h-12 w-full bg-white/10 animate-pulse rounded-full" />
               ))}
             </div>
           ) : chats.length > 0 ? (
@@ -82,25 +80,25 @@ export default function ChatHistorySidebar() {
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 onClick={() => handleSelectChat(chat.id)}
-                className={`w-full text-left p-4 rounded-2xl flex items-center justify-between group transition-all ${
+                className={`w-full text-left p-4 rounded-full flex items-center justify-between group transition-all ${
                   currentChatId === chat.id 
-                    ? 'bg-white/50 shadow-sm text-slate-900 border border-white/40' 
-                    : 'hover:bg-white/40 text-slate-700 border border-transparent'
+                    ? 'bg-slate-800 text-white shadow-lg border-none' 
+                    : 'bg-transparent text-slate-400 hover:bg-slate-800/50'
                 }`}
               >
-                <div className="flex items-center gap-3 overflow-hidden">
-                  <MessageSquare size={16} className={currentChatId === chat.id ? 'text-emerald-400' : 'text-slate-400'} />
-                  <span className="text-sm font-bold truncate">
+                <div className="flex items-center gap-3 overflow-hidden flex-1">
+                  <MessageSquare size={16} className={currentChatId === chat.id ? 'text-white' : 'text-slate-500'} />
+                  <span className="text-sm font-medium truncate">
                     {chat.title || 'Conversa sem título'}
                   </span>
                 </div>
-                <ChevronRight size={14} className={`transition-transform group-hover:translate-x-1 ${currentChatId === chat.id ? 'text-white' : 'text-slate-300'}`} />
+                <ChevronRight size={14} className={`shrink-0 transition-transform group-hover:translate-x-1 ${currentChatId === chat.id ? 'text-white/50' : 'text-slate-600'}`} />
               </motion.button>
             ))
           ) : (
-            <div className="text-center py-12 px-6 bg-white/10 rounded-3xl border border-white/20">
+            <div className="text-center py-12 px-6">
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-relaxed">
-                Nenhuma conversa encontrada.<br/>O mar está calmo hoje.
+                Nenhuma conversa encontrada.
               </p>
             </div>
           )}

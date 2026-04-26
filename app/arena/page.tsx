@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sword, Briefcase, Users, Heart, ArrowLeft, Send, Sparkles, Bot, User, Anchor } from 'lucide-react';
+import { Sword, Briefcase, Users, Heart, ArrowLeft, Send, Bot, User, Anchor } from 'lucide-react';
 import { useChat } from '@ai-sdk/react';
 
 const scenarios = [
@@ -25,7 +25,6 @@ export default function ArenaPage() {
     setIsMounted(true);
   }, []);
 
-  // Gatilho inicial da simulação
   useEffect(() => {
     if (selected && !hasStarted.current) {
       hasStarted.current = true;
@@ -36,18 +35,13 @@ export default function ArenaPage() {
     }
   }, [selected, append]);
 
-  // Scroll automático
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, isLoading]);
 
-  if (!isMounted) return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-      <Anchor size={48} className="text-slate-900 animate-spin-slow" />
-    </div>
-  );
+  if (!isMounted) return null;
 
   const visibleMessages = messages.filter(m => !m.content.startsWith('SISTEMA:'));
 
@@ -58,7 +52,7 @@ export default function ArenaPage() {
   };
 
   return (
-    <div className="min-h-screen p-4 md:p-8 lg:p-16 flex flex-col items-center">
+    <main className="flex flex-col h-[100dvh] overflow-hidden bg-slate-950 relative z-10 md:ml-64 transition-all">
       <AnimatePresence mode="wait">
         {!selected ? (
           <motion.div 
@@ -66,46 +60,49 @@ export default function ArenaPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="max-w-6xl w-full space-y-12"
+            className="flex-1 overflow-y-auto p-6 md:p-12 lg:p-16 w-full custom-scrollbar"
           >
-            <div className="text-center space-y-4 pt-12">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-emerald-400 rounded-full text-xs font-bold border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
-                <Sword size={16} />
-                SIMULADOR TÁTICO ATIVO
+            <div className="max-w-6xl mx-auto space-y-12">
+              <div className="text-center space-y-4 pt-4 md:pt-12">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-emerald-400 rounded-full text-xs font-bold border border-emerald-500/20 shadow-lg">
+                  <Sword size={16} />
+                  SIMULADOR TÁTICO
+                </div>
+                <h1 className="text-4xl md:text-7xl font-black text-white tracking-tighter">A Arena</h1>
+                <p className="text-slate-400 text-lg max-w-2xl mx-auto font-bold">Selecione um cenário para treinar suas habilidades sociais.</p>
               </div>
-              <h1 className="text-5xl md:text-7xl font-black text-slate-900 tracking-tighter">A Arena</h1>
-              <p className="text-slate-500 text-lg max-w-2xl mx-auto font-bold">Selecione um cenário para iniciar a simulação neural e treinar suas habilidades sociais.</p>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {scenarios.map((s) => (
-                <motion.div
-                  key={s.id}
-                  whileHover={{ y: -10, scale: 1.02 }}
-                  onClick={() => {
-                    hasStarted.current = false;
-                    setSelected(s);
-                  }}
-                  className="bg-slate-900/90 backdrop-blur-xl border border-slate-800 p-10 rounded-[45px] cursor-pointer group transition-all hover:border-emerald-500/50 hover:shadow-[0_0_40px_rgba(16,185,129,0.2)]"
-                >
-                  <div className={`mb-6 p-5 rounded-3xl bg-slate-800 w-fit group-hover:bg-emerald-500 group-hover:text-white transition-all ${s.color}`}>
-                    <s.icon size={36} />
-                  </div>
-                  <h3 className="text-2xl font-black text-white mb-3 tracking-tight">{s.title}</h3>
-                  <p className="text-slate-400 text-sm leading-relaxed font-bold opacity-80">{s.desc}</p>
-                </motion.div>
-              ))}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+                {scenarios.map((s) => (
+                  <motion.div
+                    key={s.id}
+                    whileHover={{ y: -5, scale: 1.02 }}
+                    onClick={() => {
+                      hasStarted.current = false;
+                      setSelected(s);
+                    }}
+                    className="bg-slate-900/90 backdrop-blur-xl border border-slate-800 p-8 rounded-[40px] cursor-pointer group transition-all hover:border-emerald-500/50"
+                  >
+                    <div className={`mb-6 p-4 rounded-2xl bg-slate-800 w-fit group-hover:bg-emerald-500 group-hover:text-white transition-all ${s.color}`}>
+                      <s.icon size={28} />
+                    </div>
+                    <h3 className="text-xl font-black text-white mb-2 tracking-tight">{s.title}</h3>
+                    <p className="text-slate-500 text-sm leading-relaxed font-bold">{s.desc}</p>
+                  </motion.div>
+                ))}
+              </div>
             </div>
           </motion.div>
         ) : (
           <motion.div 
             key="chat"
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
-            className="max-w-4xl w-full h-[85vh] bg-slate-900 border border-slate-800 rounded-[45px] shadow-2xl flex flex-col overflow-hidden relative"
+            className="flex-1 flex flex-col overflow-hidden w-full max-w-4xl mx-auto md:p-4"
           >
-            <div className="p-6 border-b border-slate-800 flex items-center justify-between bg-slate-950/80 backdrop-blur-md z-10">
+            {/* Header Simulação */}
+            <div className="flex-none p-4 md:p-6 border-b border-white/5 flex items-center justify-between bg-slate-900/50 backdrop-blur-md md:rounded-t-[40px]">
               <button 
                 onClick={() => {
                   setSelected(null);
@@ -117,22 +114,23 @@ export default function ArenaPage() {
                 <div className="p-2 bg-slate-800 rounded-xl group-hover:bg-slate-700">
                   <ArrowLeft size={18} />
                 </div>
-                <span className="font-black text-xs tracking-widest uppercase">Encerrar</span>
+                <span className="font-black text-[10px] tracking-widest uppercase">Sair</span>
               </button>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 <div className="text-right">
-                  <p className="text-xs font-black text-emerald-500 uppercase tracking-[0.2em]">{selected.title}</p>
-                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">IA EM SINCRONIA</p>
+                  <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">{selected.title}</p>
+                  <p className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Simulação Neural</p>
                 </div>
-                <div className={`p-3 bg-slate-800 rounded-2xl ${selected.color}`}>
-                  <selected.icon size={24} />
+                <div className={`p-2.5 bg-slate-800 rounded-xl ${selected.color}`}>
+                  <selected.icon size={18} />
                 </div>
               </div>
             </div>
 
+            {/* Mensagens Scrollable */}
             <div 
               ref={scrollRef}
-              className="flex-1 p-8 overflow-y-auto space-y-6 bg-slate-950/30 custom-scrollbar"
+              className="flex-1 p-4 md:p-8 overflow-y-auto space-y-6 bg-slate-900/30 custom-scrollbar"
             >
               <AnimatePresence initial={false}>
                 {visibleMessages.map((m) => (
@@ -142,12 +140,12 @@ export default function ArenaPage() {
                     animate={{ opacity: 1, y: 0 }}
                     className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
-                    <div className={`flex items-start gap-4 max-w-[85%] ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                      <div className={`p-2 rounded-xl ${m.role === 'user' ? 'bg-emerald-500' : 'bg-slate-800'} text-white shadow-lg shrink-0 mt-1`}>
+                    <div className={`flex items-start gap-3 md:gap-4 max-w-[90%] md:max-w-[85%] ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                      <div className={`p-2 rounded-xl ${m.role === 'user' ? 'bg-emerald-500' : 'bg-slate-800'} text-white shadow-lg shrink-0`}>
                         {m.role === 'user' ? <User size={14} /> : <Bot size={14} />}
                       </div>
                       <div className={`
-                        p-5 rounded-[2rem] text-sm md:text-base leading-relaxed font-bold
+                        p-4 md:p-5 rounded-[1.8rem] md:rounded-[2rem] text-sm md:text-base leading-relaxed font-bold
                         ${m.role === 'user' 
                           ? 'bg-emerald-500 text-white rounded-tr-none' 
                           : 'bg-slate-800 text-slate-200 rounded-tl-none border border-slate-700'}
@@ -160,7 +158,7 @@ export default function ArenaPage() {
               </AnimatePresence>
               {isLoading && (
                 <div className="flex justify-start ml-12">
-                  <div className="bg-slate-800/50 p-4 rounded-2xl flex gap-1">
+                  <div className="bg-slate-800/50 p-3 rounded-2xl flex gap-1">
                     <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce" />
                     <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.2s]" />
                     <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.4s]" />
@@ -169,30 +167,31 @@ export default function ArenaPage() {
               )}
             </div>
 
-            <div className="p-8 bg-slate-950/80 backdrop-blur-md">
+            {/* Input Fixo */}
+            <div className="flex-none p-4 md:p-6 pb-safe bg-slate-900/80 backdrop-blur-xl border-t border-white/5 md:rounded-b-[40px]">
               <form 
                 onSubmit={handleCustomSubmit}
-                className="flex gap-4 p-2 bg-slate-800 rounded-full border border-slate-700 shadow-2xl focus-within:border-emerald-500/50 transition-all"
+                className="flex gap-2 p-1.5 bg-slate-800 rounded-full border border-slate-700 shadow-2xl"
               >
                 <input 
                   type="text" 
                   value={input}
                   onChange={handleInputChange}
-                  placeholder="Responda ao desafio..."
-                  className="flex-1 bg-transparent px-6 py-4 outline-none text-white font-bold placeholder:text-slate-500"
+                  placeholder="Sua resposta..."
+                  className="flex-1 bg-transparent px-5 py-3 outline-none text-white font-bold text-sm md:text-base placeholder:text-slate-500"
                 />
                 <button 
                   type="submit"
                   disabled={!input.trim() || isLoading}
-                  className="bg-emerald-500 text-white p-5 rounded-full hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-30 disabled:grayscale"
+                  className="bg-emerald-500 text-white p-3.5 md:p-4 rounded-full hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-30"
                 >
-                  <Send size={22} />
+                  <Send size={18} />
                 </button>
               </form>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </main>
   );
 }
