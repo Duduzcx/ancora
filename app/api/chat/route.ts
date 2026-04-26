@@ -1,5 +1,5 @@
 import { createGroq } from '@ai-sdk/groq';
-import { streamText } from 'ai';
+import { streamText, generateText } from 'ai';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
 
 const groq = createGroq({
@@ -42,14 +42,34 @@ export async function POST(req: Request) {
       
       // Se não houver chatId, cria o chat primeiro
       if (!chatId && lastUserMessage.role === 'user') {
-        const title = lastUserMessage.content.split(' ').slice(0, 3).join(' ') || "Nova Conversa";
-        const { data: newChat } = await supabase
-          .from('chats')
-          .insert({ user_id: user.id, title })
-          .select()
-          .single();
-        
-        if (newChat) chatId = newChat.id;
+        try {
+          // Gera um título contextual usando a IA de forma rápida
+          const { text: aiTitle } = await generateText({
+            model: groq('llama-3.3-70b-versatile'),
+            system: 'És um assistente que gera títulos curtos para conversas. Responda APENAS o título, com no máximo 4 palavras, sem aspas ou ponto final.',
+            prompt: `Gere um título para esta mensagem inicial: "${lastUserMessage.content}"`,
+          });
+
+          const cleanTitle = aiTitle.replace(/"/g, '').trim() || "Nova Conversa";
+
+          const { data: newChat } = await supabase
+            .from('chats')
+            .insert({ user_id: user.id, title: cleanTitle })
+            .select()
+            .single();
+          
+          if (newChat) chatId = newChat.id;
+        } catch (titleError) {
+          console.error("Erro ao gerar título:", titleError);
+          // Fallback para o título simples se a IA falhar
+          const fallbackTitle = lastUserMessage.content.split(' ').slice(0, 3).join(' ') || "Nova Conversa";
+          const { data: newChat } = await supabase
+            .from('chats')
+            .insert({ user_id: user.id, title: fallbackTitle })
+            .select()
+            .single();
+          if (newChat) chatId = newChat.id;
+        }
       }
 
       // Salva a mensagem do usuário

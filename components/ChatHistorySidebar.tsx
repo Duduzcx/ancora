@@ -39,10 +39,14 @@ export default function ChatHistorySidebar() {
 
   useEffect(() => {
     fetchChats();
-  }, []);
+  }, [currentChatId]);
 
   const handleNewChat = () => {
+    // Se já estiver no porto sem ID, apenas limpa as mensagens locais se necessário
+    // Mas o router.push já resolve a maioria dos casos
     router.push('/porto');
+    // Força um refresh da lista se necessário
+    fetchChats();
   };
 
   const handleSelectChat = (id: string) => {
