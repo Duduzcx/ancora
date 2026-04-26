@@ -52,7 +52,7 @@ export default function ArenaPage() {
   };
 
   return (
-    <main className="flex flex-col h-[100dvh] overflow-hidden bg-slate-950 relative z-10 md:ml-64 transition-all">
+    <main className="flex flex-col h-[100dvh] overflow-hidden bg-slate-950 relative z-10 md:pl-64 transition-all">
       <AnimatePresence mode="wait">
         {!selected ? (
           <motion.div 

@@ -4,11 +4,14 @@ import { usePathname } from "next/navigation";
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isPorto = pathname?.startsWith("/porto") || pathname === "/porto";
+  const isFullPage = pathname?.startsWith("/porto") || 
+                     pathname?.startsWith("/arena") || 
+                     pathname?.startsWith("/cofre") ||
+                     pathname === "/auth";
 
   return (
-    <main className={`${isPorto ? "" : "lg:ml-64"} relative z-10 bg-transparent min-h-screen`}>
+    <div className={`${isFullPage ? "" : "lg:ml-64"} relative z-10 bg-transparent min-h-screen`}>
       {children}
-    </main>
+    </div>
   );
 }
