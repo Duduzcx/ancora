@@ -117,7 +117,7 @@ export default function CofrePage() {
             </div>
 
             {/* ÁREA DE TEXTO Flex-1 */}
-            <div className="flex-1 relative overflow-hidden">
+            <div className="flex-1 min-h-0 relative overflow-hidden">
               <AnimatePresence mode="wait">
                 <motion.textarea
                   key="terminal-input"
@@ -200,15 +200,15 @@ export default function CofrePage() {
             </div>
 
             {/* BOTÕES Flex-none */}
-            <div className="flex-none flex flex-col md:flex-row gap-4 pt-6 pb-safe border-t border-white/5">
+            <div className="flex-none shrink-0 flex flex-col md:flex-row gap-3 pt-4 pb-6 border-t border-white/5 bg-slate-950/80 backdrop-blur-sm">
               <motion.button 
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleSave}
                 disabled={isSaving || isBurning || !text}
-                className="flex-1 py-4.5 bg-emerald-500 text-black rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg disabled:opacity-20 flex items-center justify-center gap-2"
+                className="flex-1 py-3.5 bg-emerald-500 text-black rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg disabled:opacity-20 flex items-center justify-center gap-2"
               >
-                <Lock size={16} />
+                <Lock size={14} />
                 {isSaving ? 'SELANDO...' : 'Selar Segredo'}
               </motion.button>
               <motion.button 
@@ -216,9 +216,9 @@ export default function CofrePage() {
                 whileTap={{ scale: 0.98 }}
                 onClick={handleBurn}
                 disabled={isBurning || isSaving || !text}
-                className="flex-1 py-4.5 border border-orange-500/30 text-orange-400 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-orange-500/10 transition-all disabled:opacity-20 flex items-center justify-center gap-2"
+                className="flex-1 py-3.5 border border-orange-500/30 text-orange-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-orange-500/10 transition-all disabled:opacity-20 flex items-center justify-center gap-2"
               >
-                <Flame size={16} />
+                <Flame size={14} />
                 {isBurning ? 'QUEIMANDO...' : 'Queimar Tudo'}
               </motion.button>
             </div>

@@ -75,7 +75,7 @@ export default function ChatHistorySidebar({ isOpen, onClose }: ChatHistorySideb
       <aside className={`
         w-72 h-[100dvh] fixed top-0 bg-white/20 backdrop-blur-2xl border-r border-white/30 p-4 flex flex-col z-[110] transition-all duration-500
         ${isOpen ? 'left-0' : '-left-full'}
-        md:left-64
+        md:left-0
       `}>
         <div className="flex items-center justify-between mb-8 px-2 md:hidden">
           <span className="text-xs font-black text-slate-900 uppercase tracking-widest">Histórico</span>

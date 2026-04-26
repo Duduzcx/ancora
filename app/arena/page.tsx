@@ -60,7 +60,7 @@ export default function ArenaPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="flex-1 overflow-y-auto p-6 md:p-12 lg:p-16 w-full custom-scrollbar"
+            className="flex-1 overflow-y-auto p-6 md:p-12 lg:p-16 w-full custom-scrollbar overscroll-contain"
           >
             <div className="max-w-6xl mx-auto space-y-12">
               <div className="text-center space-y-4 pt-4 md:pt-12">
@@ -130,7 +130,7 @@ export default function ArenaPage() {
             {/* Mensagens Scrollable */}
             <div 
               ref={scrollRef}
-              className="flex-1 p-4 md:p-8 overflow-y-auto space-y-6 bg-slate-900/30 custom-scrollbar"
+              className="flex-1 p-4 md:p-8 overflow-y-auto space-y-6 bg-slate-900/30 custom-scrollbar overscroll-contain"
             >
               <AnimatePresence initial={false}>
                 {visibleMessages.map((m) => (

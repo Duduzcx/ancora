@@ -14,19 +14,10 @@ html {
   text-rendering: optimizeSpeed;
 }
 
-html, body {
-  height: 100%;
-  overflow: hidden;
-  overscroll-behavior: none;
-}
-
 body {
-  background: #0f172a; /* slate-900 fallback */
+  background: transparent;
   color: var(--foreground);
-  overflow: hidden;
-  position: fixed;
-  width: 100%;
-  height: 100%;
+  overflow-x: hidden;
 }
 
 /* Otimização de Scrollbars Customizados */
