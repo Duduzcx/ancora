@@ -4,149 +4,104 @@ import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, User, ShieldCheck, Sparkles, AlertCircle, ArrowLeft, Anchor, Clock } from 'lucide-react';
+import { Send, Bot, User, Sparkles, Anchor, ArrowLeft, MessageCircle, AlertCircle } from 'lucide-react';
 import { createClient } from '@/lib/supabase';
-import ChatSidebar from '@/components/ChatSidebar';
 import Link from 'next/link';
+import ChatHistorySidebar from '@/components/ChatHistorySidebar';
 import AnimatedBackground from '@/components/AnimatedBackground';
 
 function PortoContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const mood = searchParams.get('mood');
-  const urlChatId = searchParams.get('id');
-  const [chatId, setChatId] = useState<string | null>(urlChatId);
-  const chatIdRef = useRef<string | null>(urlChatId);
+  const chatId = searchParams.get('chatId');
+  const supabase = createClient();
+  
   const [user, setUser] = useState<any>(null);
   const [isMounted, setIsMounted] = useState(false);
-  const hasAppendedInitial = useRef(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const supabase = createClient();
+  const chatIdRef = useRef<string | null>(chatId);
+
+  // Sincroniza a ref com o chatId da URL
+  useEffect(() => {
+    chatIdRef.current = chatId;
+  }, [chatId]);
 
   const { messages, input, handleInputChange, handleSubmit, setMessages, isLoading, error, append } = useChat({
     api: '/api/chat',
     onFinish: async (message) => {
-      if (chatIdRef.current) {
-        const currentMessages = [...messages, message];
-        // Cache local imediato
-        localStorage.setItem(`ancora-chat-${chatIdRef.current}`, JSON.stringify(currentMessages));
-        
-        if (user) {
-          await supabase.from('messages').insert({
-            chat_id: chatIdRef.current,
-            role: 'assistant',
-            content: message.content
-          });
-        }
+      // Salva a resposta do assistente no Supabase se houver um chat ativo
+      if (chatIdRef.current && user) {
+        await supabase.from('messages').insert({
+          chat_id: chatIdRef.current,
+          role: 'assistant',
+          content: message.content
+        });
       }
     }
   });
 
-  // 1. Efeito de Montagem, Auth e Recuperação de Memória (Guest)
+  // 1. Inicialização: Auth e Carregamento de Mensagens
   useEffect(() => {
     setIsMounted(true);
-    
     const initialize = async () => {
       const { data: { user: sessionUser } } = await supabase.auth.getUser();
       setUser(sessionUser);
 
-      if (sessionUser) {
-        // Se não houver chatId na URL, tenta carregar o mais recente
-        if (!chatId) {
-          const { data: lastChat } = await supabase
-            .from('chats')
-            .select('id')
-            .eq('user_id', sessionUser.id)
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .maybeSingle();
-          
-          if (lastChat) {
-            loadChat(lastChat.id);
+      if (chatId) {
+        const { data, error: fetchError } = await supabase
+          .from('messages')
+          .select('*')
+          .eq('chat_id', chatId)
+          .order('created_at', { ascending: true });
+        
+        if (data) {
+          setMessages(data.map(m => ({
+            id: m.id,
+            role: m.role,
+            content: m.content
+          })));
+        }
+      } else {
+        // Chat vazio ou nova conversa
+        setMessages([
+          {
+            id: 'welcome',
+            role: 'assistant',
+            content: 'Olá! Sou o Âncora, seu guia neste porto seguro. Como posso te ajudar hoje?'
           }
-        }
-      }
-
-      // Se NÃO tiver usuário, tenta recuperar do localStorage
-      if (!sessionUser) {
-        const savedMessages = localStorage.getItem('ancora-guest-chat');
-        if (savedMessages) {
-          setMessages(JSON.parse(savedMessages));
-          hasAppendedInitial.current = true; // Evita mandar boas-vindas de novo
-        }
+        ]);
       }
     };
-
     initialize();
+  }, [chatId, supabase, setMessages]);
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, [supabase, setMessages]);
-
-  // 2. Persistência de Memória (Guest)
+  // 2. Scroll automático para o fundo
   useEffect(() => {
-    if (!user && messages.length > 0) {
-      localStorage.setItem('ancora-guest-chat', JSON.stringify(messages));
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages, user]);
+  }, [messages, isLoading]);
 
-  // 3. Efeito de Mensagem Inicial (Robusto)
-  useEffect(() => {
-    if (!isMounted || hasAppendedInitial.current || typeof append !== 'function') return;
-
-    if (mood && !hasAppendedInitial.current) {
-      hasAppendedInitial.current = true;
-      setMessages([]);
-      
-      const moodMessages: Record<string, string> = {
-        'calmo': 'Estou me sentindo calmo e em paz hoje. Só queria compartilhar esse momento.',
-        'ansioso': 'Estou me sentindo bastante ansioso agora. Pode me ajudar a me acalmar?',
-        'agitado': 'Meu mar está muito agitado hoje. Estou estressado e precisando de um norte.',
-        'precisando de ajuda urgente': 'Preciso de ajuda agora. As coisas estão muito difíceis e não sei o que fazer.'
-      };
-
-      const userMsg = moodMessages[mood] || `Estou me sentindo ${mood}.`;
-      
-      const timer = setTimeout(() => {
-        append({ 
-          role: 'user', 
-          content: userMsg 
-        });
-      }, 300);
-      return () => clearTimeout(timer);
-    } else if (messages.length === 0) {
-      hasAppendedInitial.current = true;
-      const welcomeMsg = {
-        id: 'welcome',
-        role: 'assistant' as const,
-        content: "Fala! Sou o Âncora. Tô aqui pra te ouvir. Como você tá se sentindo agora?"
-      };
-      setMessages([welcomeMsg]);
-    }
-  }, [isMounted, mood, append, messages.length, setMessages]);
-
-  const handleCustomSubmit = async (e: React.FormEvent) => {
+  // 3. Handler de envio customizado para persistência
+  const handleCustomSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const messageContent = input.trim();
-    if (!messageContent) return;
+    if (!messageContent || isLoading) return;
 
-    // Limpa o input imediatamente para melhor UX
+    // Limpa o input manualmente para iniciar o append
     handleInputChange({ target: { value: '' } } as any);
 
-    // Se estiver logado, garante que o chat existe antes de enviar
+    let currentChatId = chatId;
+
     if (user) {
       try {
-        let currentChatId = chatId;
-        
+        // Se não houver chatId, cria um novo chat
         if (!currentChatId) {
-          const cleanTitle = messageContent.length > 30 
-            ? messageContent.substring(0, 30) + "..." 
+          const cleanTitle = messageContent.length > 40 
+            ? messageContent.substring(0, 40) + "..." 
             : messageContent;
 
-          const { data, error: chatError } = await supabase
+          const { data: newChat, error: chatError } = await supabase
             .from('chats')
             .insert({ 
               user_id: user.id, 
@@ -157,254 +112,165 @@ function PortoContent() {
           
           if (chatError) throw chatError;
           
-          if (data) {
-            setChatId(data.id);
-            chatIdRef.current = data.id;
-            currentChatId = data.id;
-            router.replace(`/porto?id=${data.id}`, { scroll: false });
-            
-            // Salva o meta do chat no local para o sidebar
-            const localChats = JSON.parse(localStorage.getItem('ancora-local-chats') || '[]');
-            localChats.unshift({ id: data.id, title: cleanTitle, created_at: new Date().toISOString() });
-            localStorage.setItem('ancora-local-chats', JSON.stringify(localChats.slice(0, 20)));
+          if (newChat) {
+            currentChatId = newChat.id;
+            chatIdRef.current = newChat.id;
+            // Atualiza a URL sem recarregar a página
+            router.replace(`/porto?chatId=${newChat.id}`, { scroll: false });
           }
         }
 
+        // Salva a mensagem do usuário no banco
         if (currentChatId) {
-          // Salva mensagem do usuário no cache local primeiro
-          const currentMessages = [...messages, { role: 'user', content: messageContent }];
-          localStorage.setItem(`ancora-chat-${currentChatId}`, JSON.stringify(currentMessages));
-
-          // Salva no Supabase
-          const { error: msgError } = await supabase.from('messages').insert({
+          await supabase.from('messages').insert({
             chat_id: currentChatId,
             role: 'user',
             content: messageContent
           });
-          if (msgError) throw msgError;
         }
       } catch (err) {
-        console.error("Erro ao salvar no histórico:", err);
+        console.error("Erro ao persistir chat/mensagem:", err);
       }
-    } else {
-      // Guest: Salva apenas no local
-      const guestMessages = [...messages, { role: 'user', content: messageContent }];
-      localStorage.setItem('ancora-guest-chat', JSON.stringify(guestMessages));
     }
 
-    // Inicia o stream da IA
+    // Dispara o stream da IA
     append({
       role: 'user',
       content: messageContent
     });
   };
 
-  const loadChat = async (id: string) => {
-    if (!id) {
-      setMessages([{ id: 'welcome', role: 'assistant', content: "Fala! Sou o Âncora. Tô aqui pra te ouvir. Como você tá se sentindo agora?" }]);
-      setChatId(null);
-      chatIdRef.current = null;
-      router.replace('/porto', { scroll: false });
-      return;
-    }
-
-    setChatId(id);
-    chatIdRef.current = id;
-    router.replace(`/porto?id=${id}`, { scroll: false });
-
-    // Tenta carregar do cache local primeiro
-    const cached = localStorage.getItem(`ancora-chat-${id}`);
-    if (cached) {
-      setMessages(JSON.parse(cached));
-    }
-
-    // Carrega do Supabase para garantir sincronia
-    const { data } = await supabase
-      .from('messages')
-      .select('*')
-      .eq('chat_id', id)
-      .order('created_at', { ascending: true });
-    
-    if (data && data.length > 0) {
-      const dbMessages = data.map(m => ({ id: m.id, role: m.role, content: m.content }));
-      setMessages(dbMessages);
-      localStorage.setItem(`ancora-chat-${id}`, JSON.stringify(dbMessages));
-    }
-  };
-
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages]);
-
-  useEffect(() => {
-    if (!user && messages.length > 0) {
-      localStorage.setItem('ancora-guest-chat', JSON.stringify(messages));
-    }
-  }, [messages, user]);
-
-  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-
   if (!isMounted) return null;
 
-  const visibleMessages = messages.filter(m => !m.content.startsWith('SISTEMA:'));
-
   return (
-    <div className="relative flex h-[100dvh] overflow-hidden bg-transparent">
+    <div className="flex h-screen w-full pl-0 md:pl-[calc(16rem+18rem)] relative z-10 bg-transparent transition-all">
       <AnimatedBackground subtle />
-      <AnimatePresence>
-        {(user && (isHistoryOpen || isMounted)) && (
-          <motion.div 
-            initial={{ x: -320 }}
-            animate={{ x: isHistoryOpen || (typeof window !== 'undefined' && window.innerWidth >= 1024) ? 0 : -320 }}
-            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className={`h-full fixed lg:relative z-[100] lg:z-auto ${isHistoryOpen ? 'block' : 'hidden lg:block'}`}
-          >
-            <ChatSidebar 
-              onSelectChat={(id) => {
-                loadChat(id);
-                setIsHistoryOpen(false);
-              }} 
-              currentChatId={chatId || undefined} 
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      
+      {/* Sidebar de Histórico (Só aparece se logado) */}
+      {user && <ChatHistorySidebar />}
 
-      {/* Overlay para mobile quando o histórico está aberto */}
-      <AnimatePresence>
-        {isHistoryOpen && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setIsHistoryOpen(false)}
-            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[90] lg:hidden"
-          />
-        )}
-      </AnimatePresence>
-
-      <main className="flex-1 flex flex-col relative bg-transparent">
-        <header className="p-6 border-b border-white/20 bg-white/40 backdrop-blur-md flex items-center justify-between">
+      <main className="flex-1 flex flex-col h-screen relative overflow-hidden">
+        {/* Header Superior com Glassmorphism */}
+        <header className="h-20 shrink-0 flex items-center justify-between px-8 bg-white/40 backdrop-blur-xl border-b border-white/30 z-30">
           <div className="flex items-center gap-6">
             <Link href="/">
               <motion.button 
-                whileHover={{ scale: 1.1, x: -5 }}
+                whileHover={{ scale: 1.1, x: -2 }}
                 whileTap={{ scale: 0.9 }}
-                className="p-2 bg-slate-900 text-white rounded-2xl shadow-xl flex items-center justify-center"
+                className="p-2.5 bg-slate-900 text-white rounded-2xl shadow-xl flex items-center justify-center group"
               >
-                <ArrowLeft size={20} />
+                <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
               </motion.button>
             </Link>
 
             <div className="flex items-center gap-4">
-              <div className="p-2 bg-blue-600 rounded-2xl text-white shadow-lg">
+              <div className="p-2.5 bg-blue-600 rounded-2xl text-white shadow-lg shadow-blue-500/20">
                 <Anchor size={20} />
               </div>
-              <div>
-                <h2 className="text-lg font-black text-slate-900 tracking-tight">O Porto</h2>
-                <p className="text-[9px] font-bold text-emerald-600 uppercase tracking-widest flex items-center gap-1">
-                  <Sparkles size={10} className="animate-pulse" />
-                  Ambiente de Imersão
-                </p>
+              <div className="flex flex-col">
+                <h2 className="text-sm font-black text-slate-900 uppercase tracking-tighter leading-none mb-1">O Porto</h2>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                  <p className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Acolhimento Ativo</p>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            {user && (
-              <button 
-                onClick={() => setIsHistoryOpen(!isHistoryOpen)}
-                className="lg:hidden p-3 bg-white/60 text-slate-900 rounded-2xl border border-white/40 shadow-sm"
-              >
-                <Clock size={20} />
-              </button>
-            )}
-            <div className="hidden md:flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-white/60 px-4 py-2 rounded-full border border-white/40">
-              <ShieldCheck size={14} className="text-emerald-500" />
-              Foco Total no Acolhimento
+          <div className="hidden md:flex items-center gap-3">
+            <div className="px-5 py-2.5 bg-white/60 border border-white/40 rounded-full text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2 shadow-sm">
+              <Sparkles size={12} className="text-blue-500" />
+              Interface Sincronizada
             </div>
           </div>
         </header>
 
+        {/* Área de Mensagens Centralizada */}
         <div 
           ref={scrollRef}
-          className="flex-1 overflow-y-auto p-4 space-y-4"
+          className="flex-1 overflow-y-auto scroll-smooth custom-scrollbar"
         >
-          <AnimatePresence initial={false}>
-            {visibleMessages.map((m) => (
-              <motion.div
-                key={m.id}
-                initial={{ opacity: 0, scale: 0.9, y: 10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div className={`flex items-end gap-2 max-w-[85%] ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                  <div className={`p-1.5 rounded-full ${m.role === 'user' ? 'bg-slate-900' : 'bg-blue-600'} text-white shadow-lg`}>
-                    {m.role === 'user' ? <User size={12} /> : <Bot size={12} />}
+          <div className="max-w-3xl w-full mx-auto pb-32 pt-8 px-4 space-y-10">
+            <AnimatePresence initial={false}>
+              {messages.map((m) => (
+                <motion.div
+                  key={m.id}
+                  initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div className={`flex gap-5 max-w-[88%] ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-2xl transition-transform hover:scale-110 ${
+                      m.role === 'user' ? 'bg-slate-900 text-white' : 'bg-white text-blue-600 border border-white/50 backdrop-blur-xl'
+                    }`}>
+                      {m.role === 'user' ? <User size={20} /> : <Bot size={20} />}
+                    </div>
+                    
+                    <div className={`
+                      relative p-5 rounded-[2rem] text-sm md:text-base leading-relaxed shadow-xl border
+                      ${m.role === 'user' 
+                        ? 'bg-slate-900 text-white rounded-tr-none border-slate-800' 
+                        : 'bg-white/80 text-slate-800 backdrop-blur-2xl border-white/60 rounded-tl-none'}
+                    `}>
+                      {m.content}
+                    </div>
                   </div>
-                  <div className={`
-                    p-4 rounded-[1.5rem] shadow-sm text-sm leading-relaxed
-                    ${m.role === 'user' 
-                      ? 'bg-slate-900 text-white rounded-br-none shadow-xl' 
-                      : 'bg-white/90 text-slate-800 backdrop-blur-md border border-white/50 rounded-bl-none'}
-                  `}>
-                    {m.content}
-                  </div>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+            
+            {isLoading && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start gap-5">
+                <div className="w-10 h-10 rounded-2xl bg-white flex items-center justify-center border border-white/50 shadow-xl backdrop-blur-xl">
+                  <Bot size={20} className="text-blue-600" />
+                </div>
+                <div className="bg-white/60 backdrop-blur-2xl p-5 rounded-[2rem] rounded-tl-none border border-white/60 flex gap-1.5 items-center shadow-lg">
+                  <span className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" />
+                  <span className="w-2 h-2 bg-blue-400 rounded-full animate-bounce [animation-delay:0.2s]" />
+                  <span className="w-2 h-2 bg-blue-400 rounded-full animate-bounce [animation-delay:0.4s]" />
                 </div>
               </motion.div>
-            ))}
-          </AnimatePresence>
-          {error && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex justify-center"
-            >
-              <div className="bg-red-50 text-red-600 px-4 py-2 rounded-full flex items-center gap-3 border border-red-200 text-xs font-black">
-                <AlertCircle size={14} />
-                Houve um problema.
+            )}
+
+            {error && (
+              <div className="flex justify-center">
+                <div className="bg-red-50/50 backdrop-blur-md text-red-600 px-6 py-3 rounded-2xl flex items-center gap-3 border border-red-200/50 text-xs font-black uppercase tracking-widest shadow-xl">
+                  <AlertCircle size={16} />
+                  Erro na conexão. Tente novamente.
+                </div>
               </div>
-            </motion.div>
-          )}
-          {isLoading && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex justify-start ml-10"
-            >
-              <div className="bg-white/60 p-3 rounded-xl flex gap-1">
-                <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" />
-                <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce [animation-delay:0.2s]" />
-                <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce [animation-delay:0.4s]" />
-              </div>
-            </motion.div>
-          )}
+            )}
+          </div>
         </div>
 
-        <footer className="p-4 bg-gradient-to-t from-slate-50 to-transparent">
+        {/* Formulário Flutuante Estilo Pílula */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-full max-w-3xl px-4 z-40">
           <form 
             onSubmit={handleCustomSubmit}
-            className="max-w-3xl mx-auto flex items-center gap-2 p-1.5 bg-white/90 backdrop-blur-3xl border border-white/60 rounded-full shadow-2xl"
+            className="group relative flex items-center bg-white/60 backdrop-blur-3xl border border-white/40 shadow-[0_20px_50px_rgba(0,0,0,0.1)] rounded-full p-2 flex gap-2 transition-all focus-within:bg-white/80 focus-within:border-white/60 focus-within:shadow-[0_20px_60px_rgba(0,0,0,0.15)] ring-slate-900/5 focus-within:ring-4"
           >
             <input
               value={input}
               onChange={handleInputChange}
-              placeholder="Fale o que estiver no seu coração..."
-              className="flex-1 bg-transparent px-4 py-3 outline-none text-slate-800 text-sm md:text-base font-medium"
+              placeholder="Desabafe o que estiver no seu coração..."
+              className="flex-1 bg-transparent px-6 py-4 outline-none text-slate-800 text-sm md:text-base font-bold placeholder:text-slate-400 placeholder:font-medium"
             />
             <motion.button 
               type="submit"
-              whileHover={{ scale: 1.1, rotate: 5 }}
-              whileTap={{ scale: 0.9, rotate: -5 }}
-              disabled={!input?.trim() || isLoading}
-              className="p-3 md:p-5 bg-slate-900 text-white rounded-full hover:scale-105 transition-all shadow-xl disabled:opacity-30 flex items-center justify-center"
+              whileHover={{ scale: 1.05, rotate: 5 }}
+              whileTap={{ scale: 0.95, rotate: -5 }}
+              disabled={!input.trim() || isLoading}
+              className="p-4 bg-slate-900 text-white rounded-full hover:bg-slate-800 transition-all shadow-2xl disabled:opacity-10 flex items-center justify-center group/btn"
             >
-              <Send size={18} className="md:w-6 md:h-6" />
+              <Send size={20} className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
             </motion.button>
           </form>
-        </footer>
+          <div className="flex justify-center mt-3 gap-6">
+             <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em] opacity-60">Privacidade Total</p>
+             <span className="text-[8px] text-slate-300">•</span>
+             <p className="text-[8px] font-black text-slate-400 uppercase tracking-[0.3em] opacity-60">Acolhimento Imediato</p>
+          </div>
+        </div>
       </main>
     </div>
   );
@@ -413,11 +279,9 @@ function PortoContent() {
 export default function PortoPage() {
   return (
     <Suspense fallback={
-      <div className="fixed inset-0 bg-white flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <Anchor size={48} className="text-slate-900 animate-spin-slow" />
-          <p className="text-sm font-black text-slate-400 uppercase tracking-widest">Iniciando o Porto...</p>
-        </div>
+      <div className="fixed inset-0 bg-white flex flex-col items-center justify-center gap-6">
+        <Anchor size={48} className="text-slate-900 animate-bounce" />
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Preparando o Porto...</p>
       </div>
     }>
       <PortoContent />

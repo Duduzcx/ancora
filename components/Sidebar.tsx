@@ -83,7 +83,7 @@ export default function Sidebar() {
   };
 
   if (!isMounted) return null;
-  if (isPorto) return null;
+
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-white/80 md:bg-white/40 backdrop-blur-xl md:backdrop-blur-md border-r border-white/40">
