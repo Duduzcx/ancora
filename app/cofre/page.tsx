@@ -169,9 +169,9 @@ export default function CofrePage() {
               }}
               placeholder="ESCREVA AQUI O QUE PESA EM SUA MENTE..."
               className={`
-                w-full h-full bg-transparent font-mono text-2xl md:text-5xl lg:text-8xl 
-                outline-none resize-none leading-[1.1] tracking-tighter
-                placeholder:text-emerald-500/10 placeholder:text-xl md:placeholder:text-3xl lg:placeholder:text-4xl
+                w-full h-full bg-transparent font-mono text-lg md:text-2xl lg:text-4xl 
+                outline-none resize-none leading-[1.2] tracking-tight
+                placeholder:text-emerald-500/10 placeholder:text-lg md:placeholder:text-xl lg:placeholder:text-2xl
                 scrollbar-hide
                 ${isBurning || isSaving ? 'pointer-events-none' : 'text-emerald-500/80'}
               `}

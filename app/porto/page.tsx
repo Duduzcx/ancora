@@ -12,6 +12,7 @@ import AnimatedBackground from '@/components/AnimatedBackground';
 
 function PortoContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const mood = searchParams.get('mood');
   const urlChatId = searchParams.get('id');
   const [chatId, setChatId] = useState<string | null>(urlChatId);
