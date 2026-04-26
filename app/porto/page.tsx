@@ -13,8 +13,9 @@ import AnimatedBackground from '@/components/AnimatedBackground';
 function PortoContent() {
   const searchParams = useSearchParams();
   const mood = searchParams.get('mood');
-  const [chatId, setChatId] = useState<string | null>(null);
-  const chatIdRef = useRef<string | null>(null);
+  const urlChatId = searchParams.get('id');
+  const [chatId, setChatId] = useState<string | null>(urlChatId);
+  const chatIdRef = useRef<string | null>(urlChatId);
   const [user, setUser] = useState<any>(null);
   const [isMounted, setIsMounted] = useState(false);
   const hasAppendedInitial = useRef(false);
@@ -148,6 +149,8 @@ function PortoContent() {
           setChatId(data.id);
           chatIdRef.current = data.id;
           currentChatId = data.id;
+          // Atualiza a URL sem recarregar a página
+          router.replace(`/porto?id=${data.id}`, { scroll: false });
         }
       }
 
@@ -191,6 +194,12 @@ function PortoContent() {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  useEffect(() => {
+    if (!user && messages.length > 0) {
+      localStorage.setItem('ancora-guest-chat', JSON.stringify(messages));
+    }
+  }, [messages, user]);
 
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 

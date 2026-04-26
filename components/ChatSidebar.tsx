@@ -47,7 +47,7 @@ export default function ChatSidebar({ onSelectChat, currentChatId }: { onSelectC
             Recentes
           </h4>
           <div className="space-y-2">
-            {chats.map((chat) => (
+            {chats.length > 0 ? chats.map((chat) => (
               <button
                 key={chat.id}
                 onClick={() => onSelectChat(chat.id)}
@@ -59,7 +59,11 @@ export default function ChatSidebar({ onSelectChat, currentChatId }: { onSelectC
                 </div>
                 <ChevronRight size={14} className={`transition-transform group-hover:translate-x-1 ${currentChatId === chat.id ? 'text-white' : 'text-slate-300'}`} />
               </button>
-            ))}
+            )) : (
+              <div className="p-8 text-center border-2 border-dashed border-white/20 rounded-3xl">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Nenhuma conversa encontrada</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
