@@ -60,7 +60,7 @@ function PortoContent() {
           {
             id: 'welcome',
             role: 'assistant',
-            content: 'Olá! Sou o Âncora, seu guia neste porto seguro. Nossas conversas são guardadas para que possamos continuar de onde paramos. Como posso te ajudar hoje?'
+            content: 'Olá! Sou o Âncora, seu guia neste porto seguro. Como posso te ajudar hoje?'
           }
         ]);
       } else {
@@ -85,7 +85,7 @@ function PortoContent() {
   if (!isMounted) return null;
 
   return (
-    <main className="flex flex-col h-[100dvh] overflow-hidden bg-transparent relative z-10 md:pl-[calc(16rem+18rem)] transition-all overscroll-none touch-pan-y">
+    <main className="flex flex-col h-[100dvh] overflow-hidden bg-slate-50 relative z-10 pl-0 md:pl-[calc(16rem+18rem)] transition-all overscroll-none touch-pan-y">
       <AnimatedBackground subtle />
       
       {user && (
@@ -97,21 +97,24 @@ function PortoContent() {
 
       {/* Header - Fixo no topo */}
       <header className="h-20 shrink-0 flex items-center justify-between px-4 md:px-8 bg-white/40 backdrop-blur-xl border-b border-white/30 z-30">
-        <div className="flex items-center gap-3 md:gap-6">
+        <div className="flex items-center gap-3">
           <button 
-            onClick={() => {
-              window.dispatchEvent(new CustomEvent('open-main-sidebar'));
-            }}
-            className="md:hidden p-2.5 bg-slate-900 text-white rounded-2xl shadow-xl"
+            onClick={() => window.dispatchEvent(new CustomEvent('open-main-sidebar'))}
+            className="p-3 bg-slate-900 text-white rounded-2xl shadow-xl hover:scale-105 transition-transform"
           >
-            <Menu size={20} />
+            <Menu size={18} />
           </button>
+
+          <div className="flex flex-col sm:hidden">
+            <span className="text-[8px] font-black text-emerald-600 uppercase tracking-widest">Acolhimento</span>
+            <h2 className="text-xs font-black text-slate-900 tracking-tighter">O Porto</h2>
+          </div>
 
           <Link href="/">
             <motion.button 
               whileHover={{ scale: 1.1, x: -2 }}
               whileTap={{ scale: 0.9 }}
-              className="hidden sm:flex p-2 md:p-2.5 bg-white/60 border border-white/40 text-slate-900 rounded-2xl shadow-sm items-center justify-center group"
+              className="hidden sm:flex p-2.5 bg-white/60 border border-white/40 text-slate-900 rounded-2xl shadow-sm items-center justify-center group"
             >
               <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
             </motion.button>
@@ -119,14 +122,14 @@ function PortoContent() {
 
           <button 
             onClick={() => setIsHistoryOpen(true)}
-            className="p-2.5 bg-white/60 border border-white/40 rounded-2xl text-slate-900 shadow-sm flex items-center gap-2"
+            className="p-3 bg-white/60 border border-white/40 rounded-2xl text-slate-900 shadow-sm flex items-center gap-2"
           >
             <Clock size={18} />
-            <span className="hidden xs:inline text-[10px] font-black uppercase tracking-widest">Histórico</span>
+            <span className="hidden xs:inline text-[9px] font-black uppercase tracking-widest">Histórico</span>
           </button>
 
-          <div className="hidden sm:flex items-center gap-3 md:gap-4">
-            <div className="p-2 md:p-2.5 bg-blue-600 rounded-2xl text-white shadow-lg shadow-blue-500/20">
+          <div className="hidden sm:flex items-center gap-4">
+            <div className="p-2.5 bg-blue-600 rounded-2xl text-white shadow-lg">
               <Anchor size={20} />
             </div>
             <div className="flex flex-col">

@@ -22,7 +22,9 @@ const AnimatedBackground = ({ subtle = false }: AnimatedBackgroundProps) => {
   const [anchors, setAnchors] = useState<AnchorInstance[]>([]);
 
   useEffect(() => {
-    const newAnchors = [...Array(30)].map((_, i) => ({
+    const isMobile = window.innerWidth < 768;
+    const count = isMobile ? 8 : 30;
+    const newAnchors = [...Array(count)].map((_, i) => ({
       id: i,
       top: `${Math.random() * 100}%`,
       left: `${Math.random() * 100}%`,

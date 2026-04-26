@@ -133,13 +133,13 @@ export default function CofrePage() {
                   onChange={(e) => setText(e.target.value)}
                   spellCheck={false}
                   animate={isBurning ? { 
-                    color: ["#10b981", "#f97316", "#ef4444", "#333"],
-                    y: -400,
-                    filter: ["blur(0px)", "blur(20px)", "blur(60px)"],
-                    opacity: 0,
-                    scale: [1, 1.3, 0.3],
-                    rotate: [0, 10, -10, 0],
-                    skewX: [0, 20, -20, 0]
+                    color: ["#10b981", "#f97316", "#ef4444", "#ffffff", "#000000"],
+                    y: [0, -20, -100, -500],
+                    filter: ["blur(0px)", "blur(4px)", "blur(20px)", "blur(80px)"],
+                    opacity: [1, 1, 0.8, 0],
+                    scale: [1, 1.1, 0.5, 0.1],
+                    rotate: [0, 5, -5, 15],
+                    skew: [0, 10, -10, 0]
                   } : (isSaving ? { 
                     opacity: 0, 
                     scale: 0.1, 
@@ -160,29 +160,33 @@ export default function CofrePage() {
 
               {/* Animação de Queimar Melhorada - Cinzas e Fagulhas */}
               {isBurning && (
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  {[...Array(24)].map((_, i) => (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[100]">
+                  {[...Array(40)].map((_, i) => (
                     <motion.div
                       key={i}
                       initial={{ opacity: 0, y: 100, scale: 0 }}
                       animate={{ 
                         opacity: [0, 1, 1, 0], 
-                        y: [0, -600], 
-                        x: [(i - 12) * 20, (i - 12) * 50 + (Math.random() - 0.5) * 200],
-                        scale: [Math.random() * 2, Math.random() * 4, 0],
-                        rotate: Math.random() * 720
+                        y: [200, -800], 
+                        x: [(i - 20) * 15, (i - 20) * 40 + (Math.random() - 0.5) * 400],
+                        scale: [Math.random() * 2, Math.random() * 6, 0],
+                        rotate: Math.random() * 1080
                       }}
-                      transition={{ duration: 2 + Math.random(), delay: Math.random() * 0.5 }}
-                      className={`absolute ${i % 2 === 0 ? 'text-orange-500' : 'text-slate-400'}`}
+                      transition={{ 
+                        duration: 1.5 + Math.random() * 2, 
+                        delay: Math.random() * 0.8,
+                        ease: "easeOut"
+                      }}
+                      className={`absolute ${i % 3 === 0 ? 'text-orange-500' : i % 3 === 1 ? 'text-red-500' : 'text-yellow-400'}`}
                     >
-                      {i % 2 === 0 ? <Flame size={30 + Math.random() * 40} /> : <div className="w-2 h-2 bg-current rounded-full blur-[1px]" />}
+                      <Flame size={20 + Math.random() * 60} fill="currentColor" />
                     </motion.div>
                   ))}
                   <motion.div 
                     initial={{ opacity: 0 }}
-                    animate={{ opacity: [0, 0.6, 0] }}
-                    transition={{ duration: 2.5 }}
-                    className="absolute inset-0 bg-gradient-to-t from-orange-600/30 via-orange-500/10 to-transparent blur-[120px]"
+                    animate={{ opacity: [0, 0.8, 0] }}
+                    transition={{ duration: 3 }}
+                    className="absolute inset-0 bg-gradient-to-t from-orange-600 via-red-500/20 to-transparent blur-[150px]"
                   />
                 </div>
               )}

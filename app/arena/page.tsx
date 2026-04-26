@@ -52,7 +52,7 @@ export default function ArenaPage() {
   };
 
   return (
-    <main className="flex flex-col h-[100dvh] w-full overflow-hidden bg-slate-950 relative z-10 md:pl-[calc(16rem+18rem)] transition-all overscroll-none touch-pan-y">
+    <main className="flex flex-col h-[100dvh] w-full overflow-hidden bg-slate-50 relative z-10 pl-0 md:pl-[calc(16rem+18rem)] transition-all overscroll-none touch-pan-y">
       <AnimatePresence mode="wait">
         {!selected ? (
           <motion.div 
@@ -60,16 +60,37 @@ export default function ArenaPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="flex-1 overflow-y-auto p-6 md:p-12 lg:p-16 w-full custom-scrollbar overscroll-contain"
+            className="flex-1 overflow-y-auto w-full custom-scrollbar overscroll-contain"
           >
-            <div className="max-w-6xl mx-auto space-y-12">
-              <div className="text-center space-y-4 pt-4 md:pt-12">
+            {/* Header Arena */}
+            <header className="sticky top-0 z-30 flex items-center justify-between p-4 md:p-8 bg-slate-50/80 backdrop-blur-xl border-b border-slate-200/50">
+              <div className="flex items-center gap-4">
+                <button 
+                  onClick={() => window.dispatchEvent(new CustomEvent('open-main-sidebar'))}
+                  className="p-3 bg-slate-900 text-white rounded-2xl shadow-xl hover:scale-105 transition-transform"
+                >
+                  <Menu size={20} />
+                </button>
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Simulador</span>
+                  <h2 className="text-xl font-black text-slate-900 tracking-tighter">A Arena</h2>
+                </div>
+              </div>
+              <Link href="/">
+                <button className="p-3 bg-white border border-slate-200 rounded-2xl text-slate-400 hover:text-slate-900 transition-colors shadow-sm">
+                  <ArrowLeft size={20} />
+                </button>
+              </Link>
+            </header>
+
+            <div className="max-w-6xl mx-auto px-6 py-12 md:p-12 lg:p-16 space-y-12">
+              <div className="text-center space-y-4">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-emerald-400 rounded-full text-xs font-bold border border-emerald-500/20 shadow-lg">
                   <Sword size={16} />
                   SIMULADOR TÁTICO
                 </div>
-                <h1 className="text-4xl md:text-7xl font-black text-white tracking-tighter">A Arena</h1>
-                <p className="text-slate-400 text-lg max-w-2xl mx-auto font-bold">Selecione um cenário para treinar suas habilidades sociais.</p>
+                <h1 className="text-4xl md:text-7xl font-black text-slate-900 tracking-tighter">Prepare sua voz.</h1>
+                <p className="text-slate-500 text-lg max-w-2xl mx-auto font-bold">Selecione um cenário para treinar suas habilidades sociais em um ambiente seguro.</p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
@@ -81,12 +102,12 @@ export default function ArenaPage() {
                       hasStarted.current = false;
                       setSelected(s);
                     }}
-                    className="bg-slate-900/90 backdrop-blur-xl border border-slate-800 p-8 rounded-[40px] cursor-pointer group transition-all hover:border-emerald-500/50"
+                    className="bg-white border border-slate-200 p-8 rounded-[40px] cursor-pointer group transition-all hover:border-emerald-500/50 shadow-xl hover:shadow-2xl"
                   >
-                    <div className={`mb-6 p-4 rounded-2xl bg-slate-800 w-fit group-hover:bg-emerald-500 group-hover:text-white transition-all ${s.color}`}>
+                    <div className={`mb-6 p-4 rounded-2xl bg-slate-50 w-fit group-hover:bg-emerald-500 group-hover:text-white transition-all ${s.color}`}>
                       <s.icon size={28} />
                     </div>
-                    <h3 className="text-xl font-black text-white mb-2 tracking-tight">{s.title}</h3>
+                    <h3 className="text-xl font-black text-slate-900 mb-2 tracking-tight">{s.title}</h3>
                     <p className="text-slate-500 text-sm leading-relaxed font-bold">{s.desc}</p>
                   </motion.div>
                 ))}

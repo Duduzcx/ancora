@@ -68,11 +68,11 @@ export default function Home() {
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="max-w-6xl w-full p-6 md:p-12 flex flex-col space-y-32 md:space-y-40 pb-40"
+        className="max-w-6xl w-full p-6 md:p-12 flex flex-col space-y-20 md:space-y-40 pb-40"
       >
         
         {/* 1. HERO SECTION */}
-        <section className="text-center flex flex-col items-center pt-24">
+        <section className="text-center flex flex-col items-center pt-12 md:pt-24">
           <motion.div 
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}

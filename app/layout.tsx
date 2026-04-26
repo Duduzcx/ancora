@@ -22,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className={`${inter.className} antialiased overflow-x-hidden bg-transparent`}>
+      <body className={`${inter.className} antialiased overflow-x-hidden bg-slate-50 overscroll-none`}>
         <AnimatedBackground />
         
         <Sidebar />

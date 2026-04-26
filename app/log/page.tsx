@@ -73,11 +73,12 @@ export default function LogPage() {
     setIsMounted(true);
     
     // Gera posições aleatórias apenas no cliente
-    setParticlePos([...Array(20)].map(() => ({
+    const isMobile = window.innerWidth < 768;
+    setParticlePos([...Array(isMobile ? 8 : 20)].map(() => ({
       top: Math.random() * 100,
       left: Math.random() * 100
     })));
-    setBubbleLefts([...Array(10)].map(() => Math.random() * 100));
+    setBubbleLefts([...Array(isMobile ? 5 : 10)].map(() => Math.random() * 100));
 
     try {
       const saved = localStorage.getItem('ancora-tasks');
@@ -140,10 +141,11 @@ export default function LogPage() {
   if (!isMounted) return null;
 
   return (
-    <main className="min-h-screen bg-transparent p-4 md:p-8 lg:p-12 relative overflow-x-hidden">
+    <main className="flex flex-col h-[100dvh] overflow-hidden bg-slate-50 relative pl-0 md:pl-64 transition-all overscroll-none touch-pan-y">
       <AnimatedBackground subtle />
 
-      <div className="max-w-[1400px] mx-auto space-y-8">
+      <div className="flex-1 overflow-y-auto w-full custom-scrollbar overscroll-contain p-4 md:p-8 lg:p-12">
+        <div className="max-w-[1400px] mx-auto space-y-8">
         
         {/* HEADER */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white/40 backdrop-blur-3xl p-6 md:p-10 rounded-[3rem] border border-white shadow-2xl">
@@ -390,6 +392,8 @@ export default function LogPage() {
           </motion.div>
         )}
       </AnimatePresence>
+        </div>
+      </div>
     </main>
   );
 }
