@@ -76,10 +76,19 @@ function PortoContent() {
       // Limpa mensagens anteriores se estiver entrando com um humor novo (Check-in)
       setMessages([]);
       
+      const moodMessages: Record<string, string> = {
+        'calmo': 'Estou me sentindo calmo e em paz hoje. Só queria compartilhar esse momento.',
+        'ansioso': 'Estou me sentindo bastante ansioso agora. Pode me ajudar a me acalmar?',
+        'agitado': 'Meu mar está muito agitado hoje. Estou estressado e precisando de um norte.',
+        'precisando de ajuda urgente': 'Preciso de ajuda agora. As coisas estão muito difíceis e não sei o que fazer.'
+      };
+
+      const userMsg = moodMessages[mood] || `Estou me sentindo ${mood}.`;
+      
       const timer = setTimeout(() => {
         append({ 
           role: 'user', 
-          content: `SISTEMA: O usuário clicou no humor "${mood}". Inicie um acolhimento caloroso, curto e empático focado neste estado de espírito.` 
+          content: userMsg 
         });
       }, 300);
       return () => clearTimeout(timer);
