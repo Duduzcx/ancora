@@ -155,13 +155,13 @@ export default function LogPage() {
             </Link>
             <div>
               <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">Log de Sobrevivência</h1>
-              <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mt-1">Evolução do seu Ecossistema</p>
+              <p className="text-xs font-black text-emerald-600 uppercase tracking-widest mt-1">Evolução do seu Ecossistema</p>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-8">
             <div className="text-center">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Conclusão</p>
+              <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Conclusão</p>
               <div className="flex items-center gap-4">
                 <div className="w-32 md:w-48 h-3 bg-slate-200 rounded-full overflow-hidden border border-white shadow-inner">
                   <motion.div 
@@ -179,7 +179,7 @@ export default function LogPage() {
               </div>
               <div className="flex flex-col">
                 <span className="font-black text-xl leading-none">{pearls}</span>
-                <span className="text-[9px] font-bold uppercase tracking-widest text-emerald-400">Pérolas</span>
+                <span className="text-[11px] font-bold uppercase tracking-widest text-emerald-400">Pérolas</span>
               </div>
             </div>
           </div>
@@ -282,7 +282,7 @@ export default function LogPage() {
                 whileTap={pearls >= 10 ? { scale: 0.95 } : {}}
                 onClick={openReflection}
                 className={`
-                  w-full py-5 rounded-[2rem] font-black text-xs uppercase tracking-widest transition-all shadow-2xl flex items-center justify-center gap-3
+                  w-full py-5 rounded-[2rem] font-black text-sm uppercase tracking-widest transition-all shadow-2xl flex items-center justify-center gap-3
                   ${pearls >= 10 
                     ? 'bg-amber-400 text-slate-900 border-b-4 border-amber-600' 
                     : 'bg-white/5 text-white/20 border border-white/5 cursor-not-allowed'}
@@ -299,7 +299,7 @@ export default function LogPage() {
             {categories.map((cat) => (
               <div key={cat} className="space-y-6">
                 <div className="flex items-center gap-4 px-2">
-                  <h3 className="text-xs font-black text-slate-900 uppercase tracking-[0.3em] whitespace-nowrap">{cat}</h3>
+                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-[0.3em] whitespace-nowrap">{cat}</h3>
                   <div className="h-px w-full bg-slate-200" />
                 </div>
                 
@@ -325,7 +325,7 @@ export default function LogPage() {
                       </div>
 
                       <div className="flex-1">
-                        <p className={`font-black text-sm transition-all ${task.completed ? 'opacity-30 line-through text-slate-500' : 'text-slate-800'}`}>
+                        <p className={`font-black text-base transition-all ${task.completed ? 'opacity-30 line-through text-slate-500' : 'text-slate-800'}`}>
                           {task.text}
                         </p>
                       </div>

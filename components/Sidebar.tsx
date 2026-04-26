@@ -25,7 +25,10 @@ export default function Sidebar() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const supabase = createClient();
+
+  const isPorto = pathname?.startsWith('/porto');
 
   const fetchUser = async (sessionUser: any) => {
     if (sessionUser) {
@@ -52,6 +55,7 @@ export default function Sidebar() {
   };
 
   useEffect(() => {
+    setIsMounted(true);
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) fetchUser(session.user);
     });
@@ -78,7 +82,8 @@ export default function Sidebar() {
     router.refresh();
   };
 
-  if (pathname?.startsWith('/porto')) return null;
+  if (!isMounted) return null;
+  if (isPorto) return null;
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-white/80 md:bg-white/40 backdrop-blur-xl md:backdrop-blur-md border-r border-white/40">

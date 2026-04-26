@@ -120,11 +120,11 @@ export default function FarolPage() {
                 <Radio size={14} className="text-emerald-500 animate-pulse" />
                 <h2 className="text-xl font-black text-slate-900 tracking-tighter uppercase italic">O Farol</h2>
               </div>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Centro de Inteligência</p>
+              <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Centro de Inteligência</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <div className="hidden md:flex px-6 py-2 bg-slate-900 text-white rounded-full text-[10px] font-black uppercase tracking-widest gap-2">
+            <div className="hidden md:flex px-6 py-2 bg-slate-900 text-white rounded-full text-xs font-black uppercase tracking-widest gap-2">
               <Activity size={14} className="text-emerald-400" />
               Monitoramento Ativo
             </div>
@@ -141,7 +141,7 @@ export default function FarolPage() {
           >
             <div className="relative z-10 space-y-10">
               <div className="flex items-center gap-4">
-                <div className={`px-5 py-2 rounded-full bg-slate-900 text-white text-[10px] font-black uppercase tracking-[0.3em] shadow-lg`}>
+                <div className={`px-5 py-2 rounded-full bg-slate-900 text-white text-xs font-black uppercase tracking-[0.3em] shadow-lg`}>
                   {status.title}
                 </div>
                 <div className="h-px flex-1 bg-slate-900/10" />
@@ -192,7 +192,7 @@ export default function FarolPage() {
               
               <div className="relative z-10 space-y-12">
                 <div className="space-y-4">
-                  <h3 className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.4em]">Resiliência Hoje</h3>
+                  <h3 className="text-xs font-black text-emerald-400 uppercase tracking-[0.4em]">Resiliência Hoje</h3>
                   <div className="flex items-end gap-3">
                     <span className="text-7xl md:text-8xl font-black tabular-nums tracking-tighter">{Math.round(progress)}</span>
                     <span className="text-2xl font-black text-emerald-400 mb-2">%</span>
@@ -235,7 +235,7 @@ function HUDItem({ icon: Icon, label, value }: any) {
         <div className="text-emerald-400 group-hover:scale-110 transition-transform">
           <Icon size={18} />
         </div>
-        <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">{label}</span>
+        <span className="text-xs font-black text-white/40 uppercase tracking-widest">{label}</span>
       </div>
       <span className="text-xs font-black">{value}</span>
     </div>
@@ -253,7 +253,7 @@ function InsightCard({ icon: Icon, title, desc }: any) {
       </div>
       <div className="space-y-1">
         <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">{title}</h3>
-        <p className="text-[11px] text-slate-500 font-bold leading-relaxed">{desc}</p>
+        <p className="text-sm text-slate-500 font-bold leading-relaxed">{desc}</p>
       </div>
     </motion.div>
   );

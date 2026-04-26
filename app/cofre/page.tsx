@@ -96,7 +96,7 @@ export default function CofrePage() {
       <motion.div 
         animate={isBurning ? { x: [-3, 3, -3, 3, 0], y: [-2, 2, -2, 2, 0] } : {}}
         transition={{ duration: 0.1, repeat: 10 }}
-        className="w-full max-w-5xl flex flex-col p-6 md:p-12 lg:p-20 relative z-10 min-h-screen"
+        className="w-full flex flex-col p-6 md:p-12 lg:p-20 relative z-10 min-h-screen"
       >
         
         {/* INTERFACE TERMINAL */}
@@ -111,11 +111,11 @@ export default function CofrePage() {
             <div className="flex flex-col">
               <div className="flex items-center gap-3">
                 <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_#10b981]" />
-                <span className="text-[10px] font-mono tracking-[0.4em] text-emerald-500/60 uppercase font-black">
+                <span className="text-xs font-mono tracking-[0.4em] text-emerald-500/60 uppercase font-black">
                   Terminal_Private_Vault
                 </span>
               </div>
-              <h1 className="text-white/20 text-[9px] font-mono uppercase tracking-[0.2em] mt-1">Status: Encrypted_Connection_Established</h1>
+              <h1 className="text-white/20 text-[11px] font-mono uppercase tracking-[0.2em] mt-1">Status: Encrypted_Connection_Established</h1>
             </div>
           </div>
 
@@ -125,9 +125,9 @@ export default function CofrePage() {
               whileTap={{ scale: 0.98 }}
               onClick={handleSave}
               disabled={isSaving || isBurning || !text}
-              className="flex-1 md:flex-none px-6 py-4 bg-emerald-500 text-black rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-[0_0_30px_rgba(16,185,129,0.3)] disabled:opacity-20 flex items-center justify-center gap-2"
+              className="flex-1 md:flex-none px-8 py-5 bg-emerald-500 text-black rounded-2xl font-black text-xs uppercase tracking-widest shadow-[0_0_30px_rgba(16,185,129,0.3)] disabled:opacity-20 flex items-center justify-center gap-2"
             >
-              <Lock size={14} />
+              <Lock size={16} />
               {isSaving ? 'TRANCANDO...' : 'Selar Segredo'}
             </motion.button>
             <motion.button 
@@ -135,9 +135,9 @@ export default function CofrePage() {
               whileTap={{ scale: 0.98 }}
               onClick={handleBurn}
               disabled={isBurning || isSaving || !text}
-              className="flex-1 md:flex-none px-6 py-4 border border-orange-500/30 text-orange-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-orange-500/10 disabled:opacity-20 flex items-center justify-center gap-2"
+              className="flex-1 md:flex-none px-8 py-5 border border-orange-500/30 text-orange-400 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-orange-500/10 disabled:opacity-20 flex items-center justify-center gap-2"
             >
-              <Flame size={14} />
+              <Flame size={16} />
               Queimar
             </motion.button>
           </div>
@@ -170,7 +170,7 @@ export default function CofrePage() {
               }}
               placeholder="ESCREVA AQUI O QUE PESA EM SUA MENTE..."
               className={`
-                w-full min-h-[400px] md:h-full bg-transparent font-mono text-2xl md:text-5xl lg:text-7xl 
+                w-full min-h-[400px] md:h-full bg-transparent font-mono text-2xl md:text-5xl lg:text-8xl 
                 outline-none resize-none leading-[1.1] tracking-tighter
                 placeholder:text-emerald-500/10 scrollbar-hide
                 ${isBurning || isSaving ? 'pointer-events-none' : 'text-emerald-500/80'}
@@ -192,19 +192,19 @@ export default function CofrePage() {
         </div>
 
         {/* FOOTER */}
-        <div className="mt-12 mb-8 flex flex-col md:flex-row items-center gap-6 border-t border-white/10 pt-8">
+        <div className="mt-12 mb-8 flex flex-col md:flex-row items-center gap-6 border-t border-white/10 pt-10">
           <div className="flex items-center gap-3">
-            <Key size={12} className="text-emerald-500" />
-            <p className="text-[9px] font-mono text-emerald-500 tracking-[0.4em] uppercase font-black">
+            <Key size={16} className="text-emerald-500" />
+            <p className="text-xs font-mono text-emerald-500 tracking-[0.4em] uppercase font-black">
               Criptografia Neural Ativa
             </p>
           </div>
           <div className="h-px flex-1 bg-white/5 hidden md:block" />
-          <div className="flex flex-col items-end gap-1">
-            <p className="text-[10px] font-black text-white tracking-[0.2em] uppercase italic">
+          <div className="flex flex-col items-end gap-2">
+            <p className="text-sm font-black text-white tracking-[0.2em] uppercase italic">
               O que acontece na Âncora fica na Âncora.
             </p>
-            <p className="text-[8px] font-mono text-emerald-500/40 tracking-[0.4em] uppercase font-black">
+            <p className="text-[10px] font-mono text-emerald-500/40 tracking-[0.4em] uppercase font-black">
               Ninguém além de você lê o que está aqui.
             </p>
           </div>
