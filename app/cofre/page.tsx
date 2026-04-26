@@ -139,7 +139,7 @@ export default function CofrePage() {
                     opacity: [1, 1, 0.8, 0],
                     scale: [1, 1.1, 0.5, 0.1],
                     rotate: [0, 5, -5, 15],
-                    skew: [0, 10, -10, 0]
+                    skewX: [0, 10, -10, 0]
                   } : (isSaving ? { 
                     opacity: 0, 
                     scale: 0.1, 
