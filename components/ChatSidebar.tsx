@@ -31,7 +31,7 @@ export default function ChatSidebar({ onSelectChat, currentChatId }: { onSelectC
   }, [currentChatId]);
 
   return (
-    <div className="w-80 h-full flex flex-col bg-white/20 backdrop-blur-xl border-r border-white/20 p-6 hidden lg:flex">
+    <div className="w-80 h-full flex flex-col bg-white/20 backdrop-blur-xl border-r border-white/20 p-6">
       <button 
         onClick={() => onSelectChat('')}
         className="w-full py-4 px-6 bg-slate-900 text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-slate-800 transition-all mb-8 shadow-xl"

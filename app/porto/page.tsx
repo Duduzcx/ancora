@@ -42,6 +42,23 @@ function PortoContent() {
       const { data: { user: sessionUser } } = await supabase.auth.getUser();
       setUser(sessionUser);
 
+      if (sessionUser) {
+        // Se não houver chatId na URL, tenta carregar o mais recente
+        if (!chatId) {
+          const { data: lastChat } = await supabase
+            .from('chats')
+            .select('id')
+            .eq('user_id', sessionUser.id)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          
+          if (lastChat) {
+            loadChat(lastChat.id);
+          }
+        }
+      }
+
       // Se NÃO tiver usuário, tenta recuperar do localStorage
       if (!sessionUser) {
         const savedMessages = localStorage.getItem('ancora-guest-chat');
@@ -189,7 +206,7 @@ function PortoContent() {
           <motion.div 
             initial={{ x: -320 }}
             animate={{ x: isHistoryOpen || (typeof window !== 'undefined' && window.innerWidth >= 1024) ? 0 : -320 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             className={`h-full fixed lg:relative z-[100] lg:z-auto ${isHistoryOpen ? 'block' : 'hidden lg:block'}`}
           >
             <ChatSidebar 
@@ -223,19 +240,19 @@ function PortoContent() {
               <motion.button 
                 whileHover={{ scale: 1.1, x: -5 }}
                 whileTap={{ scale: 0.9 }}
-                className="p-3 bg-slate-900 text-white rounded-2xl shadow-xl flex items-center justify-center"
+                className="p-2 bg-slate-900 text-white rounded-2xl shadow-xl flex items-center justify-center"
               >
                 <ArrowLeft size={20} />
               </motion.button>
             </Link>
 
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-600 rounded-2xl text-white shadow-lg">
-                <Anchor size={24} />
+              <div className="p-2 bg-blue-600 rounded-2xl text-white shadow-lg">
+                <Anchor size={20} />
               </div>
               <div>
-                <h2 className="text-xl font-black text-slate-900 tracking-tight">O Porto</h2>
-                <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest flex items-center gap-1">
+                <h2 className="text-lg font-black text-slate-900 tracking-tight">O Porto</h2>
+                <p className="text-[9px] font-bold text-emerald-600 uppercase tracking-widest flex items-center gap-1">
                   <Sparkles size={10} className="animate-pulse" />
                   Ambiente de Imersão
                 </p>
@@ -261,7 +278,7 @@ function PortoContent() {
 
         <div 
           ref={scrollRef}
-          className="flex-1 overflow-y-auto p-8 space-y-6"
+          className="flex-1 overflow-y-auto p-4 space-y-4"
         >
           <AnimatePresence initial={false}>
             {visibleMessages.map((m) => (
@@ -271,12 +288,12 @@ function PortoContent() {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <div className={`flex items-end gap-3 max-w-[85%] ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                  <div className={`p-2 rounded-full ${m.role === 'user' ? 'bg-slate-900' : 'bg-blue-600'} text-white shadow-lg`}>
-                    {m.role === 'user' ? <User size={14} /> : <Bot size={14} />}
+                <div className={`flex items-end gap-2 max-w-[85%] ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                  <div className={`p-1.5 rounded-full ${m.role === 'user' ? 'bg-slate-900' : 'bg-blue-600'} text-white shadow-lg`}>
+                    {m.role === 'user' ? <User size={12} /> : <Bot size={12} />}
                   </div>
                   <div className={`
-                    p-5 rounded-[2.5rem] shadow-sm text-sm md:text-base leading-relaxed
+                    p-4 rounded-[1.5rem] shadow-sm text-sm leading-relaxed
                     ${m.role === 'user' 
                       ? 'bg-slate-900 text-white rounded-br-none shadow-xl' 
                       : 'bg-white/90 text-slate-800 backdrop-blur-md border border-white/50 rounded-bl-none'}
@@ -293,9 +310,9 @@ function PortoContent() {
               animate={{ opacity: 1 }}
               className="flex justify-center"
             >
-              <div className="bg-red-50 text-red-600 px-6 py-3 rounded-full flex items-center gap-3 border border-red-200 text-sm font-black">
-                <AlertCircle size={16} />
-                Houve um problema na conexão. Verifique sua internet ou a chave da API.
+              <div className="bg-red-50 text-red-600 px-4 py-2 rounded-full flex items-center gap-3 border border-red-200 text-xs font-black">
+                <AlertCircle size={14} />
+                Houve um problema.
               </div>
             </motion.div>
           )}
@@ -303,9 +320,9 @@ function PortoContent() {
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="flex justify-start ml-12"
+              className="flex justify-start ml-10"
             >
-              <div className="bg-white/60 p-4 rounded-2xl flex gap-1">
+              <div className="bg-white/60 p-3 rounded-xl flex gap-1">
                 <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" />
                 <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce [animation-delay:0.2s]" />
                 <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce [animation-delay:0.4s]" />
@@ -314,16 +331,16 @@ function PortoContent() {
           )}
         </div>
 
-        <footer className="p-8 bg-gradient-to-t from-slate-50 to-transparent">
+        <footer className="p-4 bg-gradient-to-t from-slate-50 to-transparent">
           <form 
             onSubmit={handleCustomSubmit}
-            className="max-w-4xl mx-auto flex items-center gap-3 p-2 bg-white/90 backdrop-blur-3xl border border-white/60 rounded-full shadow-2xl"
+            className="max-w-3xl mx-auto flex items-center gap-2 p-1.5 bg-white/90 backdrop-blur-3xl border border-white/60 rounded-full shadow-2xl"
           >
             <input
               value={input}
               onChange={handleInputChange}
               placeholder="Fale o que estiver no seu coração..."
-              className="flex-1 bg-transparent px-6 py-4 outline-none text-slate-800 text-lg font-medium"
+              className="flex-1 bg-transparent px-4 py-3 outline-none text-slate-800 text-sm font-medium"
             />
             <motion.button 
               type="submit"

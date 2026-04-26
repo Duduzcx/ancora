@@ -41,7 +41,7 @@ export default function CofrePage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-start relative overflow-x-hidden">
+    <div className="h-screen bg-slate-950 flex flex-col items-center justify-start relative overflow-hidden">
       
       {/* BACKGROUND DE PARTÍCULAS (DISCRETO) */}
       <div className="absolute inset-0 pointer-events-none opacity-20">
@@ -59,7 +59,6 @@ export default function CofrePage() {
         ))}
       </div>
 
-      {/* RITUAL DE SALVAMENTO: MENSAGEM DE SEGURANÇA */}
       <AnimatePresence>
         {showSavedToast && (
           <motion.div 
@@ -96,11 +95,11 @@ export default function CofrePage() {
       <motion.div 
         animate={isBurning ? { x: [-3, 3, -3, 3, 0], y: [-2, 2, -2, 2, 0] } : {}}
         transition={{ duration: 0.1, repeat: 10 }}
-        className="w-full flex flex-col p-6 md:p-12 lg:p-20 relative z-10 min-h-screen"
+        className="w-full flex flex-col p-6 md:p-12 lg:p-16 relative z-10 h-screen"
       >
         
         {/* INTERFACE TERMINAL */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12 md:mb-20">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 md:mb-12">
           <div className="flex items-center gap-4">
             <button 
               onClick={() => router.push('/')}
@@ -125,7 +124,7 @@ export default function CofrePage() {
               whileTap={{ scale: 0.98 }}
               onClick={handleSave}
               disabled={isSaving || isBurning || !text}
-              className="flex-1 md:flex-none px-8 py-5 bg-emerald-500 text-black rounded-2xl font-black text-xs uppercase tracking-widest shadow-[0_0_30px_rgba(16,185,129,0.3)] disabled:opacity-20 flex items-center justify-center gap-2"
+              className="flex-1 md:flex-none px-8 py-4 bg-emerald-500 text-black rounded-2xl font-black text-xs uppercase tracking-widest shadow-[0_0_30px_rgba(16,185,129,0.3)] disabled:opacity-20 flex items-center justify-center gap-2"
             >
               <Lock size={16} />
               {isSaving ? 'TRANCANDO...' : 'Selar Segredo'}
@@ -135,7 +134,7 @@ export default function CofrePage() {
               whileTap={{ scale: 0.98 }}
               onClick={handleBurn}
               disabled={isBurning || isSaving || !text}
-              className="flex-1 md:flex-none px-8 py-5 border border-orange-500/30 text-orange-400 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-orange-500/10 disabled:opacity-20 flex items-center justify-center gap-2"
+              className="flex-1 md:flex-none px-8 py-4 border border-orange-500/30 text-orange-400 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-orange-500/10 disabled:opacity-20 flex items-center justify-center gap-2"
             >
               <Flame size={16} />
               Queimar
@@ -144,7 +143,7 @@ export default function CofrePage() {
         </div>
 
         {/* ÁREA DE TEXTO */}
-        <div className="flex-1 relative">
+        <div className="flex-1 relative overflow-hidden">
           <AnimatePresence mode="wait">
             <motion.textarea
               key="terminal-input"
@@ -170,9 +169,10 @@ export default function CofrePage() {
               }}
               placeholder="ESCREVA AQUI O QUE PESA EM SUA MENTE..."
               className={`
-                w-full min-h-[400px] md:h-full bg-transparent font-mono text-2xl md:text-5xl lg:text-8xl 
+                w-full h-full bg-transparent font-mono text-2xl md:text-5xl lg:text-8xl 
                 outline-none resize-none leading-[1.1] tracking-tighter
-                placeholder:text-emerald-500/10 scrollbar-hide
+                placeholder:text-emerald-500/10 placeholder:text-xl md:placeholder:text-3xl lg:placeholder:text-4xl
+                scrollbar-hide
                 ${isBurning || isSaving ? 'pointer-events-none' : 'text-emerald-500/80'}
               `}
             />
@@ -192,19 +192,19 @@ export default function CofrePage() {
         </div>
 
         {/* FOOTER */}
-        <div className="mt-12 mb-8 flex flex-col md:flex-row items-center gap-6 border-t border-white/10 pt-10">
+        <div className="mt-4 mb-2 flex flex-col md:flex-row items-center gap-3 border-t border-white/10 pt-4">
           <div className="flex items-center gap-3">
-            <Key size={16} className="text-emerald-500" />
-            <p className="text-xs font-mono text-emerald-500 tracking-[0.4em] uppercase font-black">
+            <Key size={14} className="text-emerald-500" />
+            <p className="text-[10px] font-mono text-emerald-500 tracking-[0.4em] uppercase font-black">
               Criptografia Neural Ativa
             </p>
           </div>
           <div className="h-px flex-1 bg-white/5 hidden md:block" />
-          <div className="flex flex-col items-end gap-2">
-            <p className="text-sm font-black text-white tracking-[0.2em] uppercase italic">
+          <div className="flex flex-col items-end gap-0.5">
+            <p className="text-xs font-black text-white tracking-[0.2em] uppercase italic">
               O que acontece na Âncora fica na Âncora.
             </p>
-            <p className="text-[10px] font-mono text-emerald-500/40 tracking-[0.4em] uppercase font-black">
+            <p className="text-[9px] font-mono text-emerald-500/40 tracking-[0.4em] uppercase font-black">
               Ninguém além de você lê o que está aqui.
             </p>
           </div>
