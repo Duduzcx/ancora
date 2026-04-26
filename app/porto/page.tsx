@@ -14,6 +14,7 @@ function PortoContent() {
   const searchParams = useSearchParams();
   const mood = searchParams.get('mood');
   const [chatId, setChatId] = useState<string | null>(null);
+  const chatIdRef = useRef<string | null>(null);
   const [user, setUser] = useState<any>(null);
   const [isMounted, setIsMounted] = useState(false);
   const hasAppendedInitial = useRef(false);
@@ -23,9 +24,9 @@ function PortoContent() {
   const { messages, input, handleInputChange, handleSubmit, setMessages, isLoading, error, append } = useChat({
     api: '/api/chat',
     onFinish: async (message) => {
-      if (chatId && user) {
+      if (chatIdRef.current && user) {
         await supabase.from('messages').insert({
-          chat_id: chatId,
+          chat_id: chatIdRef.current,
           role: 'assistant',
           content: message.content
         });
@@ -128,6 +129,7 @@ function PortoContent() {
         
         if (data) {
           setChatId(data.id);
+          chatIdRef.current = data.id;
           currentChatId = data.id;
         }
       }
@@ -156,6 +158,7 @@ function PortoContent() {
       return;
     }
     setChatId(id);
+    chatIdRef.current = id;
     const { data } = await supabase
       .from('messages')
       .select('*')
@@ -172,6 +175,8 @@ function PortoContent() {
     }
   }, [messages]);
 
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+
   if (!isMounted) return null;
 
   const visibleMessages = messages.filter(m => !m.content.startsWith('SISTEMA:'));
@@ -180,15 +185,34 @@ function PortoContent() {
     <div className="relative flex h-screen overflow-hidden bg-transparent">
       <AnimatedBackground subtle />
       <AnimatePresence>
-        {user && (
+        {(user && (isHistoryOpen || isMounted)) && (
           <motion.div 
             initial={{ x: -320 }}
-            animate={{ x: 0 }}
-            exit={{ x: -320 }}
-            className="h-full"
+            animate={{ x: isHistoryOpen || (typeof window !== 'undefined' && window.innerWidth >= 1024) ? 0 : -320 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className={`h-full fixed lg:relative z-[100] lg:z-auto ${isHistoryOpen ? 'block' : 'hidden lg:block'}`}
           >
-            <ChatSidebar onSelectChat={loadChat} currentChatId={chatId || undefined} />
+            <ChatSidebar 
+              onSelectChat={(id) => {
+                loadChat(id);
+                setIsHistoryOpen(false);
+              }} 
+              currentChatId={chatId || undefined} 
+            />
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Overlay para mobile quando o histórico está aberto */}
+      <AnimatePresence>
+        {isHistoryOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsHistoryOpen(false)}
+            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[90] lg:hidden"
+          />
         )}
       </AnimatePresence>
 
@@ -219,9 +243,19 @@ function PortoContent() {
             </div>
           </div>
 
-          <div className="hidden md:flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-white/60 px-4 py-2 rounded-full border border-white/40">
-            <ShieldCheck size={14} className="text-emerald-500" />
-            Foco Total no Acolhimento
+          <div className="flex items-center gap-4">
+            {user && (
+              <button 
+                onClick={() => setIsHistoryOpen(!isHistoryOpen)}
+                className="lg:hidden p-3 bg-white/60 text-slate-900 rounded-2xl border border-white/40 shadow-sm"
+              >
+                <Clock size={20} />
+              </button>
+            )}
+            <div className="hidden md:flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest bg-white/60 px-4 py-2 rounded-full border border-white/40">
+              <ShieldCheck size={14} className="text-emerald-500" />
+              Foco Total no Acolhimento
+            </div>
           </div>
         </header>
 
