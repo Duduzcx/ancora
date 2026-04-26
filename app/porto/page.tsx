@@ -97,9 +97,8 @@ function PortoContent() {
   useEffect(() => {
     if (!isMounted || hasAppendedInitial.current || typeof append !== 'function') return;
 
-    if (mood) {
+    if (mood && !hasAppendedInitial.current) {
       hasAppendedInitial.current = true;
-      // Limpa mensagens anteriores se estiver entrando com um humor novo (Check-in)
       setMessages([]);
       
       const moodMessages: Record<string, string> = {
@@ -252,7 +251,7 @@ function PortoContent() {
   const visibleMessages = messages.filter(m => !m.content.startsWith('SISTEMA:'));
 
   return (
-    <div className="relative flex h-screen overflow-hidden bg-transparent">
+    <div className="relative flex h-[100dvh] overflow-hidden bg-transparent">
       <AnimatedBackground subtle />
       <AnimatePresence>
         {(user && (isHistoryOpen || isMounted)) && (
@@ -393,16 +392,16 @@ function PortoContent() {
               value={input}
               onChange={handleInputChange}
               placeholder="Fale o que estiver no seu coração..."
-              className="flex-1 bg-transparent px-4 py-3 outline-none text-slate-800 text-sm font-medium"
+              className="flex-1 bg-transparent px-4 py-3 outline-none text-slate-800 text-sm md:text-base font-medium"
             />
             <motion.button 
               type="submit"
               whileHover={{ scale: 1.1, rotate: 5 }}
               whileTap={{ scale: 0.9, rotate: -5 }}
               disabled={!input?.trim() || isLoading}
-              className="p-5 bg-slate-900 text-white rounded-full hover:scale-105 transition-all shadow-xl disabled:opacity-30 flex items-center justify-center"
+              className="p-3 md:p-5 bg-slate-900 text-white rounded-full hover:scale-105 transition-all shadow-xl disabled:opacity-30 flex items-center justify-center"
             >
-              <Send size={24} />
+              <Send size={18} className="md:w-6 md:h-6" />
             </motion.button>
           </form>
         </footer>
