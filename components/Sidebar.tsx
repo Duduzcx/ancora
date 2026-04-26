@@ -3,10 +3,11 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Anchor, MessageCircle, Sword, 
-  CheckCircle, Shield, LogOut, UserPlus, User, Lightbulb 
+  CheckCircle, Shield, LogOut, UserPlus, User, 
+  Lightbulb, Menu, X 
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase';
 
@@ -23,6 +24,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const supabase = createClient();
 
   const fetchUser = async (sessionUser: any) => {
@@ -38,7 +40,6 @@ export default function Sidebar() {
                           sessionUser.email?.split('@')[0] || 
                           'Usuário';
 
-      // Capitaliza a primeira letra
       displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
 
       setUser({ 
@@ -51,23 +52,25 @@ export default function Sidebar() {
   };
 
   useEffect(() => {
-    // Check inicial ultrarrápido via sessão
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) fetchUser(session.user);
     });
 
-    // Pré-carrega rotas principais para navegação instantânea
     menuItems.forEach(item => {
       router.prefetch(item.href);
     });
 
-    // Escuta mudanças (Login/Logout)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       fetchUser(session?.user ?? null);
     });
 
     return () => subscription.unsubscribe();
   }, [router, supabase]);
+
+  // Fecha o menu mobile ao trocar de rota
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -77,8 +80,8 @@ export default function Sidebar() {
 
   if (pathname === '/porto') return null;
 
-  return (
-    <aside className="hidden lg:flex w-64 h-screen fixed left-0 top-0 flex-col bg-white/40 backdrop-blur-md border-r border-white/40 z-50">
+  const SidebarContent = () => (
+    <div className="flex flex-col h-full bg-white/80 md:bg-white/40 backdrop-blur-xl md:backdrop-blur-md border-r border-white/40">
       <div className="p-8">
         <Link href="/" className="flex items-center gap-3 group">
           <div className="p-2 bg-slate-900 text-emerald-400 rounded-xl group-hover:rotate-12 transition-transform">
@@ -104,7 +107,7 @@ export default function Sidebar() {
                 `}
               >
                 <item.icon size={20} />
-                <span>{item.label}</span>
+                <span className="text-sm">{item.label}</span>
                 {isActive && (
                   <motion.div 
                     layoutId="active-pill"
@@ -119,17 +122,13 @@ export default function Sidebar() {
 
       <div className="p-6 border-t border-white/20">
         {user ? (
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-4"
-          >
+          <motion.div className="space-y-4">
             <div className="flex items-center gap-3 px-2">
               <div className="w-10 h-10 bg-emerald-500 rounded-full flex items-center justify-center text-white font-black shadow-lg">
                 {user.display_name?.charAt(0).toUpperCase() || 'U'}
               </div>
-              <div className="flex flex-col">
-                <span className="text-xs font-black text-slate-900 truncate max-w-[120px]">
+              <div className="flex flex-col overflow-hidden">
+                <span className="text-xs font-black text-slate-900 truncate">
                   {user.display_name}
                 </span>
                 <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Online</span>
@@ -157,6 +156,56 @@ export default function Sidebar() {
           </Link>
         )}
       </div>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* HEADER MOBILE */}
+      <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white/60 backdrop-blur-md border-b border-white/40 z-[60] flex items-center justify-between px-6">
+        <Link href="/" className="flex items-center gap-2">
+          <Anchor size={20} className="text-slate-900" />
+          <span className="text-lg font-black tracking-tighter text-slate-900">Âncora</span>
+        </Link>
+        <button 
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="p-2 text-slate-900 bg-slate-900/5 rounded-xl transition-colors"
+        >
+          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+      </header>
+
+      {/* SIDEBAR DESKTOP */}
+      <aside className="hidden lg:flex w-64 h-screen fixed left-0 top-0 flex-col z-50">
+        <SidebarContent />
+      </aside>
+
+      {/* SIDEBAR MOBILE (OVERLAY) */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[65] lg:hidden"
+            />
+            <motion.aside 
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed left-0 top-0 bottom-0 w-72 z-[70] lg:hidden"
+            >
+              <SidebarContent />
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Espaçador para o conteúdo não ficar atrás do header mobile */}
+      <div className="lg:hidden h-16 w-full" />
+    </>
   );
 }

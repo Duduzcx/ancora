@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Anchor } from 'lucide-react';
 
@@ -8,7 +8,32 @@ interface AnimatedBackgroundProps {
   subtle?: boolean;
 }
 
+interface AnchorInstance {
+  id: number;
+  top: string;
+  left: string;
+  rotate: number;
+  scale: number;
+  size: number;
+  duration: number;
+}
+
 const AnimatedBackground = ({ subtle = false }: AnimatedBackgroundProps) => {
+  const [anchors, setAnchors] = useState<AnchorInstance[]>([]);
+
+  useEffect(() => {
+    const newAnchors = [...Array(30)].map((_, i) => ({
+      id: i,
+      top: `${Math.random() * 100}%`,
+      left: `${Math.random() * 100}%`,
+      rotate: Math.random() * 360,
+      scale: 0.5 + Math.random() * 0.5,
+      size: 40 + Math.random() * 60,
+      duration: 15 + Math.random() * 10,
+    }));
+    setAnchors(newAnchors);
+  }, []);
+
   return (
     <div className="fixed inset-0 -z-50 overflow-hidden pointer-events-none bg-[#f8fafc]">
       {/* Malha de Gradiente CSS Estática */}
@@ -22,22 +47,22 @@ const AnimatedBackground = ({ subtle = false }: AnimatedBackgroundProps) => {
       }} />
 
       {/* Frota de 30 Âncoras */}
-      {[...Array(30)].map((_, i) => (
+      {anchors.map((anchor) => (
         <motion.div
-          key={i}
+          key={anchor.id}
           className={`absolute ${subtle ? 'text-slate-900/[0.03]' : 'text-slate-900/10'}`}
           initial={{ 
-            top: `${Math.random() * 100}%`, 
-            left: `${Math.random() * 100}%`, 
-            rotate: Math.random() * 360,
-            scale: 0.5 + Math.random() * 0.5
+            top: anchor.top, 
+            left: anchor.left, 
+            rotate: anchor.rotate,
+            scale: anchor.scale
           }}
           animate={{
             y: [0, -30, 0],
-            rotate: [0, 10, 0],
+            rotate: [anchor.rotate, anchor.rotate + 10, anchor.rotate],
           }}
           transition={{
-            duration: 15 + Math.random() * 10,
+            duration: anchor.duration,
             repeat: Infinity,
             ease: "easeInOut",
           }}
@@ -46,7 +71,7 @@ const AnimatedBackground = ({ subtle = false }: AnimatedBackgroundProps) => {
             transform: 'translateZ(0)'
           }}
         >
-          <Anchor size={40 + Math.random() * 60} />
+          <Anchor size={anchor.size} />
         </motion.div>
       ))}
 

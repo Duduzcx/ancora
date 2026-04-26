@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Flame, Lock, ShieldAlert, CheckCircle2, ShieldCheck, Key } from 'lucide-react';
+import { Flame, Lock, ShieldAlert, CheckCircle2, ShieldCheck, Key, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function CofrePage() {
@@ -41,7 +41,7 @@ export default function CofrePage() {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center overflow-hidden">
+    <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-start relative overflow-x-hidden">
       
       {/* BACKGROUND DE PARTÍCULAS (DISCRETO) */}
       <div className="absolute inset-0 pointer-events-none opacity-20">
@@ -66,7 +66,7 @@ export default function CofrePage() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
-            className="absolute inset-0 z-[120] bg-black/90 backdrop-blur-3xl flex flex-col items-center justify-center text-center space-y-6 p-8"
+            className="fixed inset-0 z-[120] bg-black/90 backdrop-blur-3xl flex flex-col items-center justify-center text-center space-y-6 p-8"
           >
             <motion.div 
               initial={{ scale: 0 }}
@@ -96,33 +96,36 @@ export default function CofrePage() {
       <motion.div 
         animate={isBurning ? { x: [-3, 3, -3, 3, 0], y: [-2, 2, -2, 2, 0] } : {}}
         transition={{ duration: 0.1, repeat: 10 }}
-        className="w-full max-w-6xl h-full flex flex-col p-8 md:p-16 relative z-10"
+        className="w-full max-w-5xl flex flex-col p-6 md:p-12 lg:p-20 relative z-10 min-h-screen"
       >
         
         {/* INTERFACE TERMINAL */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-16">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12 md:mb-20">
           <div className="flex items-center gap-4">
             <button 
               onClick={() => router.push('/')}
-              className="p-3 border border-white/5 text-white/20 hover:text-white hover:border-white/20 rounded-2xl transition-all"
+              className="p-3 border border-white/10 text-white/40 hover:text-white hover:border-white/30 rounded-2xl transition-all bg-white/5"
             >
               <ArrowLeft size={20} />
             </button>
-            <div className="flex items-center gap-3">
-              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_#10b981]" />
-              <span className="text-[10px] font-mono tracking-[0.4em] text-emerald-500/40 uppercase">
-                Terminal_Private_Vault_Active
-              </span>
+            <div className="flex flex-col">
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_#10b981]" />
+                <span className="text-[10px] font-mono tracking-[0.4em] text-emerald-500/60 uppercase font-black">
+                  Terminal_Private_Vault
+                </span>
+              </div>
+              <h1 className="text-white/20 text-[9px] font-mono uppercase tracking-[0.2em] mt-1">Status: Encrypted_Connection_Established</h1>
             </div>
           </div>
 
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-4 w-full md:w-auto">
             <motion.button 
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleSave}
               disabled={isSaving || isBurning || !text}
-              className="px-8 py-4 bg-emerald-500 text-black rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-[0_0_30px_rgba(16,185,129,0.3)] disabled:opacity-20 flex items-center gap-2"
+              className="flex-1 md:flex-none px-6 py-4 bg-emerald-500 text-black rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-[0_0_30px_rgba(16,185,129,0.3)] disabled:opacity-20 flex items-center justify-center gap-2"
             >
               <Lock size={14} />
               {isSaving ? 'TRANCANDO...' : 'Selar Segredo'}
@@ -132,7 +135,7 @@ export default function CofrePage() {
               whileTap={{ scale: 0.98 }}
               onClick={handleBurn}
               disabled={isBurning || isSaving || !text}
-              className="px-8 py-4 border border-orange-500/30 text-orange-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-orange-500/10 disabled:opacity-20 flex items-center gap-2"
+              className="flex-1 md:flex-none px-6 py-4 border border-orange-500/30 text-orange-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-orange-500/10 disabled:opacity-20 flex items-center justify-center gap-2"
             >
               <Flame size={14} />
               Queimar
@@ -141,7 +144,7 @@ export default function CofrePage() {
         </div>
 
         {/* ÁREA DE TEXTO */}
-        <div className="flex-1 relative pt-12 md:pt-20 px-4 md:px-0">
+        <div className="flex-1 relative">
           <AnimatePresence mode="wait">
             <motion.textarea
               key="terminal-input"
@@ -165,9 +168,9 @@ export default function CofrePage() {
                 duration: isSaving ? 1.5 : 2, 
                 ease: "easeInOut" 
               }}
-              placeholder="TRANSFIRA O PESO DOS SEUS PENSAMENTOS PARA O SILÊNCIO..."
+              placeholder="ESCREVA AQUI O QUE PESA EM SUA MENTE..."
               className={`
-                w-full h-full bg-transparent font-mono text-2xl md:text-6xl 
+                w-full min-h-[400px] md:h-full bg-transparent font-mono text-2xl md:text-5xl lg:text-7xl 
                 outline-none resize-none leading-[1.1] tracking-tighter
                 placeholder:text-emerald-500/10 scrollbar-hide
                 ${isBurning || isSaving ? 'pointer-events-none' : 'text-emerald-500/80'}
@@ -189,28 +192,20 @@ export default function CofrePage() {
         </div>
 
         {/* FOOTER */}
-        <div className="mt-12 flex flex-col md:flex-row items-center gap-6 border-t border-white/5 pt-8 opacity-40">
+        <div className="mt-12 mb-8 flex flex-col md:flex-row items-center gap-6 border-t border-white/5 pt-8 opacity-40">
           <div className="flex items-center gap-3">
             <Key size={12} className="text-emerald-500" />
-            <p className="text-[9px] font-mono text-emerald-500 tracking-[0.4em] uppercase">
+            <p className="text-[9px] font-mono text-emerald-500 tracking-[0.4em] uppercase font-black">
               Criptografia Neural Ativa
             </p>
           </div>
           <div className="h-px flex-1 bg-white/5 hidden md:block" />
-          <p className="text-[9px] font-mono text-emerald-500 tracking-[0.4em] uppercase">
+          <p className="text-[9px] font-mono text-emerald-500 tracking-[0.4em] uppercase font-black">
             Ninguém além de você lê o que está aqui.
           </p>
         </div>
 
       </motion.div>
     </div>
-  );
-}
-
-function ArrowLeft({ size, className }: any) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-      <path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>
-    </svg>
   );
 }
