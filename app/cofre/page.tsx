@@ -192,7 +192,7 @@ export default function CofrePage() {
         </div>
 
         {/* FOOTER */}
-        <div className="mt-12 mb-8 flex flex-col md:flex-row items-center gap-6 border-t border-white/5 pt-8 opacity-40">
+        <div className="mt-12 mb-8 flex flex-col md:flex-row items-center gap-6 border-t border-white/10 pt-8">
           <div className="flex items-center gap-3">
             <Key size={12} className="text-emerald-500" />
             <p className="text-[9px] font-mono text-emerald-500 tracking-[0.4em] uppercase font-black">
@@ -200,9 +200,14 @@ export default function CofrePage() {
             </p>
           </div>
           <div className="h-px flex-1 bg-white/5 hidden md:block" />
-          <p className="text-[9px] font-mono text-emerald-500 tracking-[0.4em] uppercase font-black">
-            Ninguém além de você lê o que está aqui.
-          </p>
+          <div className="flex flex-col items-end gap-1">
+            <p className="text-[10px] font-black text-white tracking-[0.2em] uppercase italic">
+              O que acontece na Âncora fica na Âncora.
+            </p>
+            <p className="text-[8px] font-mono text-emerald-500/40 tracking-[0.4em] uppercase font-black">
+              Ninguém além de você lê o que está aqui.
+            </p>
+          </div>
         </div>
 
       </motion.div>

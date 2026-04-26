@@ -78,7 +78,8 @@ export default function Sidebar() {
     router.refresh();
   };
 
-  if (pathname === '/porto') return null;
+  // O menu agora deve estar visível em todas as abas para consistência de navegação.
+  // if (pathname === '/porto') return null;
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-white/80 md:bg-white/40 backdrop-blur-xl md:backdrop-blur-md border-r border-white/40">

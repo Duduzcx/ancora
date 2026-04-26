@@ -22,15 +22,13 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className={`${inter.className} antialiased overflow-x-hidden bg-transparent`}>
-        {/* O fundo é o primeiro elemento e fica atrás de tudo */}
         <AnimatedBackground />
         
-        <div className="relative flex min-h-screen">
-          <Sidebar />
-          <main className="flex-1 lg:ml-64 relative z-10 bg-transparent">
-            {children}
-          </main>
-        </div>
+        <Sidebar />
+        
+        <main className="lg:ml-64 relative z-10 bg-transparent min-h-screen">
+          {children}
+        </main>
       </body>
     </html>
   );

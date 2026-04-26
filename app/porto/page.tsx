@@ -168,7 +168,7 @@ function PortoContent() {
   const visibleMessages = messages.filter(m => !m.content.startsWith('SISTEMA:'));
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-white flex h-screen overflow-hidden">
+    <div className="relative flex h-screen overflow-hidden bg-transparent">
       <AnimatedBackground subtle />
       <AnimatePresence>
         {user && (
