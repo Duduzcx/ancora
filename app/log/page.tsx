@@ -393,7 +393,6 @@ export default function LogPage() {
         )}
       </AnimatePresence>
         </div>
-      </div>
     </main>
   );
 }
