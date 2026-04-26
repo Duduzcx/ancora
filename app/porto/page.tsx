@@ -125,44 +125,60 @@ function PortoContent() {
 
   const handleCustomSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input?.trim()) return;
+    const messageContent = input.trim();
+    if (!messageContent) return;
 
-    handleSubmit(e);
+    // Limpa o input imediatamente para melhor UX
+    handleInputChange({ target: { value: '' } } as any);
 
+    // Se estiver logado, garante que o chat existe antes de enviar
     if (user) {
-      let currentChatId = chatId;
-      if (!currentChatId) {
-        // Gera um título limpo a partir da primeira mensagem
-        const cleanTitle = input.trim().length > 30 
-          ? input.trim().substring(0, 30) + "..." 
-          : input.trim();
-
-        const { data, error: chatError } = await supabase
-          .from('chats')
-          .insert({ 
-            user_id: user.id, 
-            title: cleanTitle || "Nova Conversa" 
-          })
-          .select()
-          .single();
+      try {
+        let currentChatId = chatId;
         
-        if (data) {
-          setChatId(data.id);
-          chatIdRef.current = data.id;
-          currentChatId = data.id;
-          // Atualiza a URL sem recarregar a página
-          router.replace(`/porto?id=${data.id}`, { scroll: false });
-        }
-      }
+        if (!currentChatId) {
+          const cleanTitle = messageContent.length > 30 
+            ? messageContent.substring(0, 30) + "..." 
+            : messageContent;
 
-      if (currentChatId) {
-        await supabase.from('messages').insert({
-          chat_id: currentChatId,
-          role: 'user',
-          content: input
-        });
+          const { data, error: chatError } = await supabase
+            .from('chats')
+            .insert({ 
+              user_id: user.id, 
+              title: cleanTitle || "Nova Conversa" 
+            })
+            .select()
+            .single();
+          
+          if (chatError) throw chatError;
+          
+          if (data) {
+            setChatId(data.id);
+            chatIdRef.current = data.id;
+            currentChatId = data.id;
+            router.replace(`/porto?id=${data.id}`, { scroll: false });
+          }
+        }
+
+        if (currentChatId) {
+          // Salva mensagem do usuário
+          const { error: msgError } = await supabase.from('messages').insert({
+            chat_id: currentChatId,
+            role: 'user',
+            content: messageContent
+          });
+          if (msgError) throw msgError;
+        }
+      } catch (err) {
+        console.error("Erro ao salvar no histórico:", err);
       }
     }
+
+    // Inicia o stream da IA
+    append({
+      role: 'user',
+      content: messageContent
+    });
   };
 
   const loadChat = async (id: string) => {
