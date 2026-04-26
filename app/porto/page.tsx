@@ -26,12 +26,18 @@ function PortoContent() {
   const { messages, input, handleInputChange, handleSubmit, setMessages, isLoading, error, append } = useChat({
     api: '/api/chat',
     onFinish: async (message) => {
-      if (chatIdRef.current && user) {
-        await supabase.from('messages').insert({
-          chat_id: chatIdRef.current,
-          role: 'assistant',
-          content: message.content
-        });
+      if (chatIdRef.current) {
+        const currentMessages = [...messages, message];
+        // Cache local imediato
+        localStorage.setItem(`ancora-chat-${chatIdRef.current}`, JSON.stringify(currentMessages));
+        
+        if (user) {
+          await supabase.from('messages').insert({
+            chat_id: chatIdRef.current,
+            role: 'assistant',
+            content: message.content
+          });
+        }
       }
     }
   });
@@ -157,11 +163,20 @@ function PortoContent() {
             chatIdRef.current = data.id;
             currentChatId = data.id;
             router.replace(`/porto?id=${data.id}`, { scroll: false });
+            
+            // Salva o meta do chat no local para o sidebar
+            const localChats = JSON.parse(localStorage.getItem('ancora-local-chats') || '[]');
+            localChats.unshift({ id: data.id, title: cleanTitle, created_at: new Date().toISOString() });
+            localStorage.setItem('ancora-local-chats', JSON.stringify(localChats.slice(0, 20)));
           }
         }
 
         if (currentChatId) {
-          // Salva mensagem do usuário
+          // Salva mensagem do usuário no cache local primeiro
+          const currentMessages = [...messages, { role: 'user', content: messageContent }];
+          localStorage.setItem(`ancora-chat-${currentChatId}`, JSON.stringify(currentMessages));
+
+          // Salva no Supabase
           const { error: msgError } = await supabase.from('messages').insert({
             chat_id: currentChatId,
             role: 'user',
@@ -172,6 +187,10 @@ function PortoContent() {
       } catch (err) {
         console.error("Erro ao salvar no histórico:", err);
       }
+    } else {
+      // Guest: Salva apenas no local
+      const guestMessages = [...messages, { role: 'user', content: messageContent }];
+      localStorage.setItem('ancora-guest-chat', JSON.stringify(guestMessages));
     }
 
     // Inicia o stream da IA
@@ -183,26 +202,34 @@ function PortoContent() {
 
   const loadChat = async (id: string) => {
     if (!id) {
+      setMessages([{ id: 'welcome', role: 'assistant', content: "Fala! Sou o Âncora. Tô aqui pra te ouvir. Como você tá se sentindo agora?" }]);
       setChatId(null);
-      // Se limpar o chat logado, volta pro estado inicial ou recupera guest se existir
-      setMessages([
-        {
-          id: 'welcome',
-          role: 'assistant',
-          content: "Fala! Sou o Âncora. Tô aqui pra te ouvir. Como você tá se sentindo agora?"
-        }
-      ]);
+      chatIdRef.current = null;
+      router.replace('/porto', { scroll: false });
       return;
     }
+
     setChatId(id);
     chatIdRef.current = id;
+    router.replace(`/porto?id=${id}`, { scroll: false });
+
+    // Tenta carregar do cache local primeiro
+    const cached = localStorage.getItem(`ancora-chat-${id}`);
+    if (cached) {
+      setMessages(JSON.parse(cached));
+    }
+
+    // Carrega do Supabase para garantir sincronia
     const { data } = await supabase
       .from('messages')
       .select('*')
       .eq('chat_id', id)
       .order('created_at', { ascending: true });
-    if (data) {
-      setMessages(data.map(m => ({ id: m.id, role: m.role, content: m.content })));
+    
+    if (data && data.length > 0) {
+      const dbMessages = data.map(m => ({ id: m.id, role: m.role, content: m.content }));
+      setMessages(dbMessages);
+      localStorage.setItem(`ancora-chat-${id}`, JSON.stringify(dbMessages));
     }
   };
 

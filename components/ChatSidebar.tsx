@@ -20,14 +20,32 @@ export default function ChatSidebar({ onSelectChat, currentChatId }: { onSelectC
     const fetchChats = async () => {
       const { data: { user: sessionUser } } = await supabase.auth.getUser();
       setUser(sessionUser);
+      
+      let allChats: Chat[] = [];
+
+      // 1. Carrega do Cache Local (Instantâneo)
+      const localChats = JSON.parse(localStorage.getItem('ancora-local-chats') || '[]');
+      allChats = [...localChats];
+
+      // 2. Carrega do Supabase (Se logado)
       if (sessionUser) {
         const { data } = await supabase
           .from('chats')
           .select('*')
           .eq('user_id', sessionUser.id)
           .order('created_at', { ascending: false });
-        if (data) setChats(data);
+        
+        if (data) {
+          // Merge Inteligente: Prefere dados do Supabase mas mantém locais novos
+          const dbIds = new Set(data.map(c => c.id));
+          const onlyLocal = localChats.filter((lc: Chat) => !dbIds.has(lc.id));
+          allChats = [...data, ...onlyLocal].sort((a, b) => 
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          );
+        }
       }
+
+      setChats(allChats);
     };
     fetchChats();
   }, [currentChatId]);
