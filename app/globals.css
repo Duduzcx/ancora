@@ -18,10 +18,6 @@ body {
   background: transparent;
   color: var(--foreground);
   overflow-x: hidden;
-  /* Força a GPU a lidar com camadas para evitar travamentos */
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  perspective: 1000;
 }
 
 /* Otimização de Scrollbars Customizados */

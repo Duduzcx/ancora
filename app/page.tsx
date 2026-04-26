@@ -64,11 +64,11 @@ export default function Home() {
   };
 
   return (
-    <main className="lg:pl-64 lg:pr-64 min-h-screen bg-transparent flex justify-center items-center overflow-x-hidden">
+    <main className="min-h-screen bg-transparent flex justify-center items-center overflow-x-hidden">
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="max-w-6xl w-full p-8 lg:p-12 flex flex-col space-y-40 pb-40"
+        className="max-w-6xl w-full p-6 md:p-12 flex flex-col space-y-32 md:space-y-40 pb-40"
       >
         
         {/* 1. HERO SECTION */}
