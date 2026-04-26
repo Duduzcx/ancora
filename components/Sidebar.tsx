@@ -76,6 +76,13 @@ export default function Sidebar() {
     setIsMobileMenuOpen(false);
   }, [pathname]);
 
+  // Listener para abrir o menu a partir de outras páginas
+  useEffect(() => {
+    const handleOpen = () => setIsMobileMenuOpen(true);
+    window.addEventListener('open-main-sidebar', handleOpen);
+    return () => window.removeEventListener('open-main-sidebar', handleOpen);
+  }, []);
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     router.push('/auth');
@@ -164,21 +171,28 @@ export default function Sidebar() {
     </div>
   );
 
+  const isFullPage = pathname?.startsWith("/porto") || pathname?.startsWith("/arena") || pathname?.startsWith("/cofre") || pathname === "/auth";
+
   return (
     <>
-      {/* HEADER MOBILE */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white/60 backdrop-blur-md border-b border-white/40 z-[60] flex items-center justify-between px-6">
-        <Link href="/" className="flex items-center gap-2">
-          <Anchor size={20} className="text-slate-900" />
-          <span className="text-lg font-black tracking-tighter text-slate-900">Âncora</span>
-        </Link>
-        <button 
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="p-2 text-slate-900 bg-slate-900/5 rounded-xl transition-colors"
-        >
-          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </header>
+      {/* HEADER MOBILE (Hides on full-page routes like Porto/Arena) */}
+      {!isFullPage && (
+        <header className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white/60 backdrop-blur-md border-b border-white/40 z-[60] flex items-center justify-between px-6">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="p-1.5 bg-slate-900 rounded-lg text-emerald-400">
+              <Anchor size={18} />
+            </div>
+            <span className="text-xs font-black uppercase tracking-widest text-slate-900">Ancora</span>
+          </Link>
+          
+          <button 
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="p-2 text-slate-600 hover:text-slate-900 transition-colors"
+          >
+            <Menu size={24} />
+          </button>
+        </header>
+      )}
 
       {/* SIDEBAR DESKTOP */}
       {!isPorto && (
@@ -211,8 +225,8 @@ export default function Sidebar() {
         )}
       </AnimatePresence>
 
-      {/* Espaçador para o conteúdo não ficar atrás do header mobile */}
-      <div className="lg:hidden h-16 w-full" />
+      {/* Espaçador para o conteúdo não ficar atrás do header mobile (SÓ APARECE SE O HEADER APARECER) */}
+      {!isFullPage && <div className="lg:hidden h-16 w-full" />}
     </>
   );
 }

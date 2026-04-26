@@ -103,19 +103,27 @@ export default function ArenaPage() {
           >
             {/* Header Simulação */}
             <div className="flex-none p-4 md:p-6 border-b border-white/5 flex items-center justify-between bg-slate-900/50 backdrop-blur-md md:rounded-t-[40px]">
-              <button 
-                onClick={() => {
-                  setSelected(null);
-                  setMessages([]);
-                  hasStarted.current = false;
-                }}
-                className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group"
-              >
-                <div className="p-2 bg-slate-800 rounded-xl group-hover:bg-slate-700">
-                  <ArrowLeft size={18} />
-                </div>
-                <span className="font-black text-[10px] tracking-widest uppercase">Sair</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => window.dispatchEvent(new CustomEvent('open-main-sidebar'))}
+                  className="md:hidden p-2.5 bg-slate-800 text-white rounded-xl shadow-lg mr-2"
+                >
+                  <Menu size={18} />
+                </button>
+                <button 
+                  onClick={() => {
+                    setSelected(null);
+                    setMessages([]);
+                    hasStarted.current = false;
+                  }}
+                  className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group"
+                >
+                  <div className="p-2 bg-slate-800 rounded-xl group-hover:bg-slate-700">
+                    <ArrowLeft size={18} />
+                  </div>
+                  <span className="hidden xs:inline font-black text-[10px] tracking-widest uppercase">Sair</span>
+                </button>
+              </div>
               <div className="flex items-center gap-3">
                 <div className="text-right">
                   <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">{selected.title}</p>

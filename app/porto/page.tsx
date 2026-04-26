@@ -99,11 +99,23 @@ function PortoContent() {
         {/* Header - Fixo no topo */}
         <header className="h-20 shrink-0 flex items-center justify-between px-4 md:px-8 bg-white/40 backdrop-blur-xl border-b border-white/30 z-30">
           <div className="flex items-center gap-3 md:gap-6">
+            {/* Botão Menu Lateral Site (Mobile) */}
+            <button 
+              onClick={() => {
+                // Dispara evento para o Sidebar global ou usa contexto se existir
+                // Como não temos contexto fácil aqui, vamos usar um CustomEvent
+                window.dispatchEvent(new CustomEvent('open-main-sidebar'));
+              }}
+              className="md:hidden p-2.5 bg-slate-900 text-white rounded-2xl shadow-xl"
+            >
+              <Menu size={20} />
+            </button>
+
             <Link href="/">
               <motion.button 
                 whileHover={{ scale: 1.1, x: -2 }}
                 whileTap={{ scale: 0.9 }}
-                className="p-2 md:p-2.5 bg-slate-900 text-white rounded-2xl shadow-xl flex items-center justify-center group"
+                className="hidden sm:flex p-2 md:p-2.5 bg-white/60 border border-white/40 text-slate-900 rounded-2xl shadow-sm items-center justify-center group"
               >
                 <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
               </motion.button>
@@ -111,10 +123,10 @@ function PortoContent() {
 
             <button 
               onClick={() => setIsHistoryOpen(true)}
-              className="md:hidden p-2.5 bg-white/60 border border-white/40 rounded-2xl text-slate-900 shadow-sm flex items-center gap-2"
+              className="p-2.5 bg-white/60 border border-white/40 rounded-2xl text-slate-900 shadow-sm flex items-center gap-2"
             >
               <Clock size={18} />
-              <span className="text-[10px] font-black uppercase tracking-widest">Histórico</span>
+              <span className="hidden xs:inline text-[10px] font-black uppercase tracking-widest">Histórico</span>
             </button>
 
             <div className="hidden sm:flex items-center gap-3 md:gap-4">

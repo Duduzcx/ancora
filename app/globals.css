@@ -9,15 +9,16 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Melhora a performance de scroll e toque */
   touch-action: manipulation;
   text-rendering: optimizeSpeed;
+  overscroll-behavior: none;
 }
 
 body {
-  background: transparent;
+  background: #020617; /* slate-950 fallback */
   color: var(--foreground);
   overflow-x: hidden;
+  overscroll-behavior: none;
 }
 
 /* Otimização de Scrollbars Customizados */

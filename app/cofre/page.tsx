@@ -100,12 +100,20 @@ export default function CofrePage() {
           >
             {/* Header Flex-none */}
             <div className="flex-none flex items-center gap-4 mb-8">
-              <button 
-                onClick={() => setHasStarted(false)}
-                className="p-3 border border-white/10 text-white/40 hover:text-white rounded-2xl bg-white/5 transition-all"
-              >
-                <ArrowLeft size={20} />
-              </button>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => window.dispatchEvent(new CustomEvent('open-main-sidebar'))}
+                  className="md:hidden p-3 bg-white/5 border border-white/10 text-white rounded-2xl"
+                >
+                  <Menu size={20} />
+                </button>
+                <button 
+                  onClick={() => setHasStarted(false)}
+                  className="p-3 border border-white/10 text-white/40 hover:text-white rounded-2xl bg-white/5 transition-all"
+                >
+                  <ArrowLeft size={20} />
+                </button>
+              </div>
               <div className="flex flex-col">
                 <div className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_#10b981]" />
@@ -126,19 +134,20 @@ export default function CofrePage() {
                   spellCheck={false}
                   animate={isBurning ? { 
                     color: ["#10b981", "#f97316", "#ef4444", "#333"],
-                    y: -300,
-                    filter: ["blur(0px)", "blur(10px)", "blur(40px)"],
+                    y: -400,
+                    filter: ["blur(0px)", "blur(20px)", "blur(60px)"],
                     opacity: 0,
-                    scale: [1, 1.2, 0.5],
-                    rotate: [0, 5, -5, 0]
+                    scale: [1, 1.3, 0.3],
+                    rotate: [0, 10, -10, 0],
+                    skewX: [0, 20, -20, 0]
                   } : (isSaving ? { 
                     opacity: 0, 
-                    scale: 0.2, 
-                    filter: "blur(20px)",
-                    y: 200,
-                    rotate: 180
+                    scale: 0.1, 
+                    filter: "blur(30px)",
+                    y: 300,
+                    rotate: 360
                   } : { opacity: 1, scale: 1 })}
-                  transition={{ duration: 2, ease: "easeInOut" }}
+                  transition={{ duration: 2.5, ease: "anticipate" }}
                   placeholder="ESCREVA O QUE PESA EM SUA MENTE..."
                   className={`
                     w-full h-full bg-transparent font-mono text-xl md:text-3xl lg:text-4xl 
@@ -149,31 +158,31 @@ export default function CofrePage() {
                 />
               </AnimatePresence>
 
-              {/* Animação de Queimar Melhorada */}
+              {/* Animação de Queimar Melhorada - Cinzas e Fagulhas */}
               {isBurning && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  {[...Array(12)].map((_, i) => (
+                  {[...Array(24)].map((_, i) => (
                     <motion.div
                       key={i}
                       initial={{ opacity: 0, y: 100, scale: 0 }}
                       animate={{ 
-                        opacity: [0, 0.8, 0], 
-                        y: [-100, -400 - (i * 20)], 
-                        x: [(i - 6) * 30, (i - 6) * 60],
-                        scale: [1, 3, 0],
-                        rotate: i * 30
+                        opacity: [0, 1, 1, 0], 
+                        y: [0, -600], 
+                        x: [(i - 12) * 20, (i - 12) * 50 + (Math.random() - 0.5) * 200],
+                        scale: [Math.random() * 2, Math.random() * 4, 0],
+                        rotate: Math.random() * 720
                       }}
-                      transition={{ duration: 1.5, delay: i * 0.05 }}
-                      className="absolute text-orange-500"
+                      transition={{ duration: 2 + Math.random(), delay: Math.random() * 0.5 }}
+                      className={`absolute ${i % 2 === 0 ? 'text-orange-500' : 'text-slate-400'}`}
                     >
-                      <Flame size={40 + (i * 10)} className="blur-[2px]" />
+                      {i % 2 === 0 ? <Flame size={30 + Math.random() * 40} /> : <div className="w-2 h-2 bg-current rounded-full blur-[1px]" />}
                     </motion.div>
                   ))}
                   <motion.div 
                     initial={{ opacity: 0 }}
-                    animate={{ opacity: [0, 1, 0] }}
-                    transition={{ duration: 2 }}
-                    className="absolute inset-0 bg-orange-500/20 blur-[100px]"
+                    animate={{ opacity: [0, 0.6, 0] }}
+                    transition={{ duration: 2.5 }}
+                    className="absolute inset-0 bg-gradient-to-t from-orange-600/30 via-orange-500/10 to-transparent blur-[120px]"
                   />
                 </div>
               )}
@@ -182,18 +191,18 @@ export default function CofrePage() {
               {isSaving && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                   <motion.div
-                    initial={{ scale: 5, opacity: 0, rotate: -180 }}
+                    initial={{ scale: 8, opacity: 0, rotate: -360 }}
                     animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                    transition={{ duration: 1, ease: "backOut" }}
+                    transition={{ duration: 1.2, ease: "backOut" }}
                     className="text-emerald-500"
                   >
-                    <ShieldCheck size={150} strokeWidth={1} />
+                    <ShieldCheck size={180} strokeWidth={0.5} />
                   </motion.div>
                   <motion.div 
                     initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: [1, 2], opacity: [0.5, 0] }}
-                    transition={{ duration: 1 }}
-                    className="absolute w-64 h-64 border-4 border-emerald-500 rounded-full"
+                    animate={{ scale: [1, 4], opacity: [0.8, 0] }}
+                    transition={{ duration: 1.2 }}
+                    className="absolute w-64 h-64 border-[8px] border-emerald-500 rounded-full"
                   />
                 </div>
               )}
