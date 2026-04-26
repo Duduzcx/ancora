@@ -36,7 +36,7 @@ export default function CofrePage() {
   };
 
   return (
-    <main className="flex flex-col h-[100dvh] overflow-hidden bg-slate-950 relative md:pl-64 transition-all">
+    <main className="flex flex-col h-[100dvh] w-full overflow-hidden bg-slate-950 relative md:pl-64 transition-all overscroll-none touch-pan-y">
       
       {/* BACKGROUND DE PARTÍCULAS (DISCRETO) */}
       <div className="absolute inset-0 pointer-events-none opacity-20 z-0">

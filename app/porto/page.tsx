@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, User, Sparkles, Anchor, ArrowLeft, AlertCircle } from 'lucide-react';
+import { Send, Bot, User, Sparkles, Anchor, ArrowLeft, AlertCircle, Clock } from 'lucide-react';
 import { createClient } from '@/lib/supabase-client';
 import Link from 'next/link';
 import ChatHistorySidebar from '@/components/ChatHistorySidebar';
@@ -18,6 +18,7 @@ function PortoContent() {
   
   const [user, setUser] = useState<any>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const { messages, input, handleInputChange, handleSubmit, setMessages, isLoading, error } = useChat({
@@ -81,15 +82,20 @@ function PortoContent() {
   if (!isMounted) return null;
 
   return (
-    <div className="flex h-[100dvh] w-full pl-0 md:pl-[calc(16rem+18rem)] relative z-10 bg-transparent transition-all overflow-hidden">
+    <div className="flex h-[100dvh] w-full pl-0 md:pl-[calc(16rem+18rem)] relative z-10 bg-transparent transition-all overflow-hidden overscroll-none">
       <AnimatedBackground subtle />
       
-      {user && <ChatHistorySidebar />}
+      {user && (
+        <ChatHistorySidebar 
+          isOpen={isHistoryOpen} 
+          onClose={() => setIsHistoryOpen(false)} 
+        />
+      )}
 
-      <main className="flex-1 flex flex-col h-full relative overflow-hidden">
+      <main className="flex-1 flex flex-col h-full relative overflow-hidden overscroll-none">
         {/* Header - Fixo no topo */}
-        <header className="h-20 shrink-0 flex items-center justify-between px-6 md:px-8 bg-white/40 backdrop-blur-xl border-b border-white/30 z-30">
-          <div className="flex items-center gap-4 md:gap-6">
+        <header className="h-20 shrink-0 flex items-center justify-between px-4 md:px-8 bg-white/40 backdrop-blur-xl border-b border-white/30 z-30">
+          <div className="flex items-center gap-3 md:gap-6">
             <Link href="/">
               <motion.button 
                 whileHover={{ scale: 1.1, x: -2 }}
@@ -100,7 +106,15 @@ function PortoContent() {
               </motion.button>
             </Link>
 
-            <div className="flex items-center gap-3 md:gap-4">
+            <button 
+              onClick={() => setIsHistoryOpen(true)}
+              className="md:hidden p-2.5 bg-white/60 border border-white/40 rounded-2xl text-slate-900 shadow-sm flex items-center gap-2"
+            >
+              <Clock size={18} />
+              <span className="text-[10px] font-black uppercase tracking-widest">Histórico</span>
+            </button>
+
+            <div className="hidden sm:flex items-center gap-3 md:gap-4">
               <div className="p-2 md:p-2.5 bg-blue-600 rounded-2xl text-white shadow-lg shadow-blue-500/20">
                 <Anchor size={20} />
               </div>
@@ -125,7 +139,7 @@ function PortoContent() {
         {/* Área de Mensagens - ÚNICA ÁREA SCROLLABLE */}
         <div 
           ref={scrollRef}
-          className="flex-1 overflow-y-auto scroll-smooth custom-scrollbar px-4 py-6"
+          className="flex-1 overflow-y-auto scroll-smooth custom-scrollbar px-4 py-6 overscroll-contain"
         >
           <div className="max-w-3xl w-full mx-auto space-y-8 pb-10">
             <AnimatePresence initial={false}>
