@@ -125,18 +125,20 @@ export default function CofrePage() {
                   onChange={(e) => setText(e.target.value)}
                   spellCheck={false}
                   animate={isBurning ? { 
-                    color: ["#10b981", "#f97316", "#ef4444"],
-                    y: -150,
-                    filter: "blur(30px)",
+                    color: ["#10b981", "#f97316", "#ef4444", "#333"],
+                    y: -300,
+                    filter: ["blur(0px)", "blur(10px)", "blur(40px)"],
                     opacity: 0,
-                    scale: 0.8
+                    scale: [1, 1.2, 0.5],
+                    rotate: [0, 5, -5, 0]
                   } : (isSaving ? { 
                     opacity: 0, 
-                    scale: 0.9, 
+                    scale: 0.2, 
                     filter: "blur(20px)",
-                    y: 50 
+                    y: 200,
+                    rotate: 180
                   } : { opacity: 1, scale: 1 })}
-                  transition={{ duration: 1.5 }}
+                  transition={{ duration: 2, ease: "easeInOut" }}
                   placeholder="ESCREVA O QUE PESA EM SUA MENTE..."
                   className={`
                     w-full h-full bg-transparent font-mono text-xl md:text-3xl lg:text-4xl 
@@ -147,15 +149,53 @@ export default function CofrePage() {
                 />
               </AnimatePresence>
 
+              {/* Animação de Queimar Melhorada */}
               {isBurning && (
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: [0, 0.4, 0], y: -200, scale: [1, 2, 3] }}
-                  transition={{ duration: 2 }}
-                  className="absolute inset-0 flex items-center justify-center pointer-events-none"
-                >
-                  <Flame size={200} className="text-orange-500/40 blur-[60px]" />
-                </motion.div>
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  {[...Array(12)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 100, scale: 0 }}
+                      animate={{ 
+                        opacity: [0, 0.8, 0], 
+                        y: [-100, -400 - (i * 20)], 
+                        x: [(i - 6) * 30, (i - 6) * 60],
+                        scale: [1, 3, 0],
+                        rotate: i * 30
+                      }}
+                      transition={{ duration: 1.5, delay: i * 0.05 }}
+                      className="absolute text-orange-500"
+                    >
+                      <Flame size={40 + (i * 10)} className="blur-[2px]" />
+                    </motion.div>
+                  ))}
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0, 1, 0] }}
+                    transition={{ duration: 2 }}
+                    className="absolute inset-0 bg-orange-500/20 blur-[100px]"
+                  />
+                </div>
+              )}
+
+              {/* Animação de Salvar Melhorada */}
+              {isSaving && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <motion.div
+                    initial={{ scale: 5, opacity: 0, rotate: -180 }}
+                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                    transition={{ duration: 1, ease: "backOut" }}
+                    className="text-emerald-500"
+                  >
+                    <ShieldCheck size={150} strokeWidth={1} />
+                  </motion.div>
+                  <motion.div 
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={{ scale: [1, 2], opacity: [0.5, 0] }}
+                    transition={{ duration: 1 }}
+                    className="absolute w-64 h-64 border-4 border-emerald-500 rounded-full"
+                  />
+                </div>
               )}
             </div>
 
@@ -169,7 +209,7 @@ export default function CofrePage() {
                 className="flex-1 py-4.5 bg-emerald-500 text-black rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg disabled:opacity-20 flex items-center justify-center gap-2"
               >
                 <Lock size={16} />
-                {isSaving ? 'TRANCANDO...' : 'Selar Segredo'}
+                {isSaving ? 'SELANDO...' : 'Selar Segredo'}
               </motion.button>
               <motion.button 
                 whileHover={{ scale: 1.02 }}
@@ -179,7 +219,7 @@ export default function CofrePage() {
                 className="flex-1 py-4.5 border border-orange-500/30 text-orange-400 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-orange-500/10 transition-all disabled:opacity-20 flex items-center justify-center gap-2"
               >
                 <Flame size={16} />
-                Queimar Tudo
+                {isBurning ? 'QUEIMANDO...' : 'Queimar Tudo'}
               </motion.button>
             </div>
           </motion.div>

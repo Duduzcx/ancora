@@ -35,26 +35,27 @@ function PortoContent() {
   useEffect(() => {
     setIsMounted(true);
     const initialize = async () => {
-      const { data: { user: sessionUser } } = await supabase.auth.getUser();
-      setUser(sessionUser);
-
-      if (chatId) {
-        const { data } = await supabase
+      // Busca usuário e mensagens em paralelo para maior velocidade
+      const [userResponse, messagesResponse] = await Promise.all([
+        supabase.auth.getUser(),
+        chatId ? supabase
           .from('messages')
           .select('*')
           .eq('chat_id', chatId)
-          .order('created_at', { ascending: true });
-        
-        if (data && data.length > 0) {
-          setMessages(data.map(m => ({
-            id: m.id,
-            role: m.role as "user" | "assistant" | "system" | "data",
-            content: m.content
-          })));
-        } else {
-          setMessages([]);
-        }
-      } else {
+          .order('created_at', { ascending: true }) : Promise.resolve({ data: [] })
+      ]);
+
+      const sessionUser = userResponse.data.user;
+      setUser(sessionUser);
+
+      const data = messagesResponse.data;
+      if (data && data.length > 0) {
+        setMessages(data.map(m => ({
+          id: m.id,
+          role: m.role as "user" | "assistant" | "system" | "data",
+          content: m.content
+        })));
+      } else if (!chatId) {
         setMessages([
           {
             id: 'welcome',
@@ -62,6 +63,8 @@ function PortoContent() {
             content: 'Olá! Sou o Âncora, seu guia neste porto seguro. Nossas conversas são guardadas para que possamos continuar de onde paramos. Como posso te ajudar hoje?'
           }
         ]);
+      } else {
+        setMessages([]);
       }
     };
     initialize();
@@ -82,7 +85,7 @@ function PortoContent() {
   if (!isMounted) return null;
 
   return (
-    <div className="flex h-[100dvh] w-full pl-0 md:pl-[calc(16rem+18rem)] relative z-10 bg-transparent transition-all overflow-hidden overscroll-none">
+    <div className="flex h-[100dvh] w-full pl-0 md:pl-72 relative z-10 bg-transparent transition-all overflow-hidden overscroll-none">
       <AnimatedBackground subtle />
       
       {user && (
