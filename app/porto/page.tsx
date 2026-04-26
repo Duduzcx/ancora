@@ -5,7 +5,7 @@ import { useChat } from '@ai-sdk/react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Bot, User, Sparkles, Anchor, ArrowLeft, AlertCircle } from 'lucide-react';
-import { createClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase-client';
 import Link from 'next/link';
 import ChatHistorySidebar from '@/components/ChatHistorySidebar';
 import AnimatedBackground from '@/components/AnimatedBackground';

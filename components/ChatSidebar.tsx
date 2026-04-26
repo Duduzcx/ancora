@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { createClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase-client';
 import { MessageSquare, Plus, Clock, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 

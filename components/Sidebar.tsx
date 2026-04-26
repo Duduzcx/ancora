@@ -9,7 +9,7 @@ import {
   CheckCircle, Shield, LogOut, UserPlus, User, 
   Lightbulb, Menu, X 
 } from 'lucide-react';
-import { createClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase-client';
 
 const menuItems = [
   { icon: MessageCircle, label: 'O Porto', href: '/porto' },

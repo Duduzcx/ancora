@@ -1,6 +1,6 @@
 import { createGroq } from '@ai-sdk/groq';
 import { streamText } from 'ai';
-import { createServerSupabaseClient } from '@/lib/supabase';
+import { createServerSupabaseClient } from '@/lib/supabase-server';
 
 const groq = createGroq({
   apiKey: process.env.GROQ_API_KEY,

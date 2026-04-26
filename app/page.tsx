@@ -9,7 +9,7 @@ import {
   ArrowRight, Sparkles, ShieldCheck, Anchor,
   Wind, Cloud, Zap, LifeBuoy, Lightbulb
 } from 'lucide-react';
-import { createClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase-client';
 
 const features = [
   { title: "O Porto", desc: "Chat anônimo e seguro com nossa IA acolhedora para desabafos e suporte emocional imediato.", icon: MessageCircle, href: "/porto", color: "bg-blue-600", subtitle: "ACOLHIMENTO", dark: false },

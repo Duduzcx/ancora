@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { createClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase-client';
 import { useRouter } from 'next/navigation';
 import { Mail, Lock, User, ArrowRight, Anchor } from 'lucide-react';
 import AnimatedBackground from '@/components/AnimatedBackground';

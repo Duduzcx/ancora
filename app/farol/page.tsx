@@ -12,7 +12,7 @@ import {
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import AnimatedBackground from '@/components/AnimatedBackground';
-import { createClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase-client';
 
 export default function FarolPage() {
   const [progress, setProgress] = useState<number>(0);

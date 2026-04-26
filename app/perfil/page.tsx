@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { createClient } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase-client';
 import { User, Save, CheckCircle2, ArrowLeft, ShieldCheck, Anchor, Trash2, LifeBuoy } from 'lucide-react';
 import Link from 'next/link';
 import AnimatedBackground from '@/components/AnimatedBackground';
