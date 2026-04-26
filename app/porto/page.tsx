@@ -231,7 +231,6 @@ function PortoContent() {
         </div>
       </form>
     </main>
-    </div>
   );
 }
 
