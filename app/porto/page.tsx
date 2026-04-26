@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, User, ShieldCheck, Sparkles, AlertCircle, ArrowLeft, Anchor } from 'lucide-react';
+import { Send, Bot, User, ShieldCheck, Sparkles, AlertCircle, ArrowLeft, Anchor, Clock } from 'lucide-react';
 import { createClient } from '@/lib/supabase';
 import ChatSidebar from '@/components/ChatSidebar';
 import Link from 'next/link';
