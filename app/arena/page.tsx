@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sword, Briefcase, Users, Heart, ArrowLeft, Send, Bot, User, Anchor, Menu } from 'lucide-react';
+import Link from 'next/link';
 import { useChat } from '@ai-sdk/react';
 
 const scenarios = [
