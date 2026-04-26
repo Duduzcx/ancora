@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Flame, Lock, ShieldCheck, Key, ArrowLeft } from 'lucide-react';
+import { Flame, Lock, ShieldCheck, Key, ArrowLeft, Menu } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function CofrePage() {
@@ -36,7 +36,7 @@ export default function CofrePage() {
   };
 
   return (
-    <main className="flex flex-col h-[100dvh] w-full overflow-hidden bg-slate-950 relative md:pl-64 transition-all overscroll-none touch-pan-y">
+    <main className="flex flex-col h-[100dvh] overflow-hidden bg-black p-4 md:p-8 md:ml-64 relative z-10 transition-all overscroll-none touch-pan-y">
       
       {/* BACKGROUND DE PARTÍCULAS (DISCRETO) */}
       <div className="absolute inset-0 pointer-events-none opacity-20 z-0">
@@ -150,7 +150,7 @@ export default function CofrePage() {
                   transition={{ duration: 2.5, ease: "anticipate" }}
                   placeholder="ESCREVA O QUE PESA EM SUA MENTE..."
                   className={`
-                    w-full h-full bg-transparent font-mono text-xl md:text-3xl lg:text-4xl 
+                    flex-1 w-full bg-transparent font-mono text-xl md:text-3xl lg:text-4xl 
                     outline-none resize-none leading-relaxed tracking-tight
                     placeholder:text-emerald-500/20 scrollbar-hide
                     ${isBurning || isSaving ? 'pointer-events-none' : 'text-emerald-500/80'}
@@ -209,13 +209,13 @@ export default function CofrePage() {
             </div>
 
             {/* BOTÕES Flex-none */}
-            <div className="flex-none shrink-0 flex flex-col md:flex-row gap-3 pt-4 pb-6 border-t border-white/5 bg-slate-950/80 backdrop-blur-sm">
+            <div className="flex-none flex flex-col md:flex-row gap-4 pt-4 pb-safe bg-black">
               <motion.button 
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleSave}
                 disabled={isSaving || isBurning || !text}
-                className="flex-1 py-3.5 bg-emerald-500 text-black rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg disabled:opacity-20 flex items-center justify-center gap-2"
+                className="flex-1 py-4 bg-emerald-500 text-black rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg disabled:opacity-20 flex items-center justify-center gap-2"
               >
                 <Lock size={14} />
                 {isSaving ? 'SELANDO...' : 'Selar Segredo'}
@@ -225,7 +225,7 @@ export default function CofrePage() {
                 whileTap={{ scale: 0.98 }}
                 onClick={handleBurn}
                 disabled={isBurning || isSaving || !text}
-                className="flex-1 py-3.5 border border-orange-500/30 text-orange-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-orange-500/10 transition-all disabled:opacity-20 flex items-center justify-center gap-2"
+                className="flex-1 py-4 border border-orange-500/30 text-orange-400 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-orange-500/10 transition-all disabled:opacity-20 flex items-center justify-center gap-2"
               >
                 <Flame size={14} />
                 {isBurning ? 'QUEIMANDO...' : 'Queimar Tudo'}

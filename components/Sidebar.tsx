@@ -195,11 +195,9 @@ export default function Sidebar() {
       )}
 
       {/* SIDEBAR DESKTOP */}
-      {!isPorto && (
-        <aside className="hidden lg:flex w-64 h-screen fixed left-0 top-0 flex-col z-50">
-          <SidebarContent />
-        </aside>
-      )}
+      <aside className="hidden lg:flex w-64 h-screen fixed left-0 top-0 flex-col z-50">
+        <SidebarContent />
+      </aside>
 
       {/* SIDEBAR MOBILE (OVERLAY) */}
       <AnimatePresence>

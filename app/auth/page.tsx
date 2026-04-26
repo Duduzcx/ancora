@@ -62,7 +62,7 @@ export default function AuthPage() {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md mx-auto bg-white/40 backdrop-blur-2xl border border-white/60 rounded-[2.5rem] p-6 md:p-10 shadow-2xl relative z-10"
+        className="w-full max-w-md mx-auto bg-white/40 backdrop-blur-xl border border-white/60 rounded-[2rem] p-6 md:p-8 shadow-2xl relative z-10"
       >
         <div className="text-center mb-8">
           <div className="inline-flex p-4 bg-slate-900 text-emerald-400 rounded-2xl mb-6 shadow-xl">

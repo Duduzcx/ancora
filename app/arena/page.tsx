@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sword, Briefcase, Users, Heart, ArrowLeft, Send, Bot, User, Anchor } from 'lucide-react';
+import { Sword, Briefcase, Users, Heart, ArrowLeft, Send, Bot, User, Anchor, Menu } from 'lucide-react';
 import { useChat } from '@ai-sdk/react';
 
 const scenarios = [
@@ -52,7 +52,7 @@ export default function ArenaPage() {
   };
 
   return (
-    <main className="flex flex-col h-[100dvh] w-full overflow-hidden bg-slate-950 relative z-10 md:pl-64 transition-all overscroll-none touch-pan-y">
+    <main className="flex flex-col h-[100dvh] w-full overflow-hidden bg-slate-950 relative z-10 md:pl-[calc(16rem+18rem)] transition-all overscroll-none touch-pan-y">
       <AnimatePresence mode="wait">
         {!selected ? (
           <motion.div 
@@ -176,11 +176,11 @@ export default function ArenaPage() {
             </div>
 
             {/* Input Fixo */}
-            <div className="flex-none p-4 md:p-6 pb-safe bg-slate-900/80 backdrop-blur-xl border-t border-white/5 md:rounded-b-[40px]">
-              <form 
-                onSubmit={handleCustomSubmit}
-                className="flex gap-2 p-1.5 bg-slate-800 rounded-full border border-slate-700 shadow-2xl"
-              >
+            <form 
+              onSubmit={handleCustomSubmit}
+              className="flex-none p-4 md:p-6 pb-safe bg-slate-900/80 backdrop-blur-xl border-t border-white/5 md:rounded-b-[40px]"
+            >
+              <div className="flex gap-2 p-1.5 bg-slate-800 rounded-full border border-slate-700 shadow-2xl">
                 <input 
                   type="text" 
                   value={input}
@@ -195,8 +195,8 @@ export default function ArenaPage() {
                 >
                   <Send size={18} />
                 </button>
-              </form>
-            </div>
+              </div>
+            </form>
           </motion.div>
         )}
       </AnimatePresence>
