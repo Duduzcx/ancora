@@ -74,28 +74,41 @@ export default function Home() {
     else baseGreeting = 'Boa noite';
     setGreeting(baseGreeting);
 
-    const fetchUser = async (sessionUser: any) => {
-      if (sessionUser) {
-        const { data: profile } = await supabase.from('profiles').select('display_name').eq('id', sessionUser.id).single();
+    const initialize = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
+      
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('display_name')
+          .eq('id', user.id)
+          .maybeSingle();
+
         let displayName = profile?.display_name || 
-                            sessionUser.user_metadata?.display_name || 
+                            user.user_metadata?.display_name || 
                             'Amigo';
         
-        // Garantindo Primeira Letra Maiúscula
         displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
-        
-        setUser({ ...sessionUser, display_name: displayName });
-      } else {
-        setUser(null);
+        setUser({ ...user, display_name: displayName });
       }
     };
 
-    supabase.auth.getUser().then(({ data: { user } }) => fetchUser(user));
+    initialize();
+    
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      fetchUser(session?.user ?? null);
+      if (session?.user) {
+        // Update user if needed
+      } else {
+        setUser(null);
+      }
     });
 
     router.prefetch('/porto');
+    router.prefetch('/arena');
+    router.prefetch('/log');
+    router.prefetch('/cofre');
+    router.prefetch('/farol');
 
     return () => subscription.unsubscribe();
   }, [supabase, router]);

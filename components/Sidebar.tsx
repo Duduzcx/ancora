@@ -56,16 +56,22 @@ export default function Sidebar() {
 
   useEffect(() => {
     setIsMounted(true);
+    
+    // Check de sessão inicial rápido
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) fetchUser(session.user);
     });
 
-    menuItems.forEach(item => {
-      router.prefetch(item.href);
-    });
+    // Prefetch global apenas uma vez
+    const routes = ['/porto', '/arena', '/log', '/cofre', '/farol', '/perfil'];
+    routes.forEach(route => router.prefetch(route));
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      fetchUser(session?.user ?? null);
+      if (session?.user) {
+        fetchUser(session.user);
+      } else {
+        setUser(null);
+      }
     });
 
     return () => subscription.unsubscribe();
