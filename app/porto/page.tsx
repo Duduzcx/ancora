@@ -143,6 +143,14 @@ function PortoContent() {
             <h2 className="text-xs font-black text-slate-900 tracking-tighter leading-tight">O Porto</h2>
           </div>
 
+          <button 
+            onClick={() => setIsHistoryOpen(true)}
+            className="lg:hidden p-2 bg-white/60 border border-white/40 rounded-2xl text-slate-900 shadow-sm flex items-center gap-2 hover:bg-white transition-all active:scale-95 ml-4"
+          >
+            <Clock size={16} className="text-blue-600" />
+            <span className="text-[9px] font-black uppercase tracking-wider">Histórico</span>
+          </button>
+
 
 
           <div className="hidden sm:flex items-center gap-4 ml-4">
