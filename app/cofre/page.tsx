@@ -119,7 +119,7 @@ export default function CofrePage() {
               <div className="flex items-center gap-2">
                 <button 
                   onClick={() => window.dispatchEvent(new CustomEvent('open-main-sidebar'))}
-                  className="lg:hidden p-3 bg-white/5 border border-white/10 text-white rounded-2xl"
+                  className="flex lg:hidden p-3 bg-white/5 border border-white/10 text-white rounded-2xl items-center justify-center"
                 >
                   <Menu size={20} />
                 </button>
