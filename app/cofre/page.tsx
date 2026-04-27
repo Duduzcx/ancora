@@ -32,7 +32,7 @@ export default function CofrePage() {
     setTimeout(() => {
       setText('');
       setIsBurning(false);
-    }, 2000);
+    }, 3000); // Aumentado para garantir fim da animação
   };
 
   return (
@@ -159,6 +159,7 @@ export default function CofrePage() {
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                     spellCheck={false}
+                    autoFocus
                     placeholder="ESCREVA O QUE PESA EM SUA MENTE..."
                     className={`
                       flex-1 w-full bg-transparent font-mono text-xl md:text-3xl lg:text-4xl 
