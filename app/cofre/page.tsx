@@ -97,7 +97,7 @@ export default function CofrePage() {
             >
               <Lock size={32} />
             </motion.div>
-            <h2 className="text-4xl font-black text-white tracking-tighter mb-4 uppercase italic">O Cofre</h2>
+            <h2 className="text-4xl font-black text-white tracking-tight mb-4 uppercase italic">O Cofre</h2>
             <p className="text-emerald-500/60 font-mono text-[10px] tracking-[0.3em] uppercase max-w-xs leading-relaxed mb-10">
               Espaço sagrado para o que não pode ser dito, apenas guardado.
             </p>
