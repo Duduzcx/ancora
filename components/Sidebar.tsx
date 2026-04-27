@@ -222,14 +222,14 @@ export default function Sidebar() {
         </header>
       )}
 
-      {/* SIDEBAR DESKTOP - Hidden on Porto and Arena as per user request */}
+      {/* SIDEBAR DESKTOP (Permanent on non-full pages) */}
       {!isFullPage && (
-        <aside className="hidden lg:flex w-64 h-screen fixed left-0 top-0 flex-col z-50">
+        <aside className="hidden lg:flex w-64 h-screen fixed left-0 top-0 flex-col z-50 shadow-2xl">
           <SidebarContent />
         </aside>
       )}
 
-      {/* SIDEBAR MOBILE (OVERLAY) */}
+      {/* SIDEBAR DRAWER (Overlay for Mobile OR for Full-Pages on Desktop) */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <>
@@ -238,14 +238,14 @@ export default function Sidebar() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMobileMenuOpen(false)}
-              className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[65] lg:hidden"
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100]"
             />
             <motion.aside 
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed left-0 top-0 bottom-0 w-72 z-[70] lg:hidden"
+              className="fixed left-0 top-0 bottom-0 w-72 z-[110]"
             >
               <SidebarContent />
             </motion.aside>

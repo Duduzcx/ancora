@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Plus, MessageSquare, Clock, ChevronRight, X } from 'lucide-react';
+import { Plus, MessageSquare, Clock, ChevronRight, X, ArrowLeft } from 'lucide-react';
 import { createClient } from '@/lib/supabase-client';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -153,7 +153,7 @@ export default function ChatHistorySidebar({ isOpen, onClose }: ChatHistorySideb
         </div>
         
         {/* Botão de Voltar ao Início no Desktop */}
-        <div className="mt-auto pt-4 border-t border-white/10">
+        <div className="mt-auto pt-4 border-t border-white/10 hidden lg:block">
           <button 
             onClick={() => router.push('/')}
             className="w-full flex items-center gap-3 px-6 py-4 text-slate-500 hover:text-slate-900 transition-colors font-black text-[10px] uppercase tracking-widest group"
