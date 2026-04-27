@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Sword, Briefcase, Users, Heart, ArrowLeft, Send, Bot, User, Anchor, Menu } from 'lucide-react';
 import Link from 'next/link';
 import { useChat } from '@ai-sdk/react';
+import AnimatedBackground from '@/components/AnimatedBackground';
 
 const scenarios = [
   { id: 1, title: "Reunião de Feedback", desc: "Pratique como lidar com críticas construtivas e pedir aumento.", icon: Briefcase, color: "text-blue-400" },
