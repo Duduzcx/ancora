@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Plus, MessageSquare, Clock, ChevronRight, X, ArrowLeft } from 'lucide-react';
+import { Plus, MessageSquare, Clock, ChevronRight, X, ArrowLeft, Anchor } from 'lucide-react';
 import { createClient } from '@/lib/supabase-client';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Chat {
