@@ -39,9 +39,10 @@ export default function FarolPage() {
     else setTimeState("Noite");
 
     const getProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user;
       if (user) {
-        const { data: profile } = await supabase.from('profiles').select('display_name').eq('id', user.id).single();
+        const { data: profile } = await supabase.from('profiles').select('display_name').eq('id', user.id).maybeSingle();
         let name = profile?.display_name || user.user_metadata?.display_name || "Amigo";
         setUserName(name.charAt(0).toUpperCase() + name.slice(1));
       }
@@ -163,7 +164,7 @@ export default function FarolPage() {
                 </Link>
                 <motion.button 
                   whileHover={{ scale: 1.05, y: -5 }}
-                  onClick={() => router.push(`/porto?mood=${encodeURIComponent(status.trigger)}`)}
+                  onClick={() => router.push(`/porto?humor=${encodeURIComponent(status.trigger)}`)}
                   className="px-10 py-6 bg-emerald-500 text-white rounded-[2.5rem] font-black flex items-center gap-4 shadow-2xl shadow-emerald-500/20 hover:bg-emerald-600 transition-all text-sm"
                 >
                   <MessageSquare size={24} />

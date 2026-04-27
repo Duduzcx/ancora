@@ -184,7 +184,7 @@ export default function LogPage() {
             <div className="absolute inset-0 bg-gradient-to-b from-blue-900/20 via-slate-950 to-slate-950" />
             
             {/* Partículas estáveis */}
-            {particlePos.map((pos, i) => (
+            {particlePos.map((pos: any, i: number) => (
               <motion.div
                 key={i}
                 animate={{ y: [-5, 5, -5], opacity: [0.1, 0.4, 0.1] }}
@@ -208,7 +208,7 @@ export default function LogPage() {
             <AnimatePresence>
               {progress >= 20 && (
                 <>
-                  {[...Array(6)].map((_, i) => (
+                  {[...Array(6)].map((_: any, i: number) => (
                     <motion.div
                       key={`p-${i}`}
                       initial={{ scale: 0, y: 50 }}
@@ -221,7 +221,7 @@ export default function LogPage() {
                       </motion.div>
                     </motion.div>
                   ))}
-                  {bubbleLefts.map((left, i) => (
+                  {bubbleLefts.map((left: any, i: number) => (
                     <motion.div
                       key={`b-${i}`}
                       initial={{ y: 600, opacity: 0 }}
@@ -235,7 +235,7 @@ export default function LogPage() {
               )}
               
               {progress >= 60 && (
-                [...Array(4)].map((_, i) => (
+                [...Array(4)].map((_: any, i: number) => (
                   <motion.div
                     key={`f-${i}`}
                     initial={{ x: -100, opacity: 0 }}

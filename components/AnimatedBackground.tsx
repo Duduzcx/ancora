@@ -52,7 +52,7 @@ const AnimatedBackground = ({ subtle = false }: AnimatedBackgroundProps) => {
       {anchors.map((anchor) => (
         <motion.div
           key={anchor.id}
-          className={`absolute ${subtle ? 'text-slate-900/[0.03]' : 'text-slate-900/10'}`}
+          className={`absolute ${subtle ? 'text-slate-900/[0.08]' : 'text-slate-900/[0.15]'}`}
           initial={{ 
             top: anchor.top, 
             left: anchor.left, 

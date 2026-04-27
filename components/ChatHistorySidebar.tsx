@@ -40,7 +40,7 @@ export default function ChatHistorySidebar({ isOpen, onClose }: ChatHistorySideb
       if (data) {
         setChats(data);
         // Prefetch das conversas para navegação instantânea
-        data.slice(0, 5).forEach(chat => {
+        data.slice(0, 5).forEach((chat: any) => {
           router.prefetch(`/porto?chatId=${chat.id}`);
         });
       }

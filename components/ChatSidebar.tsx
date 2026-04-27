@@ -18,7 +18,8 @@ export default function ChatSidebar({ onSelectChat, currentChatId }: { onSelectC
 
   useEffect(() => {
     const fetchChats = async () => {
-      const { data: { user: sessionUser } } = await supabase.auth.getUser();
+      const { data: { session } } = await supabase.auth.getSession();
+      const sessionUser = session?.user;
       setUser(sessionUser);
       
       let allChats: Chat[] = [];
@@ -37,7 +38,7 @@ export default function ChatSidebar({ onSelectChat, currentChatId }: { onSelectC
         
         if (data) {
           // Merge Inteligente: Prefere dados do Supabase mas mantém locais novos
-          const dbIds = new Set(data.map(c => c.id));
+          const dbIds = new Set(data.map((c: any) => c.id));
           const onlyLocal = localChats.filter((lc: Chat) => !dbIds.has(lc.id));
           allChats = [...data, ...onlyLocal].sort((a, b) => 
             new Date(b.created_at).getTime() - new Date(a.created_at).getTime()

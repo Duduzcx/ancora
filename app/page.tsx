@@ -96,9 +96,9 @@ export default function Home() {
 
     initialize();
     
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
       if (session?.user) {
-        // Update user if needed
+        // O usuário já é inicializado no initialize()
       } else {
         setUser(null);
       }

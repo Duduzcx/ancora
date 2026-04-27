@@ -40,7 +40,7 @@ export default function PerfilPage() {
           .select('display_name, name_changed')
           .eq('id', sessionUser.id)
           .maybeSingle()
-          .then(({ data: profile }) => {
+          .then(({ data: profile }: any) => {
             if (profile) {
               setName(profile.display_name || sessionUser.user_metadata?.display_name || '');
               setHasChangedName(profile.name_changed === true);

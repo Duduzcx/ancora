@@ -56,7 +56,7 @@ export default function CofrePage() {
         }
       `}</style>
       <div className="absolute inset-0 pointer-events-none opacity-20 z-0">
-        {[...Array(15)].map((_, i) => (
+        {[...Array(15)].map((_: any, i: number) => (
           <motion.div
             key={i}
             animate={{ 
@@ -174,7 +174,7 @@ export default function CofrePage() {
               {/* Animação de Queimar Melhorada - Cinzas e Fagulhas */}
               {isBurning && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[100]">
-                  {[...Array(40)].map((_, i) => (
+                  {[...Array(40)].map((_: any, i: number) => (
                     <motion.div
                       key={i}
                       initial={{ opacity: 0, y: 100, scale: 0 }}

@@ -58,7 +58,7 @@ export default function Sidebar() {
     setIsMounted(true);
     
     // Check de sessão inicial rápido
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session } }: any) => {
       if (session?.user) fetchUser(session.user);
     });
 
@@ -66,7 +66,7 @@ export default function Sidebar() {
     const routes = ['/porto', '/arena', '/log', '/cofre', '/farol', '/perfil'];
     routes.forEach(route => router.prefetch(route));
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event: any, session: any) => {
       if (session?.user) {
         fetchUser(session.user);
       } else {
