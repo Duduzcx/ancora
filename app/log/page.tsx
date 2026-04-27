@@ -12,6 +12,8 @@ import {
   Waves, Star, X, Menu
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import useSound from 'use-sound';
+import { useAudio } from '@/context/AudioContext';
 import Link from 'next/link';
 import AnimatedBackground from '@/components/AnimatedBackground';
 
@@ -72,7 +74,8 @@ export default function LogPage() {
   const [showVictory, setShowVictory] = useState(false);
   const [showReflection, setShowReflection] = useState(false);
   const [currentReflection, setCurrentReflection] = useState("");
-  const [feedback, setFeedback] = useState<string | null>(null);
+  const { isMuted } = useAudio();
+  const [playPop] = useSound('/sounds/bubble-pop.mp3', { volume: 0.5, soundEnabled: !isMuted });
   const [isMounted, setIsMounted] = useState(false);
   
   // Estados para valores aleatórios estáveis (evita erro de hidratação)
@@ -131,6 +134,7 @@ export default function LogPage() {
       if (t.id === id) {
         const newState = !t.completed;
         if (newState) {
+          playPop();
           setFeedback("Pérola coletada!");
           setTimeout(() => setFeedback(null), 1500);
         }
