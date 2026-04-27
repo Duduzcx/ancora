@@ -156,16 +156,29 @@ export default function Sidebar() {
             </motion.button>
           </motion.div>
         ) : (
-          <Link href="/auth">
-            <motion.button 
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.95 }}
-              className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-emerald-500 text-white rounded-2xl font-black text-sm hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20"
-            >
-              <UserPlus size={18} />
-              Entrar / Criar
-            </motion.button>
-          </Link>
+          <div className="space-y-6">
+            <div className="px-4 py-6 bg-slate-900 rounded-[2rem] relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-4 opacity-10 rotate-12 group-hover:rotate-45 transition-transform">
+                <Anchor size={60} />
+              </div>
+              <div className="relative z-10 space-y-3">
+                <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Aviso de Navegação</p>
+                <p className="text-white text-xs font-bold leading-relaxed">
+                  Sua jornada não está sendo salva. Crie uma conta para guardar suas pérolas e progresso.
+                </p>
+              </div>
+            </div>
+            <Link href="/auth">
+              <motion.button 
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.95 }}
+                className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-emerald-500 text-white rounded-2xl font-black text-sm hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20"
+              >
+                <UserPlus size={18} />
+                Entrar / Criar
+              </motion.button>
+            </Link>
+          </div>
         )}
       </div>
     </div>

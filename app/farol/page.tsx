@@ -96,6 +96,25 @@ export default function FarolPage() {
     <main className="min-h-screen bg-slate-50 p-4 md:p-8 lg:p-12 relative overflow-x-hidden flex flex-col items-center">
       <AnimatedBackground subtle />
 
+      {/* Header Arena-style */}
+      <header className="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between p-4 md:p-6 bg-slate-50/80 backdrop-blur-xl border-b border-slate-200/50 lg:hidden">
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => window.dispatchEvent(new CustomEvent('open-main-sidebar'))}
+            className="p-3 bg-slate-900 text-white rounded-2xl shadow-xl hover:scale-105 transition-transform"
+          >
+            <Menu size={20} />
+          </button>
+          <div className="flex flex-col">
+            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Guia</span>
+            <h2 className="text-xl font-black text-slate-900 tracking-tighter">O Farol</h2>
+          </div>
+        </div>
+      </header>
+
+      {/* Espaçador Mobile */}
+      <div className="h-16 lg:hidden" />
+
       {/* Efeito de Radar */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         <motion.div 
@@ -107,24 +126,21 @@ export default function FarolPage() {
 
       <div className="max-w-7xl w-full relative z-10 space-y-8 pb-24">
         
-        {/* NAV BAR */}
-        <div className="flex items-center justify-between bg-white/40 backdrop-blur-3xl p-6 rounded-[3rem] border border-white shadow-2xl">
+        {/* NAV BAR (Desktop) */}
+        <div className="hidden lg:flex items-center justify-between bg-white/40 backdrop-blur-3xl p-6 rounded-[3rem] border border-white shadow-2xl">
           <div className="flex items-center gap-6">
-            <Link href="/">
-              <motion.button whileHover={{ scale: 1.1 }} className="p-4 bg-slate-900 text-white rounded-2xl shadow-xl">
-                <ArrowLeft size={20} />
-              </motion.button>
-            </Link>
-            <div>
-              <div className="flex items-center gap-2">
-                <Radio size={14} className="text-emerald-500 animate-pulse" />
-                <h2 className="text-xl font-black text-slate-900 tracking-tighter uppercase italic">O Farol</h2>
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-slate-900 text-white rounded-2xl shadow-lg">
+                <Radio size={20} className="text-emerald-500 animate-pulse" />
               </div>
-              <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Centro de Inteligência</p>
+              <div>
+                <h2 className="text-xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">O Farol</h2>
+                <p className="text-xs font-black text-slate-400 uppercase tracking-widest mt-1">Centro de Inteligência</p>
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <div className="hidden md:flex px-6 py-2 bg-slate-900 text-white rounded-full text-xs font-black uppercase tracking-widest gap-2">
+            <div className="flex px-6 py-2 bg-slate-900 text-white rounded-full text-xs font-black uppercase tracking-widest gap-2">
               <Activity size={14} className="text-emerald-400" />
               Monitoramento Ativo
             </div>

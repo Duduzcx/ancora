@@ -157,38 +157,30 @@ export default function LogPage() {
             <h2 className="text-xl font-black text-slate-900 tracking-tighter">Sobrevivência</h2>
           </div>
         </div>
+        
+        {/* Progresso Rápido no Header */}
+        <div className="flex items-center gap-3 bg-white/50 px-4 py-2 rounded-2xl border border-white shadow-sm">
+          <div className="w-16 md:w-24 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+            <motion.div 
+              animate={{ width: `${progress}%` }} 
+              className="h-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]" 
+            />
+          </div>
+          <span className="text-xs font-black text-slate-900 tabular-nums">{Math.round(progress)}%</span>
+        </div>
       </header>
 
       <div className="flex-1 overflow-y-auto w-full custom-scrollbar overscroll-contain p-4 md:p-8 lg:p-12">
         <div className="max-w-[1400px] mx-auto space-y-8">
         
+        {/* Status Section (Sem botão de voltar) */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white/40 backdrop-blur-3xl p-6 md:p-10 rounded-[3rem] border border-white shadow-2xl">
-          <div className="flex items-center gap-6">
-            <Link href="/">
-              <motion.button whileHover={{ scale: 1.1 }} className="p-4 bg-white border border-slate-200 text-slate-400 rounded-2xl shadow-sm">
-                <ArrowLeft size={20} />
-              </motion.button>
-            </Link>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">Status Atual</h1>
-              <p className="text-xs font-black text-emerald-600 uppercase tracking-widest mt-1">Seu Ecossistema</p>
-            </div>
+          <div className="flex flex-col text-center md:text-left">
+            <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">Ecossistema de Hoje</h1>
+            <p className="text-xs font-black text-emerald-600 uppercase tracking-widest mt-1">Status da sua Jornada</p>
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-8">
-            <div className="text-center">
-              <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Conclusão</p>
-              <div className="flex items-center gap-4">
-                <div className="w-32 md:w-48 h-3 bg-slate-200 rounded-full overflow-hidden border border-white shadow-inner">
-                  <motion.div 
-                    animate={{ width: `${progress}%` }} 
-                    className="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 shadow-[0_0_15px_rgba(16,185,129,0.5)]" 
-                  />
-                </div>
-                <span className="text-2xl font-black text-slate-900 tabular-nums">{Math.round(progress)}%</span>
-              </div>
-            </div>
-
             <div className="bg-slate-900 text-white px-8 py-4 rounded-3xl flex items-center gap-4 shadow-2xl border border-white/10">
               <div className="w-8 h-8 bg-blue-400 rounded-full flex items-center justify-center shadow-lg">
                 <div className="w-3 h-3 bg-white rounded-full opacity-80" />
@@ -290,22 +282,22 @@ export default function LogPage() {
               )}
             </AnimatePresence>
 
-            {/* Reflexão */}
-            <div className="absolute bottom-12 inset-x-0 flex justify-center px-8">
+            {/* Reflexão - Botão mais compacto no celular */}
+            <div className="absolute bottom-6 md:bottom-12 inset-x-0 flex justify-center px-4 md:px-8">
               <motion.button
                 disabled={pearls < 10}
                 whileHover={pearls >= 10 ? { scale: 1.05, y: -5 } : {}}
                 whileTap={pearls >= 10 ? { scale: 0.95 } : {}}
                 onClick={openReflection}
                 className={`
-                  w-full py-5 rounded-[2rem] font-black text-sm uppercase tracking-widest transition-all shadow-2xl flex items-center justify-center gap-3
+                  w-full py-4 md:py-5 rounded-2xl md:rounded-[2rem] font-black text-xs md:text-sm uppercase tracking-widest transition-all shadow-2xl flex items-center justify-center gap-3
                   ${pearls >= 10 
-                    ? 'bg-amber-400 text-slate-900 border-b-4 border-amber-600' 
+                    ? 'bg-amber-400 text-slate-900 border-b-4 border-amber-600 shadow-amber-500/20' 
                     : 'bg-white/5 text-white/20 border border-white/5 cursor-not-allowed'}
                 `}
               >
-                <Waves size={18} />
-                {pearls >= 10 ? "Ver Reflexão do Dia" : `Mais ${10 - pearls} pérolas para liberar`}
+                <Waves size={16} />
+                {pearls >= 10 ? "Reflexão do Dia" : `Mais ${10 - pearls} pérolas`}
               </motion.button>
             </div>
           </div>
