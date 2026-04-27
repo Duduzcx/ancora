@@ -77,8 +77,19 @@ export default function CofrePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 1.1 }}
-            className="flex-1 flex flex-col items-center justify-center p-6 text-center z-10"
+            className="flex-1 flex flex-col items-center relative z-10"
           >
+            {/* Mobile Menu in Intro */}
+            <div className="w-full flex-none p-4 lg:hidden">
+              <button 
+                onClick={() => window.dispatchEvent(new CustomEvent('open-main-sidebar'))}
+                className="p-3 bg-white/5 border border-white/10 text-white rounded-2xl items-center justify-center flex"
+              >
+                <Menu size={20} />
+              </button>
+            </div>
+
+            <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
             <motion.div 
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
