@@ -9,7 +9,7 @@ import {
   StretchHorizontal, PenLine, VolumeX, Monitor, 
   UtensilsCrossed, Trash2, MessageCircle, Music, 
   MapPin, ShieldOff, LifeBuoy, Fish, Leaf, Sprout, 
-  Waves, Star, X
+  Waves, Star, X, Menu
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import Link from 'next/link';
