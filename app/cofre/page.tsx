@@ -135,11 +135,12 @@ export default function CofrePage() {
                   animate={isBurning ? { 
                     color: ["#10b981", "#f97316", "#ef4444", "#ffffff", "#000000"],
                     y: [0, -20, -100, -500],
+                    x: [0, -15, 15, -20, 20, -10, 10, 0], // Tremida intensa
                     filter: ["blur(0px)", "blur(4px)", "blur(20px)", "blur(80px)"],
                     opacity: [1, 1, 0.8, 0],
-                    scale: [1, 1.1, 0.5, 0.1],
-                    rotate: [0, 5, -5, 15],
-                    skewX: [0, 10, -10, 0]
+                    scale: [1, 1.2, 0.4, 0],
+                    rotate: [0, 10, -10, 20, -20, 45],
+                    skewX: [0, 15, -15, 20, -20, 0]
                   } : (isSaving ? { 
                     opacity: 0, 
                     scale: 0.1, 
