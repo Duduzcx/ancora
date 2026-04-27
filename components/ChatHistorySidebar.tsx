@@ -87,7 +87,7 @@ export default function ChatHistorySidebar({ isOpen, onClose }: ChatHistorySideb
       </AnimatePresence>
 
       <aside className={`
-        w-72 h-[100dvh] fixed top-0 bg-white/20 backdrop-blur-2xl border-r border-white/30 p-4 flex flex-col z-[110] transition-all duration-500
+        w-72 h-[100dvh] fixed top-0 bg-white lg:bg-slate-50 border-r border-slate-200 p-4 flex flex-col z-[110] transition-all duration-500
         ${isOpen ? 'left-0' : '-left-full'}
         md:left-0
       `}>
@@ -150,6 +150,19 @@ export default function ChatHistorySidebar({ isOpen, onClose }: ChatHistorySideb
               </div>
             )}
           </AnimatePresence>
+        </div>
+        
+        {/* Botão de Voltar ao Início no Desktop */}
+        <div className="mt-auto pt-4 border-t border-white/10">
+          <button 
+            onClick={() => router.push('/')}
+            className="w-full flex items-center gap-3 px-6 py-4 text-slate-500 hover:text-slate-900 transition-colors font-black text-[10px] uppercase tracking-widest group"
+          >
+            <div className="p-2 bg-slate-900/5 rounded-xl group-hover:bg-slate-900 group-hover:text-white transition-all">
+              <ArrowLeft size={16} />
+            </div>
+            Voltar ao Início
+          </button>
         </div>
       </aside>
     </>

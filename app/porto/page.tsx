@@ -143,34 +143,7 @@ function PortoContent() {
             <h2 className="text-xs font-black text-slate-900 tracking-tighter leading-tight">O Porto</h2>
           </div>
 
-          <button 
-            onClick={() => setIsHistoryOpen(true)}
-            className="p-2 md:p-2.5 bg-white/60 border border-white/40 rounded-2xl text-slate-900 shadow-sm flex items-center gap-2 hover:bg-white transition-all active:scale-95 ml-6"
-          >
-            <Clock size={16} className="text-blue-600" />
-            <span className="text-[9px] font-black uppercase tracking-wider">Histórico</span>
-          </button>
 
-          <Link href="/">
-            <motion.button 
-              whileHover={{ scale: 1.02, x: -2 }}
-              whileTap={{ scale: 0.98 }}
-              className="hidden lg:flex px-4 py-2.5 bg-slate-900 text-white rounded-2xl shadow-xl items-center gap-2 group transition-all"
-            >
-              <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-              <span className="text-[10px] font-black uppercase tracking-widest">Voltar</span>
-            </motion.button>
-          </Link>
-
-          <Link href="/">
-            <motion.button 
-              whileHover={{ scale: 1.1, x: -2 }}
-              whileTap={{ scale: 0.9 }}
-              className="flex lg:hidden p-2.5 bg-white/60 border border-white/40 text-slate-900 rounded-2xl shadow-sm items-center justify-center group"
-            >
-              <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-            </motion.button>
-          </Link>
 
           <div className="hidden sm:flex items-center gap-4 ml-4">
             <div className="p-2.5 bg-blue-600 rounded-2xl text-white shadow-lg">

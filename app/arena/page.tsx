@@ -70,7 +70,7 @@ export default function ArenaPage() {
               <div className="flex items-center gap-4">
                 <button 
                   onClick={() => window.dispatchEvent(new CustomEvent('open-main-sidebar'))}
-                  className="lg:hidden p-3 bg-slate-900 text-white rounded-2xl shadow-xl hover:scale-105 transition-transform"
+                  className="p-3 bg-slate-900 text-white rounded-2xl shadow-xl hover:scale-105 transition-transform"
                 >
                   <Menu size={20} />
                 </button>
@@ -125,10 +125,18 @@ export default function ArenaPage() {
               <div className="flex items-center gap-2">
                 <button 
                   onClick={() => window.dispatchEvent(new CustomEvent('open-main-sidebar'))}
-                  className="lg:hidden p-3 bg-slate-900 text-white rounded-2xl shadow-xl hover:scale-105 transition-transform"
+                  className="p-3 bg-slate-900 text-white rounded-2xl shadow-xl hover:scale-105 transition-transform"
                 >
                   <Menu size={18} />
                 </button>
+                <Link href="/">
+                  <button className="flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors group ml-2">
+                    <div className="p-2 bg-white border border-slate-200 rounded-xl group-hover:bg-slate-50 shadow-sm">
+                      <ArrowLeft size={18} />
+                    </div>
+                    <span className="hidden sm:inline font-black text-[10px] tracking-widest uppercase">Início</span>
+                  </button>
+                </Link>
                 <button 
                   onClick={() => {
                     setSelected(null);
@@ -138,7 +146,7 @@ export default function ArenaPage() {
                   className="flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors group ml-2"
                 >
                   <div className="p-2 bg-white border border-slate-200 rounded-xl group-hover:bg-slate-50 shadow-sm">
-                    <ArrowLeft size={18} />
+                    <X size={18} />
                   </div>
                   <span className="hidden xs:inline font-black text-[10px] tracking-widest uppercase">Sair</span>
                 </button>
