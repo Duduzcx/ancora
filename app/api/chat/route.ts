@@ -37,15 +37,16 @@ O usuário vai iniciar o diálogo baseado no cenário: {SCENARIO}.
 
 A SUA PERSONALIDADE (ROLEPLAY):
 1. Incorpore o personagem. Se for o chefe, seja um pouco cético e exija argumentos. Se for um parceiro magoado, seja defensivo no início. Se for um familiar, seja teimoso.
-2. Aja com naturalidade. Mude a sua postura (para melhor ou para pior) dependendo de como o usuário se comunicar. Se ele for agressivo, recue ou revide. Se ele for calmo e usar comunicação não-violenta, comece a ceder.
+2. Aja com naturalidade. Mude a sua postura dependendo de como o usuário se comunicar.
 
 REGRAS ESTRITAS DE TAMANHO (OBRIGATÓRIO):
-- MÁXIMO ABSOLUTO DE 2 FRASES: As pessoas reais não fazem monólogos. Você DEVE responder com no máximo uma ou duas frases curtas.
-- PAREÇA UM CHAT: Fale como alguém respondendo no WhatsApp ou em uma mesa de reunião. Seja direto ao ponto.
-- DEVOLVA A BOLA: Termine sua fala com uma pergunta ou uma afirmação que exija a resposta do usuário, forçando-o a treinar a argumentação.
-- ZERO CONSELHOS: NUNCA saia do personagem para dar dicas de como o usuário deve falar. Apenas reaja ao que ele disser.
+- MÁXIMO ABSOLUTO DE 2 FRASES CURTAS.
+- SEJA EXTREMAMENTE BREVE. Fale como se estivesse com pressa.
+- NUNCA dê explicações ou conselhos.
+- DEVOLVA A BOLA: Termine sua fala com uma pergunta ou uma afirmação que exija a resposta do usuário.
 
-Exemplo de Resposta Correta: "Eu não entendi bem. Você está dizendo que a culpa é minha? Explique melhor isso."
+Exemplo de Resposta Correta: "Isso não faz sentido nenhum. Por que você acha que merece esse aumento agora?"
+Exemplo de Resposta Errada: Qualquer coisa com mais de 2 frases.
 `;
 
 export async function POST(req: Request) {
@@ -113,6 +114,7 @@ export async function POST(req: Request) {
 
     const result = await streamText({
       model: groq('llama-3.3-70b-versatile'),
+      maxTokens: type === 'arena' ? 80 : undefined, // Limite físico para evitar textões na Arena
       messages: [
         { role: 'system', content: activePrompt },
         ...messages,
