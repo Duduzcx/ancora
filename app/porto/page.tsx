@@ -145,7 +145,7 @@ function PortoContent() {
 
           <button 
             onClick={() => setIsHistoryOpen(true)}
-            className="p-2 md:p-2.5 bg-white/60 border border-white/40 rounded-2xl text-slate-900 shadow-sm flex items-center gap-2 hover:bg-white transition-all active:scale-95 ml-1"
+            className="p-2 md:p-2.5 bg-white/60 border border-white/40 rounded-2xl text-slate-900 shadow-sm flex items-center gap-2 hover:bg-white transition-all active:scale-95 ml-6"
           >
             <Clock size={16} className="text-blue-600" />
             <span className="text-[9px] font-black uppercase tracking-wider">Histórico</span>
