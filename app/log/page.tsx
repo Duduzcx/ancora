@@ -74,6 +74,7 @@ export default function LogPage() {
   const [showVictory, setShowVictory] = useState(false);
   const [showReflection, setShowReflection] = useState(false);
   const [currentReflection, setCurrentReflection] = useState("");
+  const [feedback, setFeedback] = useState<string | null>(null);
   const { isMuted } = useAudio();
   const [playPop] = useSound('/sounds/bubble-pop.mp3', { volume: 0.5, soundEnabled: !isMuted });
   const [isMounted, setIsMounted] = useState(false);
