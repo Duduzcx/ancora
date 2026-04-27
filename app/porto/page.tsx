@@ -9,8 +9,6 @@ import { createClient } from '@/lib/supabase-client';
 import Link from 'next/link';
 import ChatHistorySidebar from '@/components/ChatHistorySidebar';
 import AnimatedBackground from '@/components/AnimatedBackground';
-import useSound from 'use-sound';
-import { useAudio } from '@/context/AudioContext';
 
 const greetingPool = {
   calmo: [
@@ -51,8 +49,6 @@ function PortoContent() {
   const [isMounted, setIsMounted] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [initialMessageSet, setInitialMessageSet] = useState(false);
-  const { isMuted } = useAudio();
-  const [playSend] = useSound('/sounds/soft-send.mp3', { volume: 0.3, soundEnabled: !isMuted });
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const { messages, input, handleInputChange, handleSubmit, setMessages, isLoading, error } = useChat({
@@ -116,7 +112,6 @@ function PortoContent() {
   const handleCustomSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
-    playSend();
     handleSubmit(e);
   };
 

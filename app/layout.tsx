@@ -4,8 +4,6 @@ import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import LayoutWrapper from "@/components/LayoutWrapper";
-import { AudioProvider } from "@/context/AudioContext";
-import AudioPlayer from "@/components/AudioPlayer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,17 +23,13 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className={`${inter.className} antialiased overflow-x-hidden bg-slate-50 overscroll-none`}>
-        <AudioProvider>
-          <AnimatedBackground />
-          
-          <Sidebar />
-          
-          <LayoutWrapper>
-            {children}
-          </LayoutWrapper>
-
-          <AudioPlayer />
-        </AudioProvider>
+        <AnimatedBackground />
+        
+        <Sidebar />
+        
+        <LayoutWrapper>
+          {children}
+        </LayoutWrapper>
       </body>
     </html>
   );
