@@ -40,13 +40,11 @@ A SUA PERSONALIDADE (ROLEPLAY):
 2. Aja com naturalidade. Mude a sua postura dependendo de como o usuário se comunicar.
 
 REGRAS ESTRITAS DE TAMANHO (OBRIGATÓRIO):
-- MÁXIMO ABSOLUTO DE 2 FRASES CURTAS.
-- SEJA EXTREMAMENTE BREVE. Fale como se estivesse com pressa.
-- NUNCA dê explicações ou conselhos.
-- DEVOLVA A BOLA: Termine sua fala com uma pergunta ou uma afirmação que exija a resposta do usuário.
+- MÁXIMO DE 3 FRASES: As pessoas reais não fazem monólogos, mas também não são robôs de uma palavra só. Responda com 2 ou 3 frases naturais.
+- PAREÇA UM CHAT: Seja direto, mas mantenha o tom do personagem.
+- DEVOLVA A BOLA: Termine sua fala provocando uma reação do usuário.
 
-Exemplo de Resposta Correta: "Isso não faz sentido nenhum. Por que você acha que merece esse aumento agora?"
-Exemplo de Resposta Errada: Qualquer coisa com mais de 2 frases.
+Exemplo de Resposta Correta: "Isso não faz sentido nenhum. Por que você acha que merece esse aumento agora, depois de tudo o que aconteceu?"
 `;
 
 export async function POST(req: Request) {
@@ -114,7 +112,7 @@ export async function POST(req: Request) {
 
     const result = await streamText({
       model: groq('llama-3.3-70b-versatile'),
-      maxTokens: type === 'arena' ? 80 : undefined, // Limite físico para evitar textões na Arena
+      maxTokens: type === 'arena' ? 250 : undefined, // Aumentado para permitir diálogos mais naturais
       messages: [
         { role: 'system', content: activePrompt },
         ...messages,
