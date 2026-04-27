@@ -151,7 +151,7 @@ export default function LogPage() {
   if (!isMounted) return null;
 
   return (
-    <main className="flex flex-col h-[100dvh] overflow-hidden bg-slate-50 relative pl-0 md:pl-64 transition-all overscroll-none touch-pan-y">
+    <main className="flex flex-col h-[100dvh] overflow-hidden bg-slate-50 relative transition-all overscroll-none touch-pan-y">
       <AnimatedBackground subtle />
 
       <div className="flex-1 overflow-y-auto w-full custom-scrollbar overscroll-contain p-4 md:p-8 lg:p-12">
@@ -295,7 +295,7 @@ export default function LogPage() {
                   <div className="h-px w-full bg-slate-200" />
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {tasks.filter(t => t.category === cat).map((task) => (
                     <motion.div
                       key={task.id}

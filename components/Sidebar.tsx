@@ -108,7 +108,7 @@ export default function Sidebar() {
 
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full bg-white/80 md:bg-white/40 backdrop-blur-xl md:backdrop-blur-md border-r border-white/40">
+    <div className="flex flex-col h-full bg-white/80 lg:bg-slate-900/95 backdrop-blur-xl lg:backdrop-blur-none border-r border-white/40 lg:border-slate-800">
       <div className="p-8">
         <Link href="/" className="flex items-center gap-3 group">
           <div className="p-2 bg-slate-900 text-emerald-400 rounded-xl group-hover:rotate-12 transition-transform">
@@ -222,10 +222,12 @@ export default function Sidebar() {
         </header>
       )}
 
-      {/* SIDEBAR DESKTOP */}
-      <aside className="hidden lg:flex w-64 h-screen fixed left-0 top-0 flex-col z-50">
-        <SidebarContent />
-      </aside>
+      {/* SIDEBAR DESKTOP - Hidden on Porto and Arena as per user request */}
+      {!isFullPage && (
+        <aside className="hidden lg:flex w-64 h-screen fixed left-0 top-0 flex-col z-50">
+          <SidebarContent />
+        </aside>
+      )}
 
       {/* SIDEBAR MOBILE (OVERLAY) */}
       <AnimatePresence>

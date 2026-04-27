@@ -118,7 +118,7 @@ function PortoContent() {
   if (!isMounted) return null;
 
   return (
-    <main className="flex flex-col h-[100dvh] overflow-hidden bg-white relative z-10 pl-0 md:pl-64 lg:pl-64 transition-all overscroll-none touch-pan-y">
+    <main className="flex flex-col h-[100dvh] overflow-hidden bg-white relative z-10 transition-all overscroll-none touch-pan-y lg:pl-72">
       <AnimatedBackground subtle />
       
       {user && (
@@ -133,7 +133,7 @@ function PortoContent() {
         <div className="flex items-center gap-3">
           <button 
             onClick={() => window.dispatchEvent(new CustomEvent('open-main-sidebar'))}
-            className="p-3 bg-slate-900 text-white rounded-2xl shadow-xl hover:scale-105 transition-transform"
+            className="lg:hidden p-3 bg-slate-900 text-white rounded-2xl shadow-xl hover:scale-105 transition-transform"
           >
             <Menu size={18} />
           </button>
@@ -153,9 +153,20 @@ function PortoContent() {
 
           <Link href="/">
             <motion.button 
+              whileHover={{ scale: 1.02, x: -2 }}
+              whileTap={{ scale: 0.98 }}
+              className="hidden lg:flex px-4 py-2.5 bg-slate-900 text-white rounded-2xl shadow-xl items-center gap-2 group transition-all"
+            >
+              <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+              <span className="text-[10px] font-black uppercase tracking-widest">Voltar</span>
+            </motion.button>
+          </Link>
+
+          <Link href="/">
+            <motion.button 
               whileHover={{ scale: 1.1, x: -2 }}
               whileTap={{ scale: 0.9 }}
-              className="hidden sm:flex p-2.5 bg-white/60 border border-white/40 text-slate-900 rounded-2xl shadow-sm items-center justify-center group"
+              className="flex lg:hidden p-2.5 bg-white/60 border border-white/40 text-slate-900 rounded-2xl shadow-sm items-center justify-center group"
             >
               <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
             </motion.button>
