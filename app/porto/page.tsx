@@ -10,34 +10,50 @@ import Link from 'next/link';
 import ChatHistorySidebar from '@/components/ChatHistorySidebar';
 import AnimatedBackground from '@/components/AnimatedBackground';
 
+const greetingPool = {
+  calmo: [
+    "Que bom que o mar está tranquilo hoje. Quer aproveitar para organizar os pensamentos?",
+    "Navegar em águas calmas é ótimo. Como você quer aproveitar a calmaria de hoje?",
+    "O horizonte está limpo. Tem algo de bom que você queira compartilhar ou registrar aqui no Porto?"
+  ],
+  nebuloso: [
+    "A neblina confunde mesmo a visão. Quer me contar o que está pesando para tentarmos clarear isso juntos?",
+    "Dias nublados fazem parte da viagem. O que está deixando os seus pensamentos confusos hoje?",
+    "É normal perder a direção às vezes. Vamos conversar para tentar dissipar essa neblina?"
+  ],
+  agitado: [
+    "As ondas estão altas, mas o seu barco é forte. O que está causando essa tempestade agora?",
+    "O mar está revolto, mas você está seguro aqui no Porto. Quer desabafar sobre o que está te estressando?",
+    "Respire fundo. A tempestade vai passar. O que está te deixando tão ansioso hoje?"
+  ],
+  ajuda: [
+    "Estou aqui. Você não está sozinho(a). Jogue a âncora e me diga: o que está acontecendo neste exato momento?",
+    "Aqui é o seu porto seguro. Respire comigo. O que você está sentindo agora?",
+    "Eu te ouço. Não precisa enfrentar esse mar sozinho(a). Me conta o que está doendo."
+  ],
+  default: [
+    "Bem-vindo ao Porto. Este é o seu espaço seguro e sem julgamentos. Como posso te ajudar a navegar hoje?",
+    "As portas do Porto estão abertas. O que você gostaria de conversar hoje?",
+    "É muito bom ter você por aqui. Como estão as suas águas hoje?"
+  ]
+};
+
 function PortoContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const chatId = searchParams.get('chatId');
-  const humor = searchParams.get('humor');
+  const humor = searchParams.get('humor') as keyof typeof greetingPool;
   const supabase = createClient();
   
   const [user, setUser] = useState<any>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [initialMessageSet, setInitialMessageSet] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  const initialGreetings = {
-    calmo: "O seu mar está tranquilo hoje. É um ótimo momento para ancorar bons pensamentos ou apenas descansar. Quer registrar algo que te traz paz?",
-    nebuloso: "A neblina faz parte da navegação. Não precisa ver o horizonte todo agora, apenas o próximo passo. O que está dificultando a visão hoje?",
-    agitado: "Sinto o mar agitado por aí. A ansiedade é como uma tempestade: ela assusta, mas você é o capitão e o Porto está seguro. Respire comigo. O que está acontecendo?",
-    ajuda: "Sinal de socorro recebido. Você está em águas seguras agora. Solte o peso. O que você precisa descarregar primeiro?",
-    default: "Bem-vindo ao Porto. Sou seu guia nesta travessia. Como está o seu mar interior hoje?"
-  };
-
-  const greetingMessage = initialGreetings[humor as keyof typeof initialGreetings] || initialGreetings.default;
 
   const { messages, input, handleInputChange, handleSubmit, setMessages, isLoading, error } = useChat({
     api: '/api/chat',
     body: { chatId },
-    initialMessages: chatId ? [] : [
-      { id: 'welcome-msg', role: 'assistant', content: greetingMessage }
-    ],
     onResponse: (response) => {
       const newChatId = response.headers.get('x-chat-id');
       if (newChatId && newChatId !== chatId) {
@@ -45,6 +61,17 @@ function PortoContent() {
       }
     }
   });
+
+  // Lógica de Sorteio e Hydration Safe
+  useEffect(() => {
+    if (isMounted && !initialMessageSet && messages.length === 0 && !chatId) {
+      const pool = greetingPool[humor] || greetingPool.default;
+      const randomGreeting = pool[Math.floor(Math.random() * pool.length)];
+      
+      setMessages([{ id: 'welcome-msg', role: 'assistant', content: randomGreeting }]);
+      setInitialMessageSet(true);
+    }
+  }, [humor, messages.length, initialMessageSet, setMessages, isMounted, chatId]);
 
   useEffect(() => {
     setIsMounted(true);
