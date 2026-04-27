@@ -117,7 +117,8 @@ export default function CofrePage() {
                 Voltar ao Início
               </button>
             </div>
-          </motion.div>
+          </div>
+        </motion.div>
         ) : (
           <motion.div 
             key="vault-content"
