@@ -101,7 +101,7 @@ export default function Home() {
   }, [supabase, router]);
 
   const handleEmotionalCheckin = (mood: string) => {
-    router.push(`/porto?mood=${encodeURIComponent(mood)}`);
+    router.push(`/porto?humor=${encodeURIComponent(mood)}`);
   };
 
   return (

@@ -43,7 +43,7 @@ export default function FarolCompanion() {
         return {
           text: "Notei que você cuidou bem do corpo hoje. Que tal 2 minutos de silêncio para a mente agora?",
           actionLabel: "Respirar Agora",
-          actionHref: "/porto?mood=calmo", // Redireciona para um exercício ou chat calmo
+          actionHref: "/porto?humor=calmo", // Redireciona para um exercício ou chat calmo
           color: "bg-emerald-400",
           icon: Wind,
           type: 'calm' as const
