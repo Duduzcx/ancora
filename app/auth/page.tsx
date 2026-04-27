@@ -4,7 +4,8 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { createClient } from '@/lib/supabase-client';
 import { useRouter } from 'next/navigation';
-import { Mail, Lock, User, ArrowRight, Anchor } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Anchor, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 import AnimatedBackground from '@/components/AnimatedBackground';
 
 export default function AuthPage() {
@@ -56,9 +57,23 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-[100dvh] relative flex items-center justify-center p-4 md:p-8 md:ml-64 overflow-hidden bg-transparent">
+    <div className="min-h-[100dvh] relative flex items-center justify-center p-4 md:p-8 overflow-hidden bg-transparent">
       <AnimatedBackground />
       
+      {/* Botão Voltar (Mobile) */}
+      <div className="absolute top-6 left-6 z-20">
+        <Link href="/">
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex items-center gap-2 px-4 py-2 bg-white/20 backdrop-blur-xl border border-white/40 rounded-full text-slate-700 hover:text-slate-900 transition-all font-black text-[10px] uppercase tracking-widest"
+          >
+            <ArrowLeft size={16} />
+            Voltar ao Site
+          </motion.button>
+        </Link>
+      </div>
+
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
