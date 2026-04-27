@@ -138,18 +138,18 @@ function PortoContent() {
             <Menu size={18} />
           </button>
 
+          <div className="flex flex-col sm:hidden">
+            <span className="text-[8px] font-black text-emerald-600 uppercase tracking-widest leading-tight">Acolhimento</span>
+            <h2 className="text-xs font-black text-slate-900 tracking-tighter leading-tight">O Porto</h2>
+          </div>
+
           <button 
             onClick={() => setIsHistoryOpen(true)}
-            className="p-2.5 md:p-3 bg-white/60 border border-white/40 rounded-2xl text-slate-900 shadow-sm flex items-center gap-2 hover:bg-white transition-all active:scale-95"
+            className="p-2 md:p-2.5 bg-white/60 border border-white/40 rounded-2xl text-slate-900 shadow-sm flex items-center gap-2 hover:bg-white transition-all active:scale-95 ml-1"
           >
-            <Clock size={18} className="text-blue-600" />
-            <span className="text-[10px] font-black uppercase tracking-wider">Ver Histórico</span>
+            <Clock size={16} className="text-blue-600" />
+            <span className="text-[9px] font-black uppercase tracking-wider">Histórico</span>
           </button>
-
-          <div className="flex flex-col sm:hidden">
-            <span className="text-[8px] font-black text-emerald-600 uppercase tracking-widest">Acolhimento</span>
-            <h2 className="text-xs font-black text-slate-900 tracking-tighter">O Porto</h2>
-          </div>
 
           <Link href="/">
             <motion.button 
@@ -161,7 +161,7 @@ function PortoContent() {
             </motion.button>
           </Link>
 
-          <div className="hidden sm:flex items-center gap-4 ml-2">
+          <div className="hidden sm:flex items-center gap-4 ml-4">
             <div className="p-2.5 bg-blue-600 rounded-2xl text-white shadow-lg">
               <Anchor size={20} />
             </div>
