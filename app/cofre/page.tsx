@@ -55,6 +55,7 @@ export default function CofrePage() {
           animation: shake-screen 0.3s infinite;
         }
       `}</style>
+      <div className="absolute inset-0 pointer-events-none opacity-20 z-0">
         {[...Array(15)].map((_, i) => (
           <motion.div
             key={i}
