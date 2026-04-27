@@ -20,6 +20,7 @@ interface ChatHistorySidebarProps {
 export default function ChatHistorySidebar({ isOpen, onClose }: ChatHistorySidebarProps) {
   const [chats, setChats] = useState<Chat[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
   const supabase = createClient();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -28,13 +29,14 @@ export default function ChatHistorySidebar({ isOpen, onClose }: ChatHistorySideb
   const fetchChats = async () => {
     // Check de sessão rápido
     const { data: { session } } = await supabase.auth.getSession();
-    const user = session?.user;
+    const sessionUser = session?.user;
+    setUser(sessionUser);
 
-    if (user) {
+    if (sessionUser) {
       const { data } = await supabase
         .from('chats')
         .select('id, title, created_at')
-        .eq('user_id', user.id)
+        .eq('user_id', sessionUser.id)
         .order('created_at', { ascending: false });
 
       if (data) {
@@ -115,9 +117,24 @@ export default function ChatHistorySidebar({ isOpen, onClose }: ChatHistorySideb
           <AnimatePresence mode="popLayout">
             {isLoading ? (
               <div className="space-y-3 px-2">
-                {[1, 2, 3, 4].map((i) => (
+                {[1, 2, 3, 4].map((i: number) => (
                   <div key={i} className="h-12 w-full bg-white/10 animate-pulse rounded-full" />
                 ))}
+              </div>
+            ) : !user ? (
+              <div className="p-8 text-center bg-slate-900/5 rounded-[2rem] border border-slate-900/5 mx-2">
+                <div className="w-12 h-12 bg-slate-900 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <Anchor size={20} />
+                </div>
+                <h4 className="text-xs font-black text-slate-900 uppercase tracking-tighter mb-2">Suas Pérolas Estão Sumindo?</h4>
+                <p className="text-[10px] text-slate-500 font-bold leading-relaxed mb-6">
+                  Crie uma conta gratuita para salvar suas conversas e nunca perder um insight importante.
+                </p>
+                <Link href="/auth">
+                  <button className="w-full py-3 bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20">
+                    Criar Conta Agora
+                  </button>
+                </Link>
               </div>
             ) : chats.length > 0 ? (
               chats.map((chat) => (
@@ -154,15 +171,16 @@ export default function ChatHistorySidebar({ isOpen, onClose }: ChatHistorySideb
         
         {/* Botão de Voltar ao Início no Desktop */}
         <div className="mt-auto pt-4 border-t border-white/10 hidden lg:block">
-          <button 
-            onClick={() => router.push('/')}
-            className="w-full flex items-center gap-3 px-6 py-4 text-slate-500 hover:text-slate-900 transition-colors font-black text-[10px] uppercase tracking-widest group"
-          >
-            <div className="p-2 bg-slate-900/5 rounded-xl group-hover:bg-slate-900 group-hover:text-white transition-all">
-              <ArrowLeft size={16} />
-            </div>
-            Voltar ao Início
-          </button>
+          <Link href="/">
+            <button 
+              className="w-full flex items-center gap-3 px-6 py-4 text-slate-500 hover:text-slate-900 transition-colors font-black text-[10px] uppercase tracking-widest group"
+            >
+              <div className="p-2 bg-slate-900/5 rounded-xl group-hover:bg-slate-900 group-hover:text-white transition-all">
+                <ArrowLeft size={16} />
+              </div>
+              Voltar ao Início
+            </button>
+          </Link>
         </div>
       </aside>
     </>

@@ -129,7 +129,7 @@ export default function ArenaPage() {
                 >
                   <Menu size={18} />
                 </button>
-                <Link href="/">
+                <Link href="/" className="hidden lg:block">
                   <button className="flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors group ml-2">
                     <div className="p-2 bg-white border border-slate-200 rounded-xl group-hover:bg-slate-50 shadow-sm">
                       <ArrowLeft size={18} />

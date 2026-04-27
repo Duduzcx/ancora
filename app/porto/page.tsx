@@ -121,12 +121,10 @@ function PortoContent() {
     <main className="flex flex-col h-[100dvh] overflow-hidden bg-white relative z-10 transition-all overscroll-none touch-pan-y lg:pl-72">
       <AnimatedBackground subtle />
       
-      {user && (
-        <ChatHistorySidebar 
-          isOpen={isHistoryOpen} 
-          onClose={() => setIsHistoryOpen(false)} 
-        />
-      )}
+      <ChatHistorySidebar 
+        isOpen={isHistoryOpen} 
+        onClose={() => setIsHistoryOpen(false)} 
+      />
 
       {/* Header - Fixo no topo */}
       <header className="h-20 shrink-0 flex items-center justify-between px-4 md:px-8 bg-white/40 backdrop-blur-xl border-b border-white/30 z-30">
