@@ -60,6 +60,8 @@ const features = [
   }
 ];
 
+import AnimatedBackground from '@/components/AnimatedBackground';
+
 export default function Home() {
   const [greeting, setGreeting] = useState('');
   const [user, setUser] = useState<any>(null);
@@ -118,7 +120,8 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-transparent flex justify-center items-center overflow-x-hidden">
+    <main className="min-h-screen bg-transparent flex justify-center items-center overflow-x-hidden relative">
+      <AnimatedBackground />
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
