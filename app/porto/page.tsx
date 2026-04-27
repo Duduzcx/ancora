@@ -152,10 +152,10 @@ function PortoContent() {
 
           <button 
             onClick={() => setIsHistoryOpen(true)}
-            className="p-3 bg-white/60 border border-white/40 rounded-2xl text-slate-900 shadow-sm flex items-center gap-2"
+            className="p-2.5 md:p-3 bg-white/60 border border-white/40 rounded-2xl text-slate-900 shadow-sm flex items-center gap-2 hover:bg-white transition-all active:scale-95"
           >
-            <Clock size={18} />
-            <span className="hidden xs:inline text-[9px] font-black uppercase tracking-widest">Histórico</span>
+            <Clock size={18} className="text-blue-600" />
+            <span className="text-[10px] font-black uppercase tracking-wider">Ver Histórico</span>
           </button>
 
           <div className="hidden sm:flex items-center gap-4">
