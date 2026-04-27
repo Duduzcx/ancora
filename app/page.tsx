@@ -12,11 +12,51 @@ import {
 import { createClient } from '@/lib/supabase-client';
 
 const features = [
-  { title: "O Porto", desc: "Chat anônimo e seguro com nossa IA acolhedora para desabafos e suporte emocional imediato.", icon: MessageCircle, href: "/porto", color: "bg-blue-600", subtitle: "ACOLHIMENTO", dark: false },
-  { title: "A Arena", desc: "Simulador tático de diálogos. Pratique feedbacks, conflitos e conversas difíceis com IA antes do momento real.", icon: Sword, href: "/arena", color: "bg-rose-600", subtitle: "TREINAMENTO", dark: true },
-  { title: "O Farol", desc: "Inteligência proativa que analisa seu estado e guia seu progresso com insights baseados em dados.", icon: Lightbulb, href: "/farol", color: "bg-emerald-600", subtitle: "INSIGHTS", dark: true },
-  { title: "Logs de sobrevivência", desc: "Rastreamento diário de hábitos e progresso emocional para fortalecer sua resiliência.", icon: CheckCircle, href: "/log", color: "bg-teal-600", subtitle: "HÁBITOS", dark: true },
-  { title: "O Cofre", desc: "Seu diário ultra-seguro para desabafos profundos que precisam ser trancados a sete chaves.", icon: Shield, href: "/cofre", color: "bg-amber-600", subtitle: "PRIVACIDADE", dark: false }
+  { 
+    title: "O Porto", 
+    desc: "Seu cais seguro. Onde as águas são mansas e você pode descarregar o peso da jornada sem julgamentos e em total anonimato.", 
+    icon: MessageCircle, 
+    href: "/porto", 
+    color: "bg-blue-600", 
+    subtitle: "DESCANSO & ACOLHIMENTO", 
+    dark: false 
+  },
+  { 
+    title: "A Arena", 
+    desc: "O convés de treinamento. Pratique diálogos e situações difíceis em um ambiente simulado antes de enfrentar o mar aberto da vida.", 
+    icon: Sword, 
+    href: "/arena", 
+    color: "bg-rose-600", 
+    subtitle: "TREINAMENTO TÁTICO", 
+    dark: true 
+  },
+  { 
+    title: "O Farol", 
+    desc: "A luz que corta a neblina. Nossa inteligência proativa guia seu caminho de volta à segurança antes que você perca o rumo.", 
+    icon: Lightbulb, 
+    href: "/farol", 
+    color: "bg-emerald-600", 
+    subtitle: "IA PROATIVA", 
+    dark: true 
+  },
+  { 
+    title: "A Âncora", 
+    desc: "Seus hábitos inegociáveis. O registro de sobrevivência que te prende ao que é real quando a ansiedade tenta te levar para o fundo.", 
+    icon: CheckCircle, 
+    href: "/log", 
+    color: "bg-teal-600", 
+    subtitle: "ESTABILIDADE", 
+    dark: true 
+  },
+  { 
+    title: "O Cofre", 
+    desc: "O diário do capitão. Tranque seus pensamentos mais sombrios a sete chaves e queime-os para que eles não afundem sua embarcação.", 
+    icon: Shield, 
+    href: "/cofre", 
+    color: "bg-amber-600", 
+    subtitle: "PRIVACIDADE ABSOLUTA", 
+    dark: false 
+  }
 ];
 
 export default function Home() {
@@ -68,18 +108,18 @@ export default function Home() {
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="max-w-6xl w-full p-6 md:p-12 flex flex-col space-y-20 md:space-y-40 pb-40"
+        className="max-w-6xl w-full p-6 md:p-12 flex flex-col space-y-12 md:space-y-40 pb-40"
       >
         
         {/* 1. HERO SECTION */}
-        <section className="text-center flex flex-col items-center pt-12 md:pt-24">
+        <section className="text-center flex flex-col items-center pt-6 md:pt-24">
           <motion.div 
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500/10 text-emerald-800 rounded-full text-[11px] font-black mb-10 border border-emerald-500/20 shadow-sm uppercase tracking-[0.2em]"
           >
             <Sparkles size={14} className="animate-pulse" />
-            Seu refúgio digital
+            Manual de Navegação Emocional
           </motion.div>
           
           <div className="space-y-4">
@@ -116,7 +156,7 @@ export default function Home() {
             transition={{ delay: 0.8 }}
             className="mt-10 text-xl md:text-2xl text-slate-600 max-w-2xl leading-relaxed font-bold opacity-90"
           >
-            Encontre o equilíbrio necessário em um ambiente projetado para acolher e proteger sua jornada emocional.
+            A vida é um mar que não obedece a ninguém. Aprenda a navegar, a ancorar e a encontrar o seu porto seguro.
           </motion.p>
 
           <div className="mt-16 group relative">
@@ -177,29 +217,85 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className={index === 0 ? "md:col-span-2" : ""} // O Porto ganha destaque total
+              className={index === 0 ? "md:col-span-2" : ""} 
             >
               <Link href={item.href}>
                 <motion.div 
                   whileHover={{ scale: 1.02, y: -5 }}
                   whileTap={{ scale: 0.98 }}
                   className={`
-                    group p-12 h-full border transition-all cursor-pointer relative overflow-hidden text-center flex flex-col items-center rounded-[3.5rem]
+                    group p-10 md:p-14 h-full border transition-all cursor-pointer relative overflow-hidden flex flex-col items-center text-center rounded-[3.5rem]
                     ${item.dark 
-                      ? 'bg-slate-900/5 border-slate-900/10' 
-                      : 'bg-white/95 border-white shadow-xl hover:shadow-2xl'}
+                      ? 'bg-slate-900 border-slate-800 text-white' 
+                      : 'bg-white/95 border-white shadow-xl hover:shadow-2xl text-slate-900'}
                   `}
                 >
                   <div className={`w-16 h-16 ${item.color} rounded-3xl flex items-center justify-center text-white mb-8 group-hover:scale-110 transition-transform shadow-lg`}>
                     <item.icon size={32} />
                   </div>
-                  <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3">{item.subtitle}</h4>
-                  <h3 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">{item.title}</h3>
-                  <p className="text-slate-600 text-lg leading-relaxed font-bold opacity-80">{item.desc}</p>
+                  <h4 className={`text-[10px] font-black uppercase tracking-[0.3em] mb-3 ${item.dark ? 'text-emerald-400/60' : 'text-slate-400'}`}>{item.subtitle}</h4>
+                  <h3 className="text-3xl font-black mb-4 tracking-tight">{item.title}</h3>
+                  <p className={`text-lg leading-relaxed font-bold opacity-80 ${item.dark ? 'text-slate-300' : 'text-slate-600'}`}>{item.desc}</p>
                 </motion.div>
               </Link>
             </motion.div>
           ))}
+        </section>
+
+        {/* 3.5 ANIMATED TEASER */}
+        <section className="flex justify-center py-10 overflow-hidden">
+          <motion.div 
+            animate={{ x: [0, -10, 0] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            className="text-center space-y-4"
+          >
+            <div className="inline-flex items-center gap-3 text-emerald-600 font-black text-xs uppercase tracking-[0.3em] bg-emerald-50 py-3 px-6 rounded-2xl border border-emerald-100">
+              <Wind size={16} className="animate-bounce" />
+              Sente o vento? O Âncora te guia.
+            </div>
+            <p className="text-slate-400 text-[11px] font-black italic">Deslize para descobrir como não naufragar nas ondas da vida.</p>
+          </motion.div>
+        </section>
+
+        {/* 4. O MANIFESTO DO NAVEGANTE (CONCEITO) */}
+        <section className="relative overflow-hidden bg-slate-900 text-white rounded-[4rem] p-12 md:p-24 space-y-20 border border-white/5 shadow-2xl">
+          <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+            <Anchor size={400} strokeWidth={1} />
+          </div>
+
+          <div className="max-w-3xl space-y-8 relative z-10">
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/20 text-emerald-400 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-500/20"
+            >
+              O Conceito Âncora
+            </motion.div>
+            <h2 className="text-4xl md:text-6xl font-black tracking-tighter leading-none">
+              Você não pode parar as ondas, mas pode aprender a <span className="text-emerald-400 italic">surfar</span>.
+            </h2>
+            <p className="text-xl text-slate-400 font-bold leading-relaxed">
+              A vida é um mar imprevisível. Tem dias de calmaria e dias de tempestade violenta. O Âncora existe porque o mar não obedece a ninguém — mas você pode ser o capitão do seu próprio destino.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative z-10">
+            <ManifestoItem 
+              icon={Anchor}
+              title="A Âncora"
+              desc="Quando o vento sopra forte e as ondas tentam te arrastar, a Âncora (seus hábitos) garante que você não derive. Ela te prende ao que é real e essencial."
+            />
+            <ManifestoItem 
+              icon={Lightbulb}
+              title="O Farol"
+              desc="A neblina da mente pode ser espessa. O Farol é a luz constante que te guia de volta para a segurança antes que você bata nas rochas."
+            />
+            <ManifestoItem 
+              icon={MessageCircle}
+              title="O Porto"
+              desc="Todo marinheiro precisa de um cais onde possa baixar as velas e apenas ser. O Porto é o espaço seguro onde nada pode te atingir."
+            />
+          </div>
         </section>
 
         {/* 4. ESPAÇO DE DESCOMPRESSÃO */}
@@ -240,6 +336,23 @@ export default function Home() {
         <MobileNavLink icon={Shield} href="/cofre" active={false} />
       </nav>
     </main>
+  );
+}
+
+function ManifestoItem({ icon: Icon, title, desc }: any) {
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      className="space-y-6"
+    >
+      <div className="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-400 border border-emerald-500/20">
+        <Icon size={24} />
+      </div>
+      <h3 className="text-xl font-black tracking-tight">{title}</h3>
+      <p className="text-slate-400 text-sm font-bold leading-relaxed">{desc}</p>
+    </motion.div>
   );
 }
 
