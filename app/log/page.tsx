@@ -144,20 +144,34 @@ export default function LogPage() {
     <main className="flex flex-col h-[100dvh] overflow-hidden bg-slate-50 relative pl-0 md:pl-64 transition-all overscroll-none touch-pan-y">
       <AnimatedBackground subtle />
 
+      <header className="sticky top-0 z-30 flex items-center justify-between p-4 md:p-6 bg-slate-50/80 backdrop-blur-xl border-b border-slate-200/50">
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => window.dispatchEvent(new CustomEvent('open-main-sidebar'))}
+            className="p-3 bg-slate-900 text-white rounded-2xl shadow-xl hover:scale-105 transition-transform"
+          >
+            <Menu size={20} />
+          </button>
+          <div className="flex flex-col">
+            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Diário</span>
+            <h2 className="text-xl font-black text-slate-900 tracking-tighter">Sobrevivência</h2>
+          </div>
+        </div>
+      </header>
+
       <div className="flex-1 overflow-y-auto w-full custom-scrollbar overscroll-contain p-4 md:p-8 lg:p-12">
         <div className="max-w-[1400px] mx-auto space-y-8">
         
-        {/* HEADER */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-white/40 backdrop-blur-3xl p-6 md:p-10 rounded-[3rem] border border-white shadow-2xl">
           <div className="flex items-center gap-6">
             <Link href="/">
-              <motion.button whileHover={{ scale: 1.1 }} className="p-4 bg-slate-900 text-white rounded-2xl shadow-xl">
+              <motion.button whileHover={{ scale: 1.1 }} className="p-4 bg-white border border-slate-200 text-slate-400 rounded-2xl shadow-sm">
                 <ArrowLeft size={20} />
               </motion.button>
             </Link>
             <div>
-              <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">Log de Sobrevivência</h1>
-              <p className="text-xs font-black text-emerald-600 uppercase tracking-widest mt-1">Evolução do seu Ecossistema</p>
+              <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter">Status Atual</h1>
+              <p className="text-xs font-black text-emerald-600 uppercase tracking-widest mt-1">Seu Ecossistema</p>
             </div>
           </div>
 

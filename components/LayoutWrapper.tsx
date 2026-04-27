@@ -10,7 +10,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                      pathname === "/auth";
 
   return (
-    <main className={`${isFullPage ? "" : "lg:ml-64"} relative z-10 bg-transparent min-h-screen`}>
+    <main className={`${isFullPage ? "" : "lg:ml-64"} relative z-10 bg-transparent min-h-[100dvh]`}>
       {children}
     </main>
   );

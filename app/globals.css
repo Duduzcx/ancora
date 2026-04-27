@@ -12,10 +12,11 @@ html {
   touch-action: manipulation;
   text-rendering: optimizeSpeed;
   overscroll-behavior: none;
+  background-color: #f8fafc;
 }
 
 body {
-  background: #020617; /* slate-950 fallback */
+  background: #f8fafc; /* slate-50 */
   color: var(--foreground);
   overflow-x: hidden;
   overscroll-behavior: none;

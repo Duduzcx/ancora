@@ -198,16 +198,16 @@ export default function Home() {
               onClick={() => handleEmotionalCheckin('calmo')} 
             />
             <EmotionButton 
-              icon={Cloud} color="text-orange-500" label="Ansioso" 
-              onClick={() => handleEmotionalCheckin('ansioso')} 
+              icon={Cloud} color="text-orange-500" label="Nebuloso" 
+              onClick={() => handleEmotionalCheckin('nebuloso')} 
             />
             <EmotionButton 
               icon={Zap} color="text-red-500" label="Agitado" 
               onClick={() => handleEmotionalCheckin('agitado')} 
             />
             <EmotionButton 
-              icon={LifeBuoy} color="text-blue-700" label="Ajuda Agora" 
-              onClick={() => handleEmotionalCheckin('precisando de ajuda urgente')} 
+              icon={LifeBuoy} color="text-blue-700" label="Preciso de Ajuda" 
+              onClick={() => handleEmotionalCheckin('ajuda')} 
             />
           </div>
         </section>

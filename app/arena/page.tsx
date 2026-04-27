@@ -77,11 +77,6 @@ export default function ArenaPage() {
                   <h2 className="text-xl font-black text-slate-900 tracking-tighter">A Arena</h2>
                 </div>
               </div>
-              <Link href="/">
-                <button className="p-3 bg-white border border-slate-200 rounded-2xl text-slate-400 hover:text-slate-900 transition-colors shadow-sm">
-                  <ArrowLeft size={20} />
-                </button>
-              </Link>
             </header>
 
             <div className="max-w-6xl mx-auto px-6 py-12 md:p-12 lg:p-16 space-y-12">
@@ -124,11 +119,11 @@ export default function ArenaPage() {
             className="flex-1 flex flex-col overflow-hidden w-full max-w-4xl mx-auto md:p-4"
           >
             {/* Header Simulação */}
-            <div className="flex-none p-4 md:p-6 border-b border-white/5 flex items-center justify-between bg-slate-900/50 backdrop-blur-md md:rounded-t-[40px]">
+            <div className="flex-none p-4 md:p-6 border-b border-slate-200/50 flex items-center justify-between bg-white/40 backdrop-blur-xl md:rounded-t-[40px] z-30">
               <div className="flex items-center gap-2">
                 <button 
                   onClick={() => window.dispatchEvent(new CustomEvent('open-main-sidebar'))}
-                  className="md:hidden p-2.5 bg-slate-800 text-white rounded-xl shadow-lg mr-2"
+                  className="p-3 bg-slate-900 text-white rounded-2xl shadow-xl hover:scale-105 transition-transform"
                 >
                   <Menu size={18} />
                 </button>
@@ -138,9 +133,9 @@ export default function ArenaPage() {
                     setMessages([]);
                     hasStarted.current = false;
                   }}
-                  className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group"
+                  className="flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors group ml-2"
                 >
-                  <div className="p-2 bg-slate-800 rounded-xl group-hover:bg-slate-700">
+                  <div className="p-2 bg-white border border-slate-200 rounded-xl group-hover:bg-slate-50 shadow-sm">
                     <ArrowLeft size={18} />
                   </div>
                   <span className="hidden xs:inline font-black text-[10px] tracking-widest uppercase">Sair</span>
@@ -148,10 +143,10 @@ export default function ArenaPage() {
               </div>
               <div className="flex items-center gap-3">
                 <div className="text-right">
-                  <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">{selected.title}</p>
-                  <p className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Simulação Neural</p>
+                  <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">{selected.title}</p>
+                  <p className="text-[8px] text-slate-400 font-bold uppercase tracking-widest leading-none">Simulação Neural</p>
                 </div>
-                <div className={`p-2.5 bg-slate-800 rounded-xl ${selected.color}`}>
+                <div className={`p-2.5 bg-white border border-slate-200 rounded-xl shadow-sm ${selected.color}`}>
                   <selected.icon size={18} />
                 </div>
               </div>
@@ -160,7 +155,7 @@ export default function ArenaPage() {
             {/* Mensagens Scrollable */}
             <div 
               ref={scrollRef}
-              className="flex-1 p-4 md:p-8 overflow-y-auto space-y-6 bg-slate-900/30 custom-scrollbar overscroll-contain"
+              className="flex-1 p-4 md:p-8 overflow-y-auto space-y-6 custom-scrollbar overscroll-contain bg-slate-50/50"
             >
               <AnimatePresence initial={false}>
                 {visibleMessages.map((m) => (
@@ -171,14 +166,16 @@ export default function ArenaPage() {
                     className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div className={`flex items-start gap-3 md:gap-4 max-w-[90%] md:max-w-[85%] ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                      <div className={`p-2 rounded-xl ${m.role === 'user' ? 'bg-emerald-500' : 'bg-slate-800'} text-white shadow-lg shrink-0`}>
+                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-lg ${
+                        m.role === 'user' ? 'bg-slate-900 text-white' : 'bg-white text-emerald-600 border border-white'
+                      }`}>
                         {m.role === 'user' ? <User size={14} /> : <Bot size={14} />}
                       </div>
                       <div className={`
-                        p-4 md:p-5 rounded-[1.8rem] md:rounded-[2rem] text-sm md:text-base leading-relaxed font-bold
+                        p-4 md:p-5 rounded-[1.8rem] md:rounded-[2rem] text-sm md:text-base leading-relaxed shadow-lg
                         ${m.role === 'user' 
-                          ? 'bg-emerald-500 text-white rounded-tr-none' 
-                          : 'bg-slate-800 text-slate-200 rounded-tl-none border border-slate-700'}
+                          ? 'bg-slate-900 text-white rounded-tr-none' 
+                          : 'bg-white/80 text-slate-800 backdrop-blur-xl border border-white/60 rounded-tl-none'}
                       `}>
                         {m.content}
                       </div>
@@ -187,8 +184,11 @@ export default function ArenaPage() {
                 ))}
               </AnimatePresence>
               {isLoading && (
-                <div className="flex justify-start ml-12">
-                  <div className="bg-slate-800/50 p-3 rounded-2xl flex gap-1">
+                <div className="flex justify-start gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-white border border-white flex items-center justify-center shadow-lg">
+                    <Bot size={14} className="text-emerald-600" />
+                  </div>
+                  <div className="bg-white/60 backdrop-blur-xl p-3 rounded-[1.5rem] rounded-tl-none border border-white shadow-sm flex gap-1 items-center">
                     <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce" />
                     <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.2s]" />
                     <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.4s]" />
@@ -198,27 +198,36 @@ export default function ArenaPage() {
             </div>
 
             {/* Input Fixo */}
-            <form 
-              onSubmit={handleCustomSubmit}
-              className="flex-none p-4 md:p-6 pb-safe bg-slate-900/80 backdrop-blur-xl border-t border-white/5 md:rounded-b-[40px]"
-            >
-              <div className="flex gap-2 p-1.5 bg-slate-800 rounded-full border border-slate-700 shadow-2xl">
-                <input 
-                  type="text" 
-                  value={input}
-                  onChange={handleInputChange}
-                  placeholder="Sua resposta..."
-                  className="flex-1 bg-transparent px-5 py-3 outline-none text-white font-bold text-sm md:text-base placeholder:text-slate-500"
-                />
-                <button 
-                  type="submit"
-                  disabled={!input.trim() || isLoading}
-                  className="bg-emerald-500 text-white p-3.5 md:p-4 rounded-full hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-30"
-                >
-                  <Send size={18} />
-                </button>
-              </div>
-            </form>
+            <div className="flex-none p-4 md:p-6 bg-white border-t border-slate-100 md:rounded-b-[40px] z-40">
+              <form 
+                onSubmit={handleCustomSubmit}
+                className="max-w-3xl mx-auto"
+              >
+                <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 shadow-sm rounded-[2rem] p-1.5 transition-all focus-within:bg-white focus-within:ring-4 ring-slate-900/5">
+                  <input 
+                    type="text" 
+                    value={input}
+                    onChange={handleInputChange}
+                    placeholder="Sua resposta..."
+                    className="flex-1 bg-transparent px-6 py-3 outline-none text-slate-800 font-bold text-sm md:text-base placeholder:text-slate-400"
+                  />
+                  <motion.button 
+                    type="submit"
+                    whileHover={input.trim() && !isLoading ? { scale: 1.05 } : {}}
+                    whileTap={input.trim() && !isLoading ? { scale: 0.95 } : {}}
+                    disabled={!input.trim() || isLoading}
+                    className={`
+                      w-12 h-12 rounded-full transition-all flex items-center justify-center shrink-0 shadow-lg
+                      ${input.trim() && !isLoading 
+                        ? 'bg-slate-900 text-white' 
+                        : 'bg-slate-100 text-slate-300 shadow-none'}
+                    `}
+                  >
+                    <Send size={18} strokeWidth={2.5} />
+                  </motion.button>
+                </div>
+              </form>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

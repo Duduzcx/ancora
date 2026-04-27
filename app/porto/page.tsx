@@ -14,6 +14,7 @@ function PortoContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const chatId = searchParams.get('chatId');
+  const humor = searchParams.get('humor');
   const supabase = createClient();
   
   const [user, setUser] = useState<any>(null);
@@ -21,9 +22,22 @@ function PortoContent() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const initialGreetings = {
+    calmo: "Que bom que o seu mar está calmo hoje. Quer aproveitar para registrar seus pensamentos ou organizar a mente para os próximos dias?",
+    nebuloso: "Notei que as coisas estão um pouco confusas hoje. Quer me contar o que está pesando na sua mente para tentarmos clarear a neblina juntos?",
+    agitado: "O mar está agitado, mas você está seguro aqui no Porto. Respire fundo. O que está te causando ansiedade ou estresse agora?",
+    ajuda: "Estou aqui com você. Você não está sozinho(a). Respire fundo e me conte: o que está acontecendo neste exato momento?",
+    default: "Bem-vindo ao Porto. Este é o seu espaço seguro e sem julgamentos. Como o Âncora pode te ajudar a navegar hoje?"
+  };
+
+  const greetingMessage = initialGreetings[humor as keyof typeof initialGreetings] || initialGreetings.default;
+
   const { messages, input, handleInputChange, handleSubmit, setMessages, isLoading, error } = useChat({
     api: '/api/chat',
     body: { chatId },
+    initialMessages: chatId ? [] : [
+      { id: 'welcome-msg', role: 'assistant', content: greetingMessage }
+    ],
     onResponse: (response) => {
       const newChatId = response.headers.get('x-chat-id');
       if (newChatId && newChatId !== chatId) {
@@ -35,7 +49,6 @@ function PortoContent() {
   useEffect(() => {
     setIsMounted(true);
     const initialize = async () => {
-      // Busca usuário e mensagens em paralelo para maior velocidade
       const [userResponse, messagesResponse] = await Promise.all([
         supabase.auth.getUser(),
         chatId ? supabase
@@ -55,16 +68,6 @@ function PortoContent() {
           role: m.role as "user" | "assistant" | "system" | "data",
           content: m.content
         })));
-      } else if (!chatId) {
-        setMessages([
-          {
-            id: 'welcome',
-            role: 'assistant',
-            content: 'Olá! Sou o Âncora, seu guia neste porto seguro. Como posso te ajudar hoje?'
-          }
-        ]);
-      } else {
-        setMessages([]);
       }
     };
     initialize();
@@ -85,7 +88,7 @@ function PortoContent() {
   if (!isMounted) return null;
 
   return (
-    <main className="flex flex-col h-[100dvh] overflow-hidden bg-slate-50 relative z-10 pl-0 md:pl-[calc(16rem+18rem)] transition-all overscroll-none touch-pan-y">
+    <main className="flex flex-col h-[100dvh] overflow-hidden bg-white relative z-10 pl-0 md:pl-[calc(16rem+18rem)] transition-all overscroll-none touch-pan-y">
       <AnimatedBackground subtle />
       
       {user && (
@@ -153,9 +156,40 @@ function PortoContent() {
       {/* Área de Mensagens - ÚNICA ÁREA SCROLLABLE */}
       <div 
         ref={scrollRef}
-        className="flex-1 overflow-y-auto scroll-smooth custom-scrollbar px-4 py-6 overscroll-contain"
+        className="flex-1 overflow-y-auto scroll-smooth custom-scrollbar px-4 py-6 overscroll-contain pb-24"
       >
-        <div className="max-w-3xl w-full mx-auto space-y-8 pb-10">
+        <div className="max-w-3xl w-full mx-auto space-y-8">
+          {/* Sessão de Histórico Rápido (Mobile-First) quando não há mensagens além da inicial */}
+          {messages.length <= 1 && user && (
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-12 space-y-6"
+            >
+              <div className="flex items-center justify-between px-2">
+                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Continuar Conversa</h3>
+                <button 
+                  onClick={() => setIsHistoryOpen(true)}
+                  className="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:underline"
+                >
+                  Ver Tudo
+                </button>
+              </div>
+              <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar -mx-2 px-2">
+                <div 
+                  onClick={() => setIsHistoryOpen(true)}
+                  className="flex-none w-40 p-4 bg-white/60 backdrop-blur-xl border border-white rounded-3xl shadow-sm cursor-pointer hover:bg-white transition-all flex flex-col gap-3"
+                >
+                  <div className="w-8 h-8 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400">
+                    <Clock size={16} />
+                  </div>
+                  <p className="text-[11px] font-bold text-slate-600 line-clamp-2">Acesse suas conversas anteriores aqui.</p>
+                </div>
+                {/* O componente ChatHistorySidebar cuida da lógica real, aqui é apenas um atalho visual */}
+              </div>
+            </motion.div>
+          )}
+
           <AnimatePresence initial={false}>
             {messages.map((m) => (
               <motion.div
@@ -208,31 +242,37 @@ function PortoContent() {
         </div>
       </div>
 
-      {/* Formulário - FIXO NA BASE */}
-      <form 
-        onSubmit={handleCustomSubmit}
-        className="flex-none p-4 pb-safe bg-white/40 backdrop-blur-xl border-t border-white/20 z-40"
-      >
-        <div className="max-w-3xl mx-auto flex gap-2">
-          <div className="flex-1 flex items-center bg-white/70 border border-white/50 shadow-xl rounded-full p-1.5 transition-all focus-within:bg-white focus-within:ring-4 ring-slate-900/5">
+      {/* Formulário - SEM GAPS NO FUNDO */}
+      <div className="flex-none p-4 md:p-6 bg-white border-t border-slate-100 z-40">
+        <form 
+          onSubmit={handleCustomSubmit}
+          className="max-w-3xl mx-auto"
+        >
+          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 shadow-sm rounded-[2rem] p-1.5 transition-all focus-within:bg-white focus-within:ring-4 ring-slate-900/5">
             <input
               value={input}
               onChange={handleInputChange}
-              placeholder="Fale com o Âncora..."
-              className="flex-1 bg-transparent px-5 py-3 outline-none text-slate-800 text-sm md:text-base font-bold placeholder:text-slate-400"
+              placeholder="Desabafe com o Âncora..."
+              className="flex-1 bg-transparent px-6 py-3 outline-none text-slate-800 text-sm md:text-base font-bold placeholder:text-slate-400"
             />
+            <motion.button 
+              type="submit"
+              whileHover={input.trim() && !isLoading ? { scale: 1.05 } : {}}
+              whileTap={input.trim() && !isLoading ? { scale: 0.95 } : {}}
+              disabled={!input.trim() || isLoading}
+              className={`
+                w-12 h-12 rounded-full transition-all flex items-center justify-center shrink-0 shadow-lg
+                ${input.trim() && !isLoading 
+                  ? 'bg-slate-900 text-white' 
+                  : 'bg-slate-100 text-slate-300 shadow-none'}
+              `}
+            >
+              <Send size={18} strokeWidth={2.5} />
+            </motion.button>
           </div>
-          <motion.button 
-            type="submit"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            disabled={!input.trim() || isLoading}
-            className="p-4 bg-slate-900 text-white rounded-full hover:bg-slate-800 transition-all shadow-xl disabled:opacity-10 flex items-center justify-center shrink-0"
-          >
-            <Send size={20} />
-          </motion.button>
-        </div>
-      </form>
+          <p className="text-[9px] text-center text-slate-400 font-bold mt-3 md:hidden">O Âncora é uma IA e pode cometer erros.</p>
+        </form>
+      </div>
     </main>
   );
 }
