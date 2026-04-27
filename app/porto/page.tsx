@@ -159,37 +159,6 @@ function PortoContent() {
         className="flex-1 overflow-y-auto scroll-smooth custom-scrollbar px-4 py-6 overscroll-contain pb-24"
       >
         <div className="max-w-3xl w-full mx-auto space-y-8">
-          {/* Sessão de Histórico Rápido (Mobile-First) quando não há mensagens além da inicial */}
-          {messages.length <= 1 && user && (
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-12 space-y-6"
-            >
-              <div className="flex items-center justify-between px-2">
-                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Continuar Conversa</h3>
-                <button 
-                  onClick={() => setIsHistoryOpen(true)}
-                  className="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:underline"
-                >
-                  Ver Tudo
-                </button>
-              </div>
-              <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar -mx-2 px-2">
-                <div 
-                  onClick={() => setIsHistoryOpen(true)}
-                  className="flex-none w-40 p-4 bg-white/60 backdrop-blur-xl border border-white rounded-3xl shadow-sm cursor-pointer hover:bg-white transition-all flex flex-col gap-3"
-                >
-                  <div className="w-8 h-8 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400">
-                    <Clock size={16} />
-                  </div>
-                  <p className="text-[11px] font-bold text-slate-600 line-clamp-2">Acesse suas conversas anteriores aqui.</p>
-                </div>
-                {/* O componente ChatHistorySidebar cuida da lógica real, aqui é apenas um atalho visual */}
-              </div>
-            </motion.div>
-          )}
-
           <AnimatePresence initial={false}>
             {messages.map((m) => (
               <motion.div

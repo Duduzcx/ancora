@@ -123,9 +123,9 @@ export default function ChatHistorySidebar({ isOpen, onClose }: ChatHistorySideb
                   onClick={() => handleSelectChat(chat.id)}
                   className={`w-full text-left p-4 rounded-full flex items-center justify-between group transition-all ${
                     currentChatId === chat.id 
-                      ? 'bg-slate-800 text-white shadow-lg border-none' 
-                      : 'bg-transparent text-slate-400 hover:bg-slate-800/50'
-                  }`}
+                      ? 'bg-slate-900 text-white shadow-lg border-none' 
+                      : 'bg-white/40 text-slate-700 border border-white/40 hover:bg-white hover:text-slate-900 shadow-sm'}
+                  `}
                 >
                   <div className="flex items-center gap-3 overflow-hidden flex-1">
                     <MessageSquare size={16} className={currentChatId === chat.id ? 'text-white' : 'text-slate-500'} />
