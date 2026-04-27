@@ -46,6 +46,14 @@ export default function ChatHistorySidebar({ isOpen, onClose }: ChatHistorySideb
     fetchChats();
   }, [currentChatId]);
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+  }, [isOpen]);
+
   const handleNewChat = () => {
     router.push('/porto');
     fetchChats();

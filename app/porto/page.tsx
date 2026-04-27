@@ -23,11 +23,11 @@ function PortoContent() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const initialGreetings = {
-    calmo: "Que bom que o seu mar está calmo hoje. Quer aproveitar para registrar seus pensamentos ou organizar a mente para os próximos dias?",
-    nebuloso: "Notei que as coisas estão um pouco confusas hoje. Quer me contar o que está pesando na sua mente para tentarmos clarear a neblina juntos?",
-    agitado: "O mar está agitado, mas você está seguro aqui no Porto. Respire fundo. O que está te causando ansiedade ou estresse agora?",
-    ajuda: "Estou aqui com você. Você não está sozinho(a). Respire fundo e me conte: o que está acontecendo neste exato momento?",
-    default: "Bem-vindo ao Porto. Este é o seu espaço seguro e sem julgamentos. Como o Âncora pode te ajudar a navegar hoje?"
+    calmo: "O seu mar está tranquilo hoje. É um ótimo momento para ancorar bons pensamentos ou apenas descansar. Quer registrar algo que te traz paz?",
+    nebuloso: "A neblina faz parte da navegação. Não precisa ver o horizonte todo agora, apenas o próximo passo. O que está dificultando a visão hoje?",
+    agitado: "Sinto o mar agitado por aí. A ansiedade é como uma tempestade: ela assusta, mas você é o capitão e o Porto está seguro. Respire comigo. O que está acontecendo?",
+    ajuda: "Sinal de socorro recebido. Você está em águas seguras agora. Solte o peso. O que você precisa descarregar primeiro?",
+    default: "Bem-vindo ao Porto. Sou seu guia nesta travessia. Como está o seu mar interior hoje?"
   };
 
   const greetingMessage = initialGreetings[humor as keyof typeof initialGreetings] || initialGreetings.default;

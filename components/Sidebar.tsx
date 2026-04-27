@@ -76,6 +76,15 @@ export default function Sidebar() {
     setIsMobileMenuOpen(false);
   }, [pathname]);
 
+  // Bloqueia scroll quando o menu está aberto
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+  }, [isMobileMenuOpen]);
+
   // Listener para abrir o menu a partir de outras páginas
   useEffect(() => {
     const handleOpen = () => setIsMobileMenuOpen(true);

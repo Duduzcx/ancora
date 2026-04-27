@@ -36,10 +36,25 @@ export default function CofrePage() {
   };
 
   return (
-    <main className="flex flex-col h-[100dvh] overflow-hidden bg-black p-4 md:p-8 md:ml-64 relative z-10 transition-all overscroll-none touch-pan-y">
-      
-      {/* BACKGROUND DE PARTÍCULAS (DISCRETO) */}
-      <div className="absolute inset-0 pointer-events-none opacity-20 z-0">
+    <main className={`flex flex-col h-[100dvh] overflow-hidden bg-black p-4 md:p-8 md:ml-64 relative z-10 transition-all overscroll-none touch-pan-y ${isBurning ? 'animate-shake' : ''}`}>
+      <style jsx global>{`
+        @keyframes shake-screen {
+          0% { transform: translate(1px, 1px) rotate(0deg); }
+          10% { transform: translate(-1px, -2px) rotate(-1deg); }
+          20% { transform: translate(-3px, 0px) rotate(1deg); }
+          30% { transform: translate(3px, 2px) rotate(0deg); }
+          40% { transform: translate(1px, -1px) rotate(1deg); }
+          50% { transform: translate(-1px, 2px) rotate(-1deg); }
+          60% { transform: translate(-3px, 1px) rotate(0deg); }
+          70% { transform: translate(3px, 1px) rotate(-1deg); }
+          80% { transform: translate(-1px, -1px) rotate(1deg); }
+          90% { transform: translate(1px, 2px) rotate(0deg); }
+          100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+        .animate-shake {
+          animation: shake-screen 0.3s infinite;
+        }
+      `}</style>
         {[...Array(15)].map((_, i) => (
           <motion.div
             key={i}
@@ -127,36 +142,32 @@ export default function CofrePage() {
             {/* ÁREA DE TEXTO Flex-1 */}
             <div className="flex-1 min-h-0 relative overflow-hidden">
               <AnimatePresence mode="wait">
-                <motion.textarea
-                  key="terminal-input"
-                  value={text}
-                  onChange={(e) => setText(e.target.value)}
-                  spellCheck={false}
-                  animate={isBurning ? { 
-                    color: ["#10b981", "#f97316", "#ef4444", "#ffffff", "#000000"],
-                    y: [0, -20, -100, -500],
-                    x: [0, -15, 15, -20, 20, -10, 10, 0], // Tremida intensa
-                    filter: ["blur(0px)", "blur(4px)", "blur(20px)", "blur(80px)"],
-                    opacity: [1, 1, 0.8, 0],
-                    scale: [1, 1.2, 0.4, 0],
-                    rotate: [0, 10, -10, 20, -20, 45],
-                    skewX: [0, 15, -15, 20, -20, 0]
-                  } : (isSaving ? { 
-                    opacity: 0, 
-                    scale: 0.1, 
-                    filter: "blur(30px)",
-                    y: 300,
-                    rotate: 360
-                  } : { opacity: 1, scale: 1 })}
-                  transition={{ duration: 2.5, ease: "anticipate" }}
-                  placeholder="ESCREVA O QUE PESA EM SUA MENTE..."
-                  className={`
-                    flex-1 w-full bg-transparent font-mono text-xl md:text-3xl lg:text-4xl 
-                    outline-none resize-none leading-relaxed tracking-tight
-                    placeholder:text-emerald-500/20 scrollbar-hide
-                    ${isBurning || isSaving ? 'pointer-events-none' : 'text-emerald-500/80'}
-                  `}
-                />
+                {!isBurning ? (
+                  <motion.textarea
+                    key="vault-input"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ 
+                      opacity: 0, 
+                      scale: 0.1,
+                      x: [0, -10, 10, -20, 20, -30, 30, -10, 10, 0],
+                      y: [0, -100, -500],
+                      filter: "blur(20px)",
+                      transition: { duration: 2 }
+                    }}
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    spellCheck={false}
+                    placeholder="ESCREVA O QUE PESA EM SUA MENTE..."
+                    className={`
+                      flex-1 w-full bg-transparent font-mono text-xl md:text-3xl lg:text-4xl 
+                      outline-none resize-none leading-relaxed tracking-tight
+                      placeholder:text-emerald-500/20 scrollbar-hide text-emerald-500/80
+                    `}
+                  />
+                ) : (
+                  <div key="burning-placeholder" className="flex-1" />
+                )}
               </AnimatePresence>
 
               {/* Animação de Queimar Melhorada - Cinzas e Fagulhas */}
