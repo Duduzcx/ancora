@@ -10,6 +10,7 @@ import {
   Wind, Cloud, Zap, LifeBuoy, Lightbulb
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase-client';
+import FarolCompanion from '@/components/FarolCompanion';
 
 const features = [
   { 
@@ -175,6 +176,9 @@ export default function Home() {
             </Link>
           </div>
         </section>
+
+        {/* COMPANHEIRO DIÁRIO PREDITIVO */}
+        <FarolCompanion />
 
         {/* 2. CHECK-IN EMOCIONAL */}
         <section className="space-y-20">
