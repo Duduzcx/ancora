@@ -26,8 +26,10 @@ export default function ChatHistorySidebar({ isOpen, onClose }: ChatHistorySideb
   const currentChatId = searchParams.get('chatId');
 
   const fetchChats = async () => {
-    setIsLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
+    // Check de sessão rápido
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
+
     if (user) {
       const { data } = await supabase
         .from('chats')
@@ -37,6 +39,10 @@ export default function ChatHistorySidebar({ isOpen, onClose }: ChatHistorySideb
 
       if (data) {
         setChats(data);
+        // Prefetch das conversas para navegação instantânea
+        data.slice(0, 5).forEach(chat => {
+          router.prefetch(`/porto?chatId=${chat.id}`);
+        });
       }
     }
     setIsLoading(false);

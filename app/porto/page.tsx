@@ -76,25 +76,28 @@ function PortoContent() {
   useEffect(() => {
     setIsMounted(true);
     const initialize = async () => {
-      const [userResponse, messagesResponse] = await Promise.all([
-        supabase.auth.getUser(),
-        chatId ? supabase
-          .from('messages')
-          .select('*')
-          .eq('chat_id', chatId)
-          .order('created_at', { ascending: true }) : Promise.resolve({ data: [] })
-      ]);
+      // Check de sessão ultrarrápido
+      const { data: { session } } = await supabase.auth.getSession();
+      const sessionUser = session?.user;
+      
+      if (sessionUser) {
+        setUser(sessionUser);
+        
+        if (chatId) {
+          const { data: history } = await supabase
+            .from('messages')
+            .select('id, role, content')
+            .eq('chat_id', chatId)
+            .order('created_at', { ascending: true });
 
-      const sessionUser = userResponse.data.user;
-      setUser(sessionUser);
-
-      const data = messagesResponse.data;
-      if (data && data.length > 0) {
-        setMessages(data.map(m => ({
-          id: m.id,
-          role: m.role as "user" | "assistant" | "system" | "data",
-          content: m.content
-        })));
+          if (history && history.length > 0) {
+            setMessages(history.map(m => ({
+              id: m.id,
+              role: m.role as "user" | "assistant" | "system" | "data",
+              content: m.content
+            })));
+          }
+        }
       }
     };
     initialize();
@@ -115,7 +118,7 @@ function PortoContent() {
   if (!isMounted) return null;
 
   return (
-    <main className="flex flex-col h-[100dvh] overflow-hidden bg-white relative z-10 pl-0 md:pl-[calc(16rem+18rem)] transition-all overscroll-none touch-pan-y">
+    <main className="flex flex-col h-[100dvh] overflow-hidden bg-white relative z-10 pl-0 md:pl-64 lg:pl-64 transition-all overscroll-none touch-pan-y">
       <AnimatedBackground subtle />
       
       {user && (
@@ -135,6 +138,14 @@ function PortoContent() {
             <Menu size={18} />
           </button>
 
+          <button 
+            onClick={() => setIsHistoryOpen(true)}
+            className="p-2.5 md:p-3 bg-white/60 border border-white/40 rounded-2xl text-slate-900 shadow-sm flex items-center gap-2 hover:bg-white transition-all active:scale-95"
+          >
+            <Clock size={18} className="text-blue-600" />
+            <span className="text-[10px] font-black uppercase tracking-wider">Ver Histórico</span>
+          </button>
+
           <div className="flex flex-col sm:hidden">
             <span className="text-[8px] font-black text-emerald-600 uppercase tracking-widest">Acolhimento</span>
             <h2 className="text-xs font-black text-slate-900 tracking-tighter">O Porto</h2>
@@ -150,15 +161,7 @@ function PortoContent() {
             </motion.button>
           </Link>
 
-          <button 
-            onClick={() => setIsHistoryOpen(true)}
-            className="p-2.5 md:p-3 bg-white/60 border border-white/40 rounded-2xl text-slate-900 shadow-sm flex items-center gap-2 hover:bg-white transition-all active:scale-95"
-          >
-            <Clock size={18} className="text-blue-600" />
-            <span className="text-[10px] font-black uppercase tracking-wider">Ver Histórico</span>
-          </button>
-
-          <div className="hidden sm:flex items-center gap-4">
+          <div className="hidden sm:flex items-center gap-4 ml-2">
             <div className="p-2.5 bg-blue-600 rounded-2xl text-white shadow-lg">
               <Anchor size={20} />
             </div>
