@@ -36,7 +36,7 @@ export default function CofrePage() {
   };
 
   return (
-    <main className={`flex flex-col h-[100dvh] overflow-hidden bg-black p-4 md:p-8 md:ml-64 relative z-10 transition-all overscroll-none touch-pan-y ${isBurning ? 'animate-shake' : ''}`}>
+    <main className={`flex flex-col h-[100dvh] overflow-hidden bg-black p-4 md:p-8 relative z-10 transition-all overscroll-none touch-pan-y ${isBurning ? 'animate-shake' : ''}`}>
       <style jsx global>{`
         @keyframes shake-screen {
           0% { transform: translate(1px, 1px) rotate(0deg); }
