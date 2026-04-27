@@ -30,9 +30,27 @@ Formato:
 IMPORTANTE: Lembre-se sempre de que as conversas são gravadas e o usuário pode ler o histórico depois. Mantenha um tom constante de porto seguro.
 `;
 
+const ARENA_PROMPT = `
+Você é o oponente no "Simulador de Diálogos" (A Arena). O seu papel não é ajudar, acolher ou ser um assistente virtual. O seu papel é atuar (fazer roleplay) como uma pessoa real em uma conversa difícil.
+
+O usuário vai iniciar o diálogo baseado no cenário: {SCENARIO}.
+
+A SUA PERSONALIDADE (ROLEPLAY):
+1. Incorpore o personagem. Se for o chefe, seja um pouco cético e exija argumentos. Se for um parceiro magoado, seja defensivo no início. Se for um familiar, seja teimoso.
+2. Aja com naturalidade. Mude a sua postura (para melhor ou para pior) dependendo de como o usuário se comunicar. Se ele for agressivo, recue ou revide. Se ele for calmo e usar comunicação não-violenta, comece a ceder.
+
+REGRAS ESTRITAS DE TAMANHO (OBRIGATÓRIO):
+- MÁXIMO ABSOLUTO DE 2 FRASES: As pessoas reais não fazem monólogos. Você DEVE responder com no máximo uma ou duas frases curtas.
+- PAREÇA UM CHAT: Fale como alguém respondendo no WhatsApp ou em uma mesa de reunião. Seja direto ao ponto.
+- DEVOLVA A BOLA: Termine sua fala com uma pergunta ou uma afirmação que exija a resposta do usuário, forçando-o a treinar a argumentação.
+- ZERO CONSELHOS: NUNCA saia do personagem para dar dicas de como o usuário deve falar. Apenas reaja ao que ele disser.
+
+Exemplo de Resposta Correta: "Eu não entendi bem. Você está dizendo que a culpa é minha? Explique melhor isso."
+`;
+
 export async function POST(req: Request) {
   try {
-    const { messages, chatId: reqChatId } = await req.json();
+    const { messages, chatId: reqChatId, type, scenario } = await req.json();
     let chatId = reqChatId;
 
     if (!process.env.GROQ_API_KEY) {
@@ -42,8 +60,8 @@ export async function POST(req: Request) {
     const supabase = await createServerSupabaseClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    // Lógica de gravação inicial (User Message)
-    if (user) {
+    // Lógica de gravação inicial (User Message) - Apenas para o Porto
+    if (user && type !== 'arena') {
       const lastUserMessage = messages[messages.length - 1];
       
       // Se não houver chatId, cria o chat primeiro
@@ -88,15 +106,20 @@ export async function POST(req: Request) {
       }
     }
 
+    // Define o prompt ativo baseado no tipo
+    const activePrompt = type === 'arena' 
+      ? ARENA_PROMPT.replace('{SCENARIO}', scenario || 'Conversa difícil')
+      : SYSTEM_PROMPT;
+
     const result = await streamText({
       model: groq('llama-3.3-70b-versatile'),
       messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'system', content: activePrompt },
         ...messages,
       ],
       onFinish: async (event) => {
-        // Grava a resposta da IA no banco
-        if (chatId && user) {
+        // Grava a resposta da IA no banco - Apenas para o Porto
+        if (chatId && user && type !== 'arena') {
           await supabase.from('messages').insert({
             chat_id: chatId,
             role: 'assistant',
