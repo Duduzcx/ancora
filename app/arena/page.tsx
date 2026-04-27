@@ -21,6 +21,10 @@ export default function ArenaPage() {
   
   const { messages, input, handleInputChange, handleSubmit, setMessages, append, isLoading } = useChat({
     api: '/api/chat',
+    body: {
+      type: 'arena',
+      scenario: selected?.title
+    }
   });
 
   useEffect(() => {
