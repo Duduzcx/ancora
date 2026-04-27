@@ -64,7 +64,7 @@ export default function ArenaPage() {
             className="flex-1 overflow-y-auto w-full custom-scrollbar overscroll-contain"
           >
             {/* Header Arena */}
-            <header className="sticky top-0 z-30 flex items-center justify-between p-4 md:p-8 bg-slate-50/80 backdrop-blur-xl border-b border-slate-200/50">
+            <div className="flex-none p-4 md:p-8 flex items-center justify-between z-50">
               <div className="flex items-center gap-4">
                 <button 
                   onClick={() => window.dispatchEvent(new CustomEvent('open-main-sidebar'))}
@@ -73,11 +73,11 @@ export default function ArenaPage() {
                   <Menu size={20} />
                 </button>
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Simulador</span>
+                  <span className="text-[10px] font-black text-rose-600 uppercase tracking-widest">Treinamento</span>
                   <h2 className="text-xl font-black text-slate-900 tracking-tighter">A Arena</h2>
                 </div>
               </div>
-            </header>
+            </div>
 
             <div className="max-w-6xl mx-auto px-6 py-12 md:p-12 lg:p-16 space-y-12">
               <div className="text-center space-y-4">

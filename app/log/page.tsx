@@ -144,32 +144,6 @@ export default function LogPage() {
     <main className="flex flex-col h-[100dvh] overflow-hidden bg-slate-50 relative pl-0 md:pl-64 transition-all overscroll-none touch-pan-y">
       <AnimatedBackground subtle />
 
-      <header className="sticky top-0 z-30 flex items-center justify-between p-4 md:p-6 bg-slate-50/80 backdrop-blur-xl border-b border-slate-200/50">
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => window.dispatchEvent(new CustomEvent('open-main-sidebar'))}
-            className="p-3 bg-slate-900 text-white rounded-2xl shadow-xl hover:scale-105 transition-transform"
-          >
-            <Menu size={20} />
-          </button>
-          <div className="flex flex-col">
-            <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Diário</span>
-            <h2 className="text-xl font-black text-slate-900 tracking-tighter">Sobrevivência</h2>
-          </div>
-        </div>
-        
-        {/* Progresso Rápido no Header */}
-        <div className="flex items-center gap-3 bg-white/50 px-4 py-2 rounded-2xl border border-white shadow-sm">
-          <div className="w-16 md:w-24 h-1.5 bg-slate-200 rounded-full overflow-hidden">
-            <motion.div 
-              animate={{ width: `${progress}%` }} 
-              className="h-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]" 
-            />
-          </div>
-          <span className="text-xs font-black text-slate-900 tabular-nums">{Math.round(progress)}%</span>
-        </div>
-      </header>
-
       <div className="flex-1 overflow-y-auto w-full custom-scrollbar overscroll-contain p-4 md:p-8 lg:p-12">
         <div className="max-w-[1400px] mx-auto space-y-8">
         

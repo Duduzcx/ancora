@@ -270,7 +270,6 @@ function PortoContent() {
               <Send size={18} strokeWidth={2.5} />
             </motion.button>
           </div>
-          <p className="text-[9px] text-center text-slate-400 font-bold mt-3 md:hidden">O Âncora é uma IA e pode cometer erros.</p>
         </form>
       </div>
     </main>
