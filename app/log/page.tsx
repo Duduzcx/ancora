@@ -53,6 +53,16 @@ const reflections = [
   "Seu esforço de hoje, por menor que pareça, é uma vitória.",
   "Respire. Você está fazendo o melhor que pode com o que tem.",
   "O mar se acalma após a tormenta. O mesmo acontece com a sua mente.",
+  "Um mar calmo nunca fez um marinheiro habilidoso.",
+  "As estrelas brilham mais forte na escuridão profunda do oceano.",
+  "A âncora não impede a tempestade, mas garante que você ainda esteja aqui quando ela passar.",
+  "Você não pode controlar o vento, mas pode ajustar as suas velas.",
+  "O Porto não é o fim da jornada, é onde você recupera as forças para o próximo horizonte.",
+  "Cada onda que quebra na areia leva um pouco do peso que você carregava.",
+  "Navegar é preciso; viver também é aprender a abraçar o impreciso.",
+  "O Farol não grita; ele apenas brilha para quem busca encontrar o caminho.",
+  "Mesmo nas noites sem lua, o oceano sabe para onde deve fluir. Confie no seu ritmo.",
+  "Sua vulnerabilidade não é um vazamento no barco; é a água que te permite flutuar."
 ];
 
 export default function LogPage() {
