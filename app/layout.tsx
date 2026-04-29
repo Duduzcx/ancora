@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Sidebar from "@/components/Sidebar";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import LayoutWrapper from "@/components/LayoutWrapper";
 
@@ -22,11 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className={`${inter.className} antialiased overflow-x-hidden bg-slate-50 overscroll-none`}>
-        <AnimatedBackground />
-        
-        <Sidebar />
-        
+      <body className={`${inter.className} antialiased bg-[#fdfcf7] overscroll-none`}>
         <LayoutWrapper>
           {children}
         </LayoutWrapper>

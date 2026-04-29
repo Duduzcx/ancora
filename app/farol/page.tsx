@@ -94,8 +94,9 @@ export default function FarolPage() {
   const status = getStatusData();
 
   return (
-    <main className="min-h-screen bg-slate-50 p-4 md:p-8 lg:p-12 relative overflow-x-hidden flex flex-col items-center">
+    <main className="flex flex-col h-[100dvh] overflow-hidden bg-slate-50 relative transition-all overscroll-none touch-pan-y">
       <AnimatedBackground subtle />
+      <div className="flex-1 overflow-y-auto w-full custom-scrollbar overscroll-contain flex flex-col items-center p-4 pt-8 md:p-8 md:pt-12 lg:p-12 lg:pt-16">
 
       {/* Efeito de Radar */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
@@ -106,7 +107,7 @@ export default function FarolPage() {
         />
       </div>
 
-      <div className="max-w-7xl w-full relative z-10 space-y-8 pb-24">
+      <div className="max-w-7xl w-full relative z-10 space-y-8 pb-40">
         
         {/* NAV BAR (Desktop) */}
         <div className="hidden lg:flex items-center justify-between bg-white/40 backdrop-blur-3xl p-6 rounded-[3rem] border border-white shadow-2xl">
@@ -221,6 +222,7 @@ export default function FarolPage() {
           <InsightCard icon={ShieldCheck} title="Proteção" desc="Escudo mental ativado contra gatilhos externos." />
           <InsightCard icon={BarChart3} title="Tendência" desc="Crescimento estável de resiliência detectado." />
         </div>
+      </div>
       </div>
     </main>
   );

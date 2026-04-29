@@ -5,26 +5,49 @@
   --foreground: #0f172a; /* slate-900 */
 }
 
-html {
-  scroll-behavior: smooth;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  touch-action: manipulation;
-  text-rendering: optimizeSpeed;
-  overscroll-behavior: none;
-  background-color: #f8fafc;
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+  outline: none;
 }
 
-body {
-  background: #f8fafc; /* slate-50 */
-  color: var(--foreground);
+/* Allow selection in inputs and textareas */
+input, textarea, [contenteditable="true"] {
+  user-select: text;
+}
+
+html, body {
   overflow-x: hidden;
-  overscroll-behavior: none;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #0f172a;
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+  cursor: default;
+  touch-action: manipulation;
+  overscroll-behavior-y: none;
+  user-select: none;
+  /* Safe Area handling */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* Otimização de Scrollbars Customizados */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}
+
+/* Otimização de Scrollbars Customizados (para casos específicos onde queira mostrar) */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
+  display: block; /* Força exibir se a classe for usada */
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -48,4 +71,17 @@ body {
 
 .content-visibility-auto {
   content-visibility: auto;
+}
+
+.animate-spin-slow {
+  animation: spin 3s linear infinite;
+}
+
+.animate-spin-fast {
+  animation: spin 0.4s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }

@@ -9,6 +9,7 @@ import { createClient } from '@/lib/supabase-client';
 import Link from 'next/link';
 import ChatHistorySidebar from '@/components/ChatHistorySidebar';
 import AnimatedBackground from '@/components/AnimatedBackground';
+import { getApiUrl } from '@/lib/api-utils';
 
 const greetingPool = {
   calmo: [
@@ -48,11 +49,12 @@ function PortoContent() {
   const [user, setUser] = useState<any>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isHistoryLoading, setIsHistoryLoading] = useState(false);
   const [initialMessageSet, setInitialMessageSet] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const { messages, input, handleInputChange, handleSubmit, setMessages, isLoading, error } = useChat({
-    api: '/api/chat',
+    api: getApiUrl('/api/chat'),
     body: { chatId },
     onResponse: (response) => {
       const newChatId = response.headers.get('x-chat-id');
@@ -64,14 +66,14 @@ function PortoContent() {
 
   // Lógica de Sorteio e Hydration Safe
   useEffect(() => {
-    if (isMounted && !initialMessageSet && messages.length === 0 && !chatId) {
+    if (isMounted && !initialMessageSet && messages.length === 0 && !chatId && !isHistoryLoading) {
       const pool = greetingPool[humor] || greetingPool.default;
       const randomGreeting = pool[Math.floor(Math.random() * pool.length)];
       
       setMessages([{ id: 'welcome-msg', role: 'assistant', content: randomGreeting }]);
       setInitialMessageSet(true);
     }
-  }, [humor, messages.length, initialMessageSet, setMessages, isMounted, chatId]);
+  }, [humor, messages.length, initialMessageSet, setMessages, isMounted, chatId, isHistoryLoading]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -84,6 +86,9 @@ function PortoContent() {
         setUser(sessionUser);
         
         if (chatId) {
+          setIsHistoryLoading(true);
+          setMessages([]); // Limpa para evitar "pulo" de conteúdo antigo
+          
           const { data: history } = await supabase
             .from('messages')
             .select('id, role, content')
@@ -97,6 +102,7 @@ function PortoContent() {
               content: m.content
             })));
           }
+          setIsHistoryLoading(false);
         }
       }
     };
@@ -109,6 +115,13 @@ function PortoContent() {
     }
   }, [messages, isLoading]);
 
+  const handleBlur = () => {
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+      document.body.scrollTop = 0;
+    }, 100);
+  };
+
   const handleCustomSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
@@ -118,7 +131,7 @@ function PortoContent() {
   if (!isMounted) return null;
 
   return (
-    <main className="flex flex-col h-[100dvh] overflow-hidden bg-white relative z-10 transition-all overscroll-none touch-pan-y lg:pl-72">
+    <main className="fixed inset-0 flex flex-col overflow-hidden bg-slate-50 z-10 lg:pl-72 overscroll-none touch-pan-y">
       <AnimatedBackground subtle />
       
       <ChatHistorySidebar 
@@ -127,23 +140,21 @@ function PortoContent() {
       />
 
       {/* Header - Fixo no topo */}
-      <header className="h-20 shrink-0 flex items-center justify-between px-4 md:px-8 bg-white/40 backdrop-blur-xl border-b border-white/30 z-30">
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={() => window.dispatchEvent(new CustomEvent('open-main-sidebar'))}
-            className="lg:hidden p-3 bg-slate-900 text-white rounded-2xl shadow-xl hover:scale-105 transition-transform"
-          >
-            <Menu size={18} />
-          </button>
-
+      <header className="h-20 shrink-0 flex items-center justify-between px-6 bg-[#fdfcf7]/40 backdrop-blur-xl border-b border-white/30 z-30 pt-[env(safe-area-inset-top)]">
+        <div className="flex items-center gap-4">
+          <Link href="/">
+            <button className="p-2 bg-white/60 border border-white/40 rounded-2xl text-slate-900 shadow-sm flex items-center justify-center hover:bg-white transition-all active:scale-[0.96]">
+              <ArrowLeft size={18} />
+            </button>
+          </Link>
           <div className="flex flex-col sm:hidden">
             <span className="text-[8px] font-black text-emerald-600 uppercase tracking-widest leading-tight">Acolhimento</span>
-            <h2 className="text-xs font-black text-slate-900 tracking-tighter leading-tight">O Porto</h2>
+            <h2 className="text-sm font-black text-slate-900 tracking-tighter leading-tight">O Porto</h2>
           </div>
 
           <button 
             onClick={() => setIsHistoryOpen(true)}
-            className="lg:hidden p-2 bg-white/60 border border-white/40 rounded-2xl text-slate-900 shadow-sm flex items-center gap-2 hover:bg-white transition-all active:scale-95 ml-4"
+            className="lg:hidden p-2 bg-white/60 border border-white/40 rounded-2xl text-slate-900 shadow-sm flex items-center gap-2 hover:bg-white transition-all active:scale-[0.96] ml-4"
           >
             <Clock size={16} className="text-blue-600" />
             <span className="text-[9px] font-black uppercase tracking-wider">Histórico</span>
@@ -166,6 +177,12 @@ function PortoContent() {
         </div>
 
         <div className="hidden sm:flex items-center gap-3">
+          {user?.user_metadata?.birth_date && (
+            <div className="px-5 py-2.5 bg-white/60 border border-white/40 rounded-full text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 shadow-sm">
+              <Anchor size={12} className="text-blue-500" />
+              Nasc.: {new Date(user.user_metadata.birth_date).toLocaleDateString('pt-BR')}
+            </div>
+          )}
           <div className="px-5 py-2.5 bg-white/60 border border-white/40 rounded-full text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2 shadow-sm">
             <Sparkles size={12} className="text-blue-500" />
             Sincronizado
@@ -232,7 +249,7 @@ function PortoContent() {
       </div>
 
       {/* Formulário - SEM GAPS NO FUNDO */}
-      <div className="flex-none p-4 md:p-6 bg-white border-t border-slate-100 z-40">
+      <div className="flex-none p-4 md:p-6 bg-[#fdfcf7] border-t border-slate-100 z-40 pb-[calc(env(safe-area-inset-bottom)+1rem)] lg:pb-6">
         <form 
           onSubmit={handleCustomSubmit}
           className="max-w-3xl mx-auto"
@@ -241,13 +258,14 @@ function PortoContent() {
             <input
               value={input}
               onChange={handleInputChange}
+              onBlur={handleBlur}
               placeholder="Desabafe com o Âncora..."
               className="flex-1 bg-transparent px-6 py-3 outline-none text-slate-800 text-sm md:text-base font-bold placeholder:text-slate-400"
             />
             <motion.button 
               type="submit"
               whileHover={input.trim() && !isLoading ? { scale: 1.05 } : {}}
-              whileTap={input.trim() && !isLoading ? { scale: 0.95 } : {}}
+              whileTap={input.trim() && !isLoading ? { scale: 0.96 } : {}}
               disabled={!input.trim() || isLoading}
               className={`
                 w-12 h-12 rounded-full transition-all flex items-center justify-center shrink-0 shadow-lg

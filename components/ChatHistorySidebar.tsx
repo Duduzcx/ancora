@@ -53,7 +53,7 @@ export default function ChatHistorySidebar({ isOpen, onClose }: ChatHistorySideb
 
   useEffect(() => {
     fetchChats();
-  }, [currentChatId]);
+  }, []); // Carrega apenas uma vez no mount para poupar recursos
 
   useEffect(() => {
     if (isOpen) {

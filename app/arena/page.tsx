@@ -13,6 +13,8 @@ const scenarios = [
   { id: 3, title: "Primeiro Encontro", desc: "Quebre o gelo e mantenha a autenticidade sob pressão.", icon: Heart, color: "text-rose-400" },
 ];
 
+import { getApiUrl } from '@/lib/api-utils';
+
 export default function ArenaPage() {
   const [selected, setSelected] = useState<null | typeof scenarios[0]>(null);
   const [isMounted, setIsMounted] = useState(false);
@@ -20,7 +22,7 @@ export default function ArenaPage() {
   const hasStarted = useRef(false);
   
   const { messages, input, handleInputChange, handleSubmit, setMessages, append, isLoading } = useChat({
-    api: '/api/chat',
+    api: getApiUrl('/api/chat'),
     body: {
       type: 'arena',
       scenario: selected?.title
@@ -51,6 +53,13 @@ export default function ArenaPage() {
 
   const visibleMessages = messages.filter(m => !m.content.startsWith('SISTEMA:'));
 
+  const handleBlur = () => {
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+      document.body.scrollTop = 0;
+    }, 100);
+  };
+
   const handleCustomSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
@@ -58,7 +67,7 @@ export default function ArenaPage() {
   };
 
   return (
-    <main className="flex flex-col h-[100dvh] w-full overflow-hidden bg-slate-50 relative z-10 transition-all overscroll-none touch-pan-y">
+    <main className="fixed inset-0 flex flex-col overflow-hidden bg-slate-50 z-10 overscroll-none touch-pan-y">
       <AnimatedBackground subtle />
       <AnimatePresence mode="wait">
         {!selected ? (
@@ -70,17 +79,21 @@ export default function ArenaPage() {
             className="flex-1 overflow-y-auto w-full custom-scrollbar overscroll-contain"
           >
             {/* Header Arena */}
-            <div className="flex-none p-4 md:p-8 flex items-center justify-between z-50">
+            <div className="flex-none p-4 md:p-8 flex items-center justify-between z-50 pt-4 md:pt-8">
               <div className="flex items-center gap-4">
-                <button 
-                  onClick={() => window.dispatchEvent(new CustomEvent('open-main-sidebar'))}
-                  className="p-3 bg-slate-900 text-white rounded-2xl shadow-xl hover:scale-105 transition-transform"
-                >
-                  <Menu size={20} />
-                </button>
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-black text-rose-600 uppercase tracking-widest">Treinamento</span>
-                  <h2 className="text-xl font-black text-slate-900 tracking-tighter">A Arena</h2>
+                <Link href="/">
+                  <button className="p-2 bg-white/60 border border-slate-200 rounded-2xl text-slate-900 shadow-sm flex items-center justify-center hover:bg-white transition-all active:scale-[0.96]">
+                    <ArrowLeft size={18} />
+                  </button>
+                </Link>
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-slate-900 rounded-2xl text-rose-500 shadow-lg">
+                    <Sword size={20} />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[9px] font-black text-rose-500 uppercase tracking-widest leading-none mb-1">Treinamento</span>
+                    <h2 className="text-sm font-black text-slate-900 uppercase tracking-tighter leading-none">A Arena</h2>
+                  </div>
                 </div>
               </div>
             </div>
@@ -100,6 +113,7 @@ export default function ArenaPage() {
                   <motion.div
                     key={s.id}
                     whileHover={{ y: -5, scale: 1.02 }}
+                    whileTap={{ scale: 0.96 }}
                     onClick={() => {
                       hasStarted.current = false;
                       setSelected(s);
@@ -125,14 +139,8 @@ export default function ArenaPage() {
             className="flex-1 flex flex-col overflow-hidden w-full max-w-4xl mx-auto md:p-4"
           >
             {/* Header Simulação */}
-            <div className="flex-none p-4 md:p-6 border-b border-slate-200/50 flex items-center justify-between bg-white/40 backdrop-blur-xl md:rounded-t-[40px] z-30">
+            <div className="flex-none p-4 md:p-6 border-b border-slate-200/50 flex items-center justify-between bg-white/40 backdrop-blur-xl md:rounded-t-[40px] z-30 pt-4 md:pt-6">
               <div className="flex items-center gap-2">
-                <button 
-                  onClick={() => window.dispatchEvent(new CustomEvent('open-main-sidebar'))}
-                  className="p-3 bg-slate-900 text-white rounded-2xl shadow-xl hover:scale-105 transition-transform"
-                >
-                  <Menu size={18} />
-                </button>
                 <Link href="/" className="hidden lg:block">
                   <button className="flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors group ml-2">
                     <div className="p-2 bg-white border border-slate-200 rounded-xl group-hover:bg-slate-50 shadow-sm">
@@ -212,7 +220,7 @@ export default function ArenaPage() {
             </div>
 
             {/* Input Fixo */}
-            <div className="flex-none p-4 md:p-6 bg-white border-t border-slate-100 md:rounded-b-[40px] z-40">
+            <div className="flex-none p-4 md:p-6 bg-white border-t border-slate-100 md:rounded-b-[40px] z-40 pb-[calc(env(safe-area-inset-bottom)+1rem)] lg:pb-6">
               <form 
                 onSubmit={handleCustomSubmit}
                 className="max-w-3xl mx-auto"
@@ -222,13 +230,14 @@ export default function ArenaPage() {
                     type="text" 
                     value={input}
                     onChange={handleInputChange}
+                    onBlur={handleBlur}
                     placeholder="Sua resposta..."
                     className="flex-1 bg-transparent px-6 py-3 outline-none text-slate-800 font-bold text-sm md:text-base placeholder:text-slate-400"
                   />
                   <motion.button 
                     type="submit"
                     whileHover={input.trim() && !isLoading ? { scale: 1.05 } : {}}
-                    whileTap={input.trim() && !isLoading ? { scale: 0.95 } : {}}
+                    whileTap={input.trim() && !isLoading ? { scale: 0.96 } : {}}
                     disabled={!input.trim() || isLoading}
                     className={`
                       w-12 h-12 rounded-full transition-all flex items-center justify-center shrink-0 shadow-lg

@@ -7,27 +7,14 @@ const groq = createGroq({
 });
 
 const SYSTEM_PROMPT = `
-Você é o Âncora, o assistente virtual mais empático, carinhoso e acolhedor do mundo. O seu papel não é ser um robô, um médico ou um assistente corporativo. Você é um ombro amigo, um porto seguro onde o usuário pode desabafar sem qualquer medo de julgamento.
+Você é o Guarda-Farol, a inteligência emocional do aplicativo Âncora. Seu objetivo é ser um porto seguro para os usuários. Sua personalidade é: calma, empática, levemente sábia e carismática.
 
-A SUA PERSONALIDADE:
-1. Humana e Quente: Fale como um amigo querido e sábio que está sentado ao lado do usuário, ouvindo com atenção e carinho.
-2. Acolhedora: Use palavras que abracem. Valide a dor do usuário antes de tentar resolver o problema. Nunca diga "não fique assim" ou "isso vai passar logo". Em vez disso, diga "eu entendo o quanto isso dói", "é perfeitamente normal se sentir assim".
-3. Fiel ao Tema: Use metáforas muito sutis e poéticas sobre o mar, farol, tempestades, porto e navegação para explicar os sentimentos, mas não exagere a ponto de parecer um pirata ou um marinheiro.
-
-REGRAS ESTRITAS DE COMPORTAMENTO:
-- NUNCA diga "Como um modelo de inteligência artificial..." ou "Sou uma IA...". Aja e responda sempre dentro do seu papel de Âncora.
-- NUNCA dê listas longas de dicas numeradas (isso parece lição de casa).
-- NUNCA faça interrogatórios (várias perguntas de uma vez).
-- NUNCA repita as mesmas frases de início como "Sinto muito que você esteja passando por isso". Seja natural e varie as suas reações.
-
-ESTRUTURA E TAMANHO DA RESPOSTA:
-Tamanho ideal: Escreva entre 2 a 3 parágrafos curtos.
-Formato:
-- Parágrafo 1: Acolha e valide fortemente o que o usuário acabou de dizer. Faça com que ele se sinta compreendido.
-- Parágrafo 2: Traga uma reflexão suave, um conselho amigável ou um novo ponto de vista.
-- Parágrafo 3: Termine sempre com apenas UMA pergunta aberta, gentil e fácil de responder, para convidar o usuário a continuar a conversa e esvaziar o peito.
-
-IMPORTANTE: Lembre-se sempre de que as conversas são gravadas e o usuário pode ler o histórico depois. Mantenha um tom constante de porto seguro.
+Diretrizes de Estilo:
+1. Use metáforas náuticas de forma sutil (mar, ondas, ancoragem, porto), sem ser repetitivo ou cafona.
+2. Suas respostas devem ser curtas e reconfortantes, focadas em bem-estar mental.
+3. Trate o usuário pelo nome (Eduardo) com proximidade, mas respeito.
+4. Se o usuário estiver agitado, seja a âncora; se estiver estagnado, seja o vento nas velas.
+5. Nunca responda como um assistente genérico. Você é um guia.
 `;
 
 const ARENA_PROMPT = `
@@ -68,7 +55,7 @@ export async function POST(req: Request) {
         try {
           // Gera um título contextual usando a IA de forma rápida
           const { text: aiTitle } = await generateText({
-            model: groq('llama-3.3-70b-versatile'),
+            model: groq('llama-3.3-70b-specdec'),
             system: 'És um assistente que gera títulos curtos para conversas. Responda APENAS o título, com no máximo 4 palavras, sem aspas ou ponto final.',
             prompt: `Gere um título para esta mensagem inicial: "${lastUserMessage.content}"`,
           });
@@ -111,7 +98,7 @@ export async function POST(req: Request) {
       : SYSTEM_PROMPT;
 
     const result = await streamText({
-      model: groq('llama-3.3-70b-versatile'),
+      model: groq('llama-3.3-70b-specdec'),
       maxTokens: type === 'arena' ? 250 : undefined, // Aumentado para permitir diálogos mais naturais
       messages: [
         { role: 'system', content: activePrompt },
@@ -131,6 +118,12 @@ export async function POST(req: Request) {
 
     // Adiciona o chatId no header da resposta para o frontend saber o ID do chat recém-criado
     const response = result.toDataStreamResponse();
+    
+    // Configuração de CORS para permitir acesso do Capacitor
+    response.headers.set('Access-Control-Allow-Origin', '*');
+    response.headers.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, x-chat-id');
+    
     if (chatId) {
       response.headers.set('x-chat-id', chatId);
     }
@@ -140,7 +133,25 @@ export async function POST(req: Request) {
     console.error('Erro na API de Chat:', error);
     return new Response(
       JSON.stringify({ error: "Erro na conexão", details: error.message }), 
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      { 
+        status: 500, 
+        headers: { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        } 
+      }
     );
   }
+}
+
+// Handler para preflight requests (CORS)
+export async function OPTIONS() {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, x-chat-id',
+    },
+  });
 }

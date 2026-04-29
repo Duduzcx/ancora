@@ -90,21 +90,31 @@ export default function LogPage() {
     })));
     setBubbleLefts([...Array(isMobile ? 5 : 10)].map(() => Math.random() * 100));
 
+    // Lógica de reset diário e salvamento por data
+    const today = new Date().toISOString().split('T')[0];
+    const savedDate = localStorage.getItem('ancora-last-date');
+
     try {
-      const saved = localStorage.getItem('ancora-tasks');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          // Garante que os ícones sejam mantidos (JSON.parse remove referências de funções)
-          const merged = defaultTasks.map(dt => {
-            const savedTask = parsed.find((st: any) => st.id === dt.id);
-            return savedTask ? { ...dt, completed: savedTask.completed } : dt;
-          });
-          setTasks(merged);
+      if (savedDate !== today) {
+        // Novo dia! Reseta as tarefas no estado, mas mantém o histórico se necessário (opcional)
+        setTasks(defaultTasks);
+        localStorage.setItem('ancora-last-date', today);
+        localStorage.setItem('ancora-tasks', JSON.stringify(defaultTasks));
+      } else {
+        const saved = localStorage.getItem('ancora-tasks');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const merged = defaultTasks.map(dt => {
+              const savedTask = parsed.find((st: any) => st.id === dt.id);
+              return savedTask ? { ...dt, completed: savedTask.completed } : dt;
+            });
+            setTasks(merged);
+          }
         }
       }
     } catch (e) {
-      console.error("Erro ao carregar tarefas:", e);
+      console.error("Erro ao gerenciar tarefas diárias:", e);
     }
   }, []);
 
@@ -153,8 +163,13 @@ export default function LogPage() {
   return (
     <main className="flex flex-col h-[100dvh] overflow-hidden bg-slate-50 relative transition-all overscroll-none touch-pan-y">
       <AnimatedBackground subtle />
+      
+      {/* Background Watermark */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-center justify-center opacity-[0.03] z-0">
+        <Anchor size={800} strokeWidth={0.5} className="text-slate-900" />
+      </div>
 
-      <div className="flex-1 overflow-y-auto w-full custom-scrollbar overscroll-contain p-4 md:p-8 lg:p-12">
+      <div className="flex-1 overflow-y-auto w-full custom-scrollbar overscroll-contain p-4 pt-24 md:p-8 md:pt-32 lg:p-12 lg:pt-32 pb-48 relative z-10">
         <div className="max-w-[1400px] mx-auto space-y-8">
         
         {/* Status Section (Sem botão de voltar) */}
@@ -164,7 +179,18 @@ export default function LogPage() {
             <p className="text-xs font-black text-emerald-600 uppercase tracking-widest mt-1">Status da sua Jornada</p>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-8">
+          <div className="flex flex-wrap items-center justify-center gap-6">
+            {/* Display de Data Automática */}
+            <div className="bg-white/80 border border-slate-200 rounded-3xl px-8 py-4 flex items-center gap-3 shadow-sm min-w-[200px]">
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Diário de</span>
+                <span className="text-slate-900 font-black text-sm">
+                  {new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
+                </span>
+              </div>
+              <Sparkles size={16} className="text-emerald-500 ml-auto" />
+            </div>
+
             <div className="bg-slate-900 text-white px-8 py-4 rounded-3xl flex items-center gap-4 shadow-2xl border border-white/10">
               <div className="w-8 h-8 bg-blue-400 rounded-full flex items-center justify-center shadow-lg">
                 <div className="w-3 h-3 bg-white rounded-full opacity-80" />
@@ -374,8 +400,8 @@ export default function LogPage() {
       <AnimatePresence>
         {feedback && (
           <motion.div 
-            initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }}
-            className="fixed bottom-12 left-1/2 -translate-x-1/2 z-[300] px-8 py-3 bg-blue-600 text-white font-black rounded-full shadow-2xl flex items-center gap-3"
+            initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -50, opacity: 0 }}
+            className="fixed top-24 left-1/2 -translate-x-1/2 z-[300] px-8 py-3 bg-blue-600 text-white font-black rounded-full shadow-2xl flex items-center gap-3"
           >
             <Star size={16} fill="white" />
             {feedback}

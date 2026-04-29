@@ -16,6 +16,7 @@ interface AnchorPoint {
 
 export default function PerfilPage() {
   const [name, setName] = useState('');
+  const [birthDate, setBirthDate] = useState('');
   const [loading, setLoading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [user, setUser] = useState<any>(null);
@@ -27,23 +28,32 @@ export default function PerfilPage() {
   useEffect(() => {
     setIsMounted(true);
     const getProfile = async () => {
-      // Check inicial ultrarrápido via sessão
       const { data: { session } } = await supabase.auth.getSession();
       const sessionUser = session?.user;
       
       if (sessionUser) {
         setUser(sessionUser);
         setName(sessionUser.user_metadata?.display_name || '');
+        
+        // Formatação inicial da data de nascimento se vier do auth
+        if (sessionUser.user_metadata?.birth_date) {
+          const [y, m, d] = sessionUser.user_metadata.birth_date.split('-');
+          setBirthDate(`${d}/${m}/${y}`);
+        }
 
         // Perfil em segundo plano
         supabase.from('profiles')
-          .select('display_name, name_changed')
+          .select('display_name, name_changed, birth_date')
           .eq('id', sessionUser.id)
           .maybeSingle()
           .then(({ data: profile }: any) => {
             if (profile) {
               setName(profile.display_name || sessionUser.user_metadata?.display_name || '');
               setHasChangedName(profile.name_changed === true);
+              if (profile.birth_date) {
+                const [y, m, d] = profile.birth_date.split('-');
+                setBirthDate(`${d}/${m}/${y}`);
+              }
             }
           });
       }
@@ -70,25 +80,40 @@ export default function PerfilPage() {
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || hasChangedName || !name.trim()) return;
+    if (!user || loading) return;
     setLoading(true);
 
     try {
-      const { error: authError } = await supabase.auth.updateUser({ 
-        data: { display_name: name } 
-      });
-      if (authError) throw authError;
+      // Formata a data para YYYY-MM-DD
+      let finalBirthDate = '';
+      if (birthDate.length === 10) {
+        const [d, m, y] = birthDate.split('/');
+        finalBirthDate = `${y}-${m}-${d}`;
+      }
 
-      const { error: dbError } = await supabase.from('profiles').upsert({
+      const updates: any = {
         id: user.id,
-        display_name: name,
-        name_changed: true,
+        birth_date: finalBirthDate,
         updated_at: new Date().toISOString(),
-      });
+      };
+
+      // Só atualiza o nome se ainda não tiver sido alterado
+      if (!hasChangedName && name.trim()) {
+        updates.display_name = name.trim();
+        updates.name_changed = true;
+      }
+
+      const { error: dbError } = await supabase.from('profiles').upsert(updates);
       if (dbError) throw dbError;
 
+      // Também atualiza os metadados da sessão para consistência imediata
+      const authUpdates: any = { birth_date: finalBirthDate };
+      if (!hasChangedName && name.trim()) authUpdates.display_name = name.trim();
+      
+      await supabase.auth.updateUser({ data: authUpdates });
+
       setSaved(true);
-      setHasChangedName(true);
+      if (updates.name_changed) setHasChangedName(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (error: any) {
       console.error('Erro ao atualizar:', error.message);
@@ -98,12 +123,21 @@ export default function PerfilPage() {
   };
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center p-4 md:p-6 overflow-hidden bg-slate-50">
+    <main className="fixed inset-0 flex flex-col overflow-hidden bg-slate-50 z-10 lg:pl-72 overscroll-none touch-pan-y">
       <AnimatedBackground />
-      
+
+      {/* Background Watermarks - Consistência com a Home */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.03] z-0">
+        <Anchor size={120} strokeWidth={2} className="text-slate-900 absolute top-20 left-10 rotate-[-15deg]" />
+        <Anchor size={100} strokeWidth={2} className="text-slate-900 absolute bottom-40 right-10 rotate-[15deg]" />
+        <Anchor size={150} strokeWidth={2} className="text-slate-900 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+        <Anchor size={80} strokeWidth={2} className="text-slate-900 absolute top-1/4 right-1/4 rotate-[45deg]" />
+      </div>
+
+      <div className="flex-1 overflow-y-auto w-full custom-scrollbar flex flex-col items-center justify-start p-4 pt-8 md:pt-16 pb-40 relative z-10">
       <motion.div 
         layout
-        className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-8 bg-white/60 backdrop-blur-3xl border border-white/80 rounded-[4rem] p-6 md:p-10 shadow-2xl relative z-10"
+        className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-8 bg-white/60 backdrop-blur-3xl border border-white/80 rounded-[2.5rem] md:rounded-[4rem] p-6 md:p-10 shadow-2xl relative z-10"
       >
         <div className="lg:col-span-5 space-y-8 border-r border-slate-200/50 pr-0 lg:pr-8">
           <Link href="/">
@@ -130,35 +164,67 @@ export default function PerfilPage() {
               <p className="text-slate-900 font-black text-sm truncate">{user?.email}</p>
             </div>
 
-            <form onSubmit={handleUpdate} className="space-y-4">
-              <div className="relative">
-                <User className="absolute left-5 top-5 text-slate-400" size={18} />
-                <input
-                  disabled={hasChangedName || loading}
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Seu Nome no Âncora"
-                  className={`w-full bg-white/80 border border-white/60 rounded-2xl px-12 py-5 outline-none transition-all text-slate-800 font-black ${hasChangedName ? 'opacity-50 grayscale cursor-not-allowed' : 'focus:ring-4 focus:ring-emerald-500/10'}`}
-                />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-5 bg-white/60 rounded-3xl border border-slate-100 space-y-2 shadow-sm">
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Membro Desde</span>
+                <p className="text-slate-900 font-black text-xs">
+                  {user?.created_at ? new Date(user.created_at).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }) : 'Abril 2026'}
+                </p>
               </div>
-              {!hasChangedName && (
-                  <motion.button
-                    disabled={loading || !name.trim()}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="w-full bg-slate-900 text-white font-black py-5 rounded-full flex items-center justify-center gap-3 hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 disabled:opacity-30"
-                  >
-                    Salvar Alteração
-                    <Save size={18} />
-                  </motion.button>
-              )}
+              <div className="p-5 bg-white/60 rounded-3xl border border-slate-100 space-y-2 shadow-sm">
+                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Nascimento</span>
+                <p className="text-slate-900 font-black text-xs">
+                  {user?.user_metadata?.birth_date ? new Date(user.user_metadata.birth_date).toLocaleDateString('pt-BR') : '--/--/----'}
+                </p>
+              </div>
+            </div>
+
+            <form onSubmit={handleUpdate} className="space-y-4">
+              <div className="space-y-4">
+                <div className="relative">
+                  <User className="absolute left-5 top-5 text-slate-400" size={18} />
+                  <input
+                    disabled={hasChangedName || loading}
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Seu Nome no Âncora"
+                    className={`w-full bg-white/80 border border-white/60 rounded-2xl px-12 py-5 outline-none transition-all text-slate-800 font-black ${hasChangedName ? 'opacity-50 grayscale cursor-not-allowed' : 'focus:ring-4 focus:ring-emerald-500/10'}`}
+                  />
+                </div>
+              </div>
+
+              <motion.button
+                disabled={loading || !name.trim()}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full bg-slate-900 text-white font-black py-5 rounded-full flex items-center justify-center gap-3 hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 disabled:opacity-30"
+              >
+                Ancorar Alterações
+                <Save size={18} />
+              </motion.button>
+              
               {hasChangedName && (
                 <p className="text-[9px] text-center text-slate-400 font-bold uppercase tracking-widest px-4">
                   Sua identidade já foi fixada e não pode mais ser alterada.
                 </p>
               )}
             </form>
+
+            <div className="pt-8 border-t border-slate-100">
+              <motion.button
+                whileHover={{ scale: 1.02, backgroundColor: '#fff1f2' }}
+                whileTap={{ scale: 0.98 }}
+                onClick={async () => {
+                  await supabase.auth.signOut();
+                  window.location.href = '/';
+                }}
+                className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-rose-50 text-rose-600 rounded-2xl font-black text-xs uppercase tracking-widest transition-all border border-rose-100 shadow-sm group"
+              >
+                <LifeBuoy size={18} className="group-hover:rotate-45 transition-transform" />
+                Sair da Conta
+              </motion.button>
+            </div>
           </div>
         </div>
 
@@ -218,6 +284,7 @@ export default function PerfilPage() {
               <Anchor size={14} className="text-emerald-500" />
               <span className="text-[10px] font-black uppercase tracking-widest">{anchors.length}/15 Pontos de Firmeza</span>
             </div>
+            
             <motion.button
               whileHover={{ scale: 1.05, color: '#ef4444' }}
               whileTap={{ scale: 0.95 }}
@@ -230,6 +297,7 @@ export default function PerfilPage() {
           </div>
         </div>
       </motion.div>
-    </div>
+      </div>
+    </main>
   );
 }

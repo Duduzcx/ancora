@@ -13,6 +13,13 @@ export default function CofrePage() {
   const [showSavedToast, setShowSavedToast] = useState(false);
   const router = useRouter();
 
+  const handleBlur = () => {
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+      document.body.scrollTop = 0;
+    }, 100);
+  };
+
   const handleSave = () => {
     if (!text) return;
     setIsSaving(true);
@@ -36,7 +43,7 @@ export default function CofrePage() {
   };
 
   return (
-    <main className={`flex flex-col h-[100dvh] overflow-hidden bg-black p-4 md:p-8 relative z-10 transition-all overscroll-none touch-pan-y ${isBurning ? 'animate-shake' : ''}`}>
+    <main className={`fixed inset-0 flex flex-col overflow-hidden bg-black p-4 md:p-8 z-10 overscroll-none touch-pan-y ${isBurning ? 'animate-shake' : ''}`}>
       <style jsx global>{`
         @keyframes shake-screen {
           0% { transform: translate(1px, 1px) rotate(0deg); }
@@ -79,15 +86,7 @@ export default function CofrePage() {
             exit={{ opacity: 0, scale: 1.1 }}
             className="flex-1 flex flex-col items-center relative z-10"
           >
-            {/* Mobile Menu in Intro */}
-            <div className="w-full flex-none p-4 lg:hidden">
-              <button 
-                onClick={() => window.dispatchEvent(new CustomEvent('open-main-sidebar'))}
-                className="p-3 bg-white/5 border border-white/10 text-white rounded-2xl items-center justify-center flex"
-              >
-                <Menu size={20} />
-              </button>
-            </div>
+            {/* Mobile Menu removed as requested */}
 
             <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
             <motion.div 
@@ -164,10 +163,11 @@ export default function CofrePage() {
                     }}
                     value={text}
                     onChange={(e) => setText(e.target.value)}
+                    onBlur={handleBlur}
                     spellCheck={false}
                     placeholder="ESCREVA O QUE PESA EM SUA MENTE..."
                     className={`
-                      flex-1 w-full bg-transparent font-mono text-xl md:text-3xl lg:text-4xl 
+                      h-full w-full bg-transparent font-mono text-xl md:text-3xl lg:text-4xl 
                       outline-none resize-none leading-relaxed tracking-tight
                       placeholder:text-emerald-500/20 scrollbar-hide text-emerald-500/80
                     `}
@@ -232,7 +232,7 @@ export default function CofrePage() {
             </div>
 
             {/* BOTÕES Flex-none */}
-            <div className="flex-none flex flex-col md:flex-row gap-4 pt-4 pb-safe bg-black">
+            <div className="flex-none flex flex-col md:flex-row gap-4 pt-4 pb-8 bg-black z-50">
               <motion.button 
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
