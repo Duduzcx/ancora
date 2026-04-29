@@ -10,9 +10,8 @@ const google = createGoogleGenerativeAI({
 // Headers que liberam o acesso total (Android/Capacitor/Web)
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-chat-id',
-  'Access-Control-Allow-Private-Network': 'true',
   'Access-Control-Expose-Headers': 'x-chat-id',
 };
 
@@ -73,7 +72,7 @@ export async function POST(req: Request) {
       : SYSTEM_PROMPT;
 
     const result = await streamText({
-      model: google('gemini-2.0-flash-001'), // Modelo Flash mais recente e rápido
+      model: google('gemini-1.5-flash'), // Modelo solicitado pelo usuário
       messages: [
         { role: 'system', content: activePrompt },
         ...messages,
