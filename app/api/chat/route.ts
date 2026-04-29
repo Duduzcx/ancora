@@ -1,10 +1,10 @@
-import { createGroq } from '@ai-sdk/groq';
-import { streamText, generateText } from 'ai';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { streamText } from 'ai';
 import { createServerSupabaseClient } from '@/lib/supabase-server';
 import { NextResponse } from 'next/server';
 
-const groq = createGroq({
-  apiKey: process.env.GROQ_API_KEY,
+const google = createGoogleGenerativeAI({
+  apiKey: process.env.GEMINI_API_KEY,
 });
 
 // Headers que liberam o acesso total (Android/Capacitor/Web)
@@ -19,13 +19,13 @@ const corsHeaders = {
 const SYSTEM_PROMPT = `
 Você é o Guarda-Farol, a inteligência emocional do aplicativo Âncora. Seu objetivo é ser um porto seguro para os usuários. Sua personalidade é: calma, empática, levemente sábia e carismática.
 Use metáforas náuticas sutis. Respostas curtas e reconfortantes.
+Trate o usuário (Eduardo) com proximidade.
 `;
 
 const ARENA_PROMPT = `
 Você é o oponente no "Simulador de Diálogos" (A Arena). Faça roleplay de uma pessoa real em uma conversa difícil. Seja direto, use no máximo 3 frases e provoque uma reação.
 `;
 
-// 1. Função OPTIONS para o "preflight" do Android
 export async function OPTIONS() {
   return new Response(null, {
     status: 204,
@@ -38,9 +38,9 @@ export async function POST(req: Request) {
     const { messages, chatId: reqChatId, type, scenario } = await req.json();
     let chatId = reqChatId;
 
-    if (!process.env.GROQ_API_KEY) {
+    if (!process.env.GEMINI_API_KEY) {
       return NextResponse.json(
-        { error: "GROQ_API_KEY não configurada no Netlify" },
+        { error: "GEMINI_API_KEY não encontrada no Netlify" },
         { status: 500, headers: corsHeaders }
       );
     }
@@ -72,9 +72,8 @@ export async function POST(req: Request) {
       ? ARENA_PROMPT.replace('{SCENARIO}', scenario || 'Conversa difícil')
       : SYSTEM_PROMPT;
 
-    // Usando o SDK da Vercel para manter o streaming (efeito de digitação)
     const result = await streamText({
-      model: groq('llama-3.1-8b-instant'), // Modelo ultra-rápido para mobile
+      model: google('gemini-2.0-flash-001'), // Modelo Flash mais recente e rápido
       messages: [
         { role: 'system', content: activePrompt },
         ...messages,
@@ -90,7 +89,6 @@ export async function POST(req: Request) {
       },
     });
 
-    // Converte para resposta e injeta os headers de ouro
     const response = result.toDataStreamResponse();
     Object.entries(corsHeaders).forEach(([key, value]) => {
       response.headers.set(key, value);
