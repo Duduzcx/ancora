@@ -3,7 +3,7 @@
  */
 
 // URL de produção do seu backend no Netlify
-const prodUrl = 'https://ancora-app.netlify.app'; 
+const prodUrl = 'https://ancura.netlify.app'; 
 
 export const getApiUrl = (path: string) => {
   // Garante que o path comece com /
