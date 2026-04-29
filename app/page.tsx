@@ -4,8 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { 
-  MessageCircle, Sword, CheckCircle, Shield, 
+import {
+  MessageCircle, Sword, CheckCircle, Shield,
   ArrowRight, Sparkles, Anchor,
   Wind, Cloud, Zap, LifeBuoy, Lightbulb
 } from 'lucide-react';
@@ -13,50 +13,50 @@ import { createClient } from '@/lib/supabase-client';
 import AnimatedBackground from '@/components/AnimatedBackground';
 
 const features = [
-  { 
-    title: "O Porto", 
-    desc: "Seu cais seguro para descarregar o peso da jornada. Um espaço de escuta profunda, acolhimento e total anonimato.", 
-    icon: MessageCircle, 
-    href: "/porto", 
-    color: "from-blue-600 to-indigo-700", 
-    subtitle: "DESCANSO & ACOLHIMENTO", 
-    dark: true 
+  {
+    title: "O Porto",
+    desc: "Seu cais seguro para descarregar o peso da jornada. Um espaço de escuta profunda, acolhimento e total anonimato.",
+    icon: MessageCircle,
+    href: "/porto",
+    color: "from-blue-600 to-indigo-700",
+    subtitle: "DESCANSO & ACOLHIMENTO",
+    dark: true
   },
-  { 
-    title: "A Arena", 
-    desc: "O convés de treinamento para a vida. Pratique diálogos difíceis e prepare sua voz para enfrentar qualquer mar aberto.", 
-    icon: Sword, 
-    href: "/arena", 
-    color: "from-rose-500 to-red-700", 
-    subtitle: "SIMULADOR TÁTICO", 
-    dark: true 
+  {
+    title: "A Arena",
+    desc: "O convés de treinamento para a vida. Pratique diálogos difíceis e prepare sua voz para enfrentar qualquer mar aberto.",
+    icon: Sword,
+    href: "/arena",
+    color: "from-rose-500 to-red-700",
+    subtitle: "SIMULADOR TÁTICO",
+    dark: true
   },
-  { 
-    title: "O Farol", 
-    desc: "A luz que corta a neblina da mente. Nossa inteligência guia seus passos de volta à segurança antes da tempestade.", 
-    icon: Lightbulb, 
-    href: "/farol", 
-    color: "from-emerald-500 to-teal-700", 
-    subtitle: "GUIA PROATIVO", 
-    dark: true 
+  {
+    title: "O Farol",
+    desc: "A luz que corta a neblina da mente. Nossa inteligência guia seus passos de volta à segurança antes da tempestade.",
+    icon: Lightbulb,
+    href: "/farol",
+    color: "from-emerald-500 to-teal-700",
+    subtitle: "GUIA PROATIVO",
+    dark: true
   },
-  { 
-    title: "A Âncora", 
-    desc: "Seus hábitos inegociáveis. O registro diário que te mantém firme na realidade quando a ansiedade tenta te levar.", 
-    icon: CheckCircle, 
-    href: "/log", 
-    color: "from-teal-500 to-cyan-700", 
-    subtitle: "ESTABILIDADE DIÁRIA", 
-    dark: true 
+  {
+    title: "A Âncora",
+    desc: "Seus hábitos inegociáveis. O registro diário que te mantém firme na realidade quando a ansiedade tenta te levar.",
+    icon: CheckCircle,
+    href: "/log",
+    color: "from-teal-500 to-cyan-700",
+    subtitle: "ESTABILIDADE DIÁRIA",
+    dark: true
   },
-  { 
-    title: "O Cofre", 
-    desc: "Tranque seus pensamentos mais pesados. Um santuário de privacidade absoluta onde seus segredos estão a salvo.", 
-    icon: Shield, 
-    href: "/cofre", 
-    color: "from-amber-500 to-orange-700", 
-    subtitle: "PRIVACIDADE TOTAL", 
-    dark: true 
+  {
+    title: "O Cofre",
+    desc: "Tranque seus pensamentos mais pesados. Um santuário de privacidade absoluta onde seus segredos estão a salvo.",
+    icon: Shield,
+    href: "/cofre",
+    color: "from-amber-500 to-orange-700",
+    subtitle: "PRIVACIDADE TOTAL",
+    dark: true
   }
 ];
 
@@ -71,9 +71,9 @@ export default function Home() {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         // Define o usuário imediatamente com o que temos na sessão
-        const initialUser = { 
-          ...session.user, 
-          display_name: session.user.user_metadata?.display_name || session.user.email?.split('@')[0] || 'Amigo' 
+        const initialUser = {
+          ...session.user,
+          display_name: session.user.user_metadata?.display_name || session.user.email?.split('@')[0] || 'Amigo'
         };
         setUser(initialUser);
         setIsCheckingAuth(false);
@@ -84,7 +84,7 @@ export default function Home() {
           .select('display_name')
           .eq('id', session.user.id)
           .maybeSingle();
-        
+
         if (profile?.display_name) {
           setUser((prev: any) => ({ ...prev, display_name: profile.display_name }));
         }
@@ -102,7 +102,7 @@ export default function Home() {
   return (
     <main className="fixed inset-0 flex flex-col overflow-hidden bg-[#fdfcf7] overscroll-none touch-none">
       <AnimatedBackground />
-      
+
       {/* Background Watermarks - Posicionadas nas bordas para evitar ruído central */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.03] z-0">
         <Anchor size={140} strokeWidth={2} className="text-slate-900 absolute top-10 -left-10 rotate-[-15deg]" />
@@ -112,16 +112,16 @@ export default function Home() {
       </div>
 
       <div className="flex-1 overflow-x-hidden overflow-y-auto w-full custom-scrollbar overscroll-contain flex justify-center pt-12 md:pt-24 pb-40 relative z-10">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="w-full max-w-6xl p-4 md:p-12 flex flex-col space-y-16 md:space-y-32"
         >
-          
+
           {/* HEADER CONCEITUAL */}
           <div className="text-center relative z-10">
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2 }}
@@ -133,12 +133,12 @@ export default function Home() {
               </span>
               Protocolo de Segurança Mental
             </motion.div>
-            
+
             <h1 className="text-5xl md:text-8xl font-black tracking-tight text-slate-950 mb-8 leading-tight flex flex-col items-center">
               <span className="whitespace-nowrap">Sua mente em</span>
               <span className="text-5xl md:text-8xl text-emerald-500 italic">Solo firme.</span>
             </h1>
-            
+
             <p className="text-slate-500 font-medium text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-12">
               A vida é um mar que não obedece a ninguém. <br className="hidden md:block" />
               A Âncora é o seu sistema de navegação emocional.
@@ -165,7 +165,7 @@ export default function Home() {
 
           {/* ... DASHBOARD DE HUMOR ... */}
           {user && (
-            <motion.section 
+            <motion.section
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               className="space-y-12 bg-white/40 backdrop-blur-3xl p-8 md:p-16 rounded-[4rem] border border-white/60 shadow-2xl relative z-10"
@@ -195,10 +195,10 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className={index === 0 ? "md:col-span-2" : ""} 
+                className={index === 0 ? "md:col-span-2" : ""}
               >
                 <Link href={user ? item.href : '/auth'}>
-                  <motion.div 
+                  <motion.div
                     whileHover={{ scale: 1.02, y: -8 }}
                     whileTap={{ scale: 0.98 }}
                     className={`
@@ -227,19 +227,19 @@ export default function Home() {
             </div>
 
             <div className="relative flex items-center justify-center w-full max-w-sm aspect-square">
-              <motion.div 
+              <motion.div
                 animate={{ scale: [1, 1.4, 1], opacity: [0.1, 0.3, 0.1] }}
                 transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
                 className="absolute inset-0 bg-emerald-400 rounded-full blur-3xl"
               />
-              
-              <motion.div 
+
+              <motion.div
                 animate={{ scale: [1, 1.3, 1] }}
                 transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
                 className="w-56 h-56 md:w-72 md:h-72 rounded-full border-2 border-white/40 flex items-center justify-center bg-white/20 backdrop-blur-xl shadow-2xl relative z-10"
               >
-                <motion.div 
-                  animate={{ 
+                <motion.div
+                  animate={{
                     scale: [0.7, 1.2, 0.7],
                     opacity: [0.4, 1, 0.4]
                   }}
