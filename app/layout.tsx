@@ -7,8 +7,8 @@ import LayoutWrapper from "@/components/LayoutWrapper";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Âncora | Sua Mente em Solo Firme",
-  description: "Ecossistema de saúde mental e acolhimento.",
+  title: "Âncora: Mental Navigation",
+  description: "Seu sistema de navegação e suporte emocional.",
   icons: {
     icon: "/favicon.png",
   },

@@ -1,0 +1,13 @@
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "https://localhost"
+    Access-Control-Allow-Headers = "Content-Type, Authorization, x-chat-id"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    Access-Control-Allow-Private-Network = "true"
+    Access-Control-Expose-Headers = "x-chat-id"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

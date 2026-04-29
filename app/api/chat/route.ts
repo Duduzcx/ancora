@@ -120,9 +120,16 @@ export async function POST(req: Request) {
     const response = result.toDataStreamResponse();
     
     // Configuração de CORS para permitir acesso do Capacitor
-    response.headers.set('Access-Control-Allow-Origin', '*');
-    response.headers.set('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, x-chat-id');
+    const origin = req.headers.get('origin');
+    if (origin) {
+      response.headers.set('Access-Control-Allow-Origin', origin);
+    } else {
+      response.headers.set('Access-Control-Allow-Origin', '*');
+    }
+    
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, x-chat-id, Authorization');
+    response.headers.set('Access-Control-Expose-Headers', 'x-chat-id');
     
     if (chatId) {
       response.headers.set('x-chat-id', chatId);
@@ -131,13 +138,22 @@ export async function POST(req: Request) {
     return response;
   } catch (error: any) {
     console.error('Erro na API de Chat:', error);
+    
+    const origin = req.headers.get('origin') || '*';
+    
     return new Response(
-      JSON.stringify({ error: "Erro na conexão", details: error.message }), 
+      JSON.stringify({ 
+        error: "Erro na conexão", 
+        details: error.message,
+        hint: "Verifique se a GROQ_API_KEY está configurada no Vercel."
+      }), 
       { 
         status: 500, 
         headers: { 
           'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*'
+          'Access-Control-Allow-Origin': origin,
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, x-chat-id, Authorization',
         } 
       }
     );
@@ -145,13 +161,16 @@ export async function POST(req: Request) {
 }
 
 // Handler para preflight requests (CORS)
-export async function OPTIONS() {
+export async function OPTIONS(req: Request) {
+  const origin = req.headers.get('origin') || '*';
+  
   return new Response(null, {
     status: 204,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, x-chat-id',
+      'Access-Control-Allow-Origin': origin,
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, x-chat-id, Authorization',
+      'Access-Control-Max-Age': '86400',
     },
   });
 }

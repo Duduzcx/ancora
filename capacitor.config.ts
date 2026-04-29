@@ -2,7 +2,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.zcx.ancora',
-  appName: 'Ancora',
+  appName: 'Âncora: Mental Navigation',
   webDir: 'out',
   server: {
     androidScheme: 'https'

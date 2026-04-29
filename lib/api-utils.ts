@@ -2,20 +2,16 @@
  * Utilitários para chamadas de API em ambientes híbridos (Web/Capacitor)
  */
 
+// URL de produção do seu backend no Netlify
+const prodUrl = 'https://ancora-app.netlify.app'; 
+
 export const getApiUrl = (path: string) => {
-  // Se estiver em produção (build nativo), precisamos de uma URL absoluta
-  const isNative = typeof window !== 'undefined' && (window as any).Capacitor?.isNative;
+  // Garante que o path comece com /
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
   
-  // URL de produção do seu backend (Vercel/Netlify/etc)
-  // Substitua pela sua URL real se necessário
-  const prodUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://ancora-web.vercel.app'; 
+  // Log para debug no Android Studio
+  const finalUrl = `${prodUrl}${cleanPath}`;
+  console.log('[API] Chamada para:', finalUrl);
   
-  if (isNative) {
-    // Remove barras duplicadas
-    const baseUrl = prodUrl.endsWith('/') ? prodUrl.slice(0, -1) : prodUrl;
-    const cleanPath = path.startsWith('/') ? path : `/${path}`;
-    return `${baseUrl}${cleanPath}`;
-  }
-  
-  return path;
+  return finalUrl;
 };

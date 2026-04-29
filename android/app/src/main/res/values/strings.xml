@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name"> Ancora</string>
-    <string name="title_activity_main"> Ancora</string>
+    <string name="app_name">Âncora: Mental Navigation</string>
+    <string name="title_activity_main">Âncora: Mental Navigation</string>
     <string name="package_name">com.zcx.ancora</string>
     <string name="custom_url_scheme">com.zcx.ancora</string>
 </resources>
