@@ -129,6 +129,7 @@ export async function POST(req: Request) {
     
     response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     response.headers.set('Access-Control-Allow-Headers', 'Content-Type, x-chat-id, Authorization');
+    response.headers.set('Access-Control-Allow-Private-Network', 'true');
     response.headers.set('Access-Control-Expose-Headers', 'x-chat-id');
     
     if (chatId) {
@@ -154,6 +155,7 @@ export async function POST(req: Request) {
           'Access-Control-Allow-Origin': origin,
           'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type, x-chat-id, Authorization',
+          'Access-Control-Allow-Private-Network': 'true',
         } 
       }
     );
@@ -170,6 +172,7 @@ export async function OPTIONS(req: Request) {
       'Access-Control-Allow-Origin': origin,
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, x-chat-id, Authorization',
+      'Access-Control-Allow-Private-Network': 'true',
       'Access-Control-Max-Age': '86400',
     },
   });
