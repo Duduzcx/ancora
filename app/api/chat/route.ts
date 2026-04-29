@@ -144,9 +144,9 @@ export async function POST(req: Request) {
     
     return new Response(
       JSON.stringify({ 
-        error: "Erro na conexão", 
+        error: "Erro na conexão com a IA", 
         details: error.message,
-        hint: "Verifique se a GROQ_API_KEY está configurada no Vercel."
+        hint: !process.env.GROQ_API_KEY ? "GROQ_API_KEY não encontrada no Netlify" : "Verifique os logs do Netlify"
       }), 
       { 
         status: 500, 
