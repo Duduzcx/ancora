@@ -72,7 +72,7 @@ export async function POST(req: Request) {
       : SYSTEM_PROMPT;
 
     const result = await streamText({
-      model: google('gemini-1.5-flash'), // Modelo solicitado pelo usuário
+      model: google('gemini-1.5-flash') as any, // Modelo solicitado pelo usuário (com cast para evitar erro no build)
       messages: [
         { role: 'system', content: activePrompt },
         ...messages,
