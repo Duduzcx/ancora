@@ -24,19 +24,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "FALTA CHAVE API" }, { status: 500, headers: corsHeaders });
     }
 
-    // Usando o modelo inteligente 1.5 Flash com a sua chave nova
-    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // Usando o GEMINI-PRO (O modelo que funciona em todas as chaves novas instantaneamente)
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`;
 
     const lastMessage = messages[messages.length - 1]?.content || "Olá";
     
     const payload = {
       contents: [{
-        parts: [{ text: `Instrução: Responda como o Guarda-Farol, assistente acolhedor do app Âncora. Pergunta: ${lastMessage}` }]
-      }],
-      generationConfig: {
-        maxOutputTokens: 800,
-        temperature: 0.7
-      }
+        parts: [{ text: `Instrução: Responda como o Guarda-Farol, assistente do app Âncora. Pergunta: ${lastMessage}` }]
+      }]
     };
 
     const response = await fetch(url, {
