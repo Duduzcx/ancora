@@ -29,9 +29,9 @@ export async function POST(req: Request) {
       apiKey: process.env.GEMINI_API_KEY,
     });
 
-    // MUDANÇA: generateText em vez de streamText para ser instantâneo no mobile
+    // MUDANÇA: Usando o nome exato que o Google exige agora
     const { text } = await generateText({
-      model: google('gemini-1.5-flash'),
+      model: google('gemini-1.5-flash-latest'),
       messages: [
         { role: 'system', content: "Você é o Guarda-Farol, assistente do app Âncora. Seja breve e acolhedor." },
         ...messages,
