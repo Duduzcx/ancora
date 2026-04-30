@@ -1,4 +1,3 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from 'next/server';
 
 const corsHeaders = {
@@ -19,38 +18,45 @@ export async function OPTIONS() {
 export async function POST(req: Request) {
   try {
     const { messages } = await req.json();
+    const apiKey = process.env.GEMINI_API_KEY;
 
-    if (!process.env.GEMINI_API_KEY) {
+    if (!apiKey) {
       return NextResponse.json({ error: "FALTA CHAVE API" }, { status: 500, headers: corsHeaders });
     }
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    // CONEXÃO PURA E MANUAL (SOLUÇÃO ATÔMICA)
+    // Usamos o endpoint de produção direta do Google
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+    const lastMessage = messages[messages.length - 1]?.content || "Olá";
     
-    // USANDO O NOME TÉCNICO COMPLETO
-    const model = genAI.getGenerativeModel({ model: "models/gemini-1.5-flash" });
+    const payload = {
+      contents: [{
+        parts: [{ text: `Instrução: Responda como o Guarda-Farol, assistente acolhedor do app Âncora. Pergunta: ${lastMessage}` }]
+      }],
+      generationConfig: {
+        maxOutputTokens: 800,
+        temperature: 0.7
+      }
+    };
 
-    let formattedHistory = messages.map((m: any) => ({
-      role: m.role === 'user' ? 'user' : 'model',
-      parts: [{ text: m.content }],
-    }));
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
 
-    // Garantindo que comece com usuário
-    while (formattedHistory.length > 0 && formattedHistory[0].role !== 'user') {
-      formattedHistory.shift();
+    const data = await response.json();
+
+    if (!response.ok) {
+      return NextResponse.json({ error: data.error?.message || "Erro no Google" }, { status: response.status, headers: corsHeaders });
     }
 
-    const lastMessageObj = formattedHistory.pop();
-    const lastMessage = lastMessageObj?.parts[0].text || "Olá";
+    const botText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Desculpe, o mar está agitado e não consegui responder.";
 
-    const chat = model.startChat({ history: formattedHistory });
-
-    const result = await chat.sendMessage(lastMessage);
-    const response = await result.response;
-    const text = response.text();
-
-    return NextResponse.json({ text }, { headers: corsHeaders });
+    return NextResponse.json({ text: botText }, { headers: corsHeaders });
   } catch (error: any) {
-    console.error("ERRO:", error);
+    console.error("ERRO ATÔMICO:", error);
     return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders });
   }
 }
