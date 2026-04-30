@@ -1,5 +1,4 @@
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import { generateText } from 'ai';
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from 'next/server';
 
 const corsHeaders = {
@@ -22,25 +21,32 @@ export async function POST(req: Request) {
     const { messages } = await req.json();
 
     if (!process.env.GEMINI_API_KEY) {
-      return NextResponse.json({ error: "API KEY Faltando" }, { status: 500, headers: corsHeaders });
+      return NextResponse.json({ error: "API KEY Faltando no Netlify" }, { status: 500, headers: corsHeaders });
     }
 
-    const google = createGoogleGenerativeAI({
-      apiKey: process.env.GEMINI_API_KEY,
+    // USANDO O DRIVER OFICIAL DO GOOGLE (Solução Definitiva)
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    // Formatando as mensagens para o padrão do Google
+    const lastMessage = messages[messages.length - 1]?.content || "";
+    const history = messages.slice(0, -1).map((m: any) => ({
+      role: m.role === 'user' ? 'user' : 'model',
+      parts: [{ text: m.content }],
+    }));
+
+    const chat = model.startChat({
+      history: history,
+      generationConfig: { maxOutputTokens: 1000 },
     });
 
-    // MUDANÇA: Usando o gemini-pro, que é o modelo mais compatível do mundo
-    const { text } = await generateText({
-      model: google('gemini-pro'),
-      messages: [
-        { role: 'user', content: "Instrução: Responda como o Guarda-Farol, assistente acolhedor do app Âncora. Seja breve." },
-        ...messages,
-      ],
-    });
+    const result = await chat.sendMessage(lastMessage);
+    const response = await result.response;
+    const text = response.text();
 
     return NextResponse.json({ text }, { headers: corsHeaders });
   } catch (error: any) {
-    console.error("Erro na API:", error);
+    console.error("ERRO CRÍTICO GOOGLE:", error);
     return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders });
   }
 }
