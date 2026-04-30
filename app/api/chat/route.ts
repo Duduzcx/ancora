@@ -26,13 +26,12 @@ export async function POST(req: Request) {
     }
 
     const google = createGoogleGenerativeAI({
-      baseURL: 'https://generativelanguage.googleapis.com/v1',
       apiKey: process.env.GEMINI_API_KEY,
     });
 
-    // MUDANÇA: Removemos o 'system' e colocamos a instrução direto nas mensagens
+    // MUDANÇA: Usando o gemini-pro, que é o modelo mais compatível do mundo
     const { text } = await generateText({
-      model: google('gemini-1.5-flash'),
+      model: google('gemini-pro'),
       messages: [
         { role: 'user', content: "Instrução: Responda como o Guarda-Farol, assistente acolhedor do app Âncora. Seja breve." },
         ...messages,
