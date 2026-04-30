@@ -27,7 +27,7 @@ export default function ArenaPage() {
       type: 'arena',
       scenario: selected?.title
     }
-  } as any);
+  }) as any;
 
   useEffect(() => {
     setIsMounted(true);
