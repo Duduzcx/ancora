@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, User, Sparkles, Anchor, ArrowLeft, AlertCircle, Clock } from 'lucide-react';
+import { Send, Bot, User, Sparkles, Anchor, ArrowLeft, AlertCircle, Clock, Activity } from 'lucide-react';
 import { createClient } from '@/lib/supabase-client';
 import Link from 'next/link';
 import ChatHistorySidebar from '@/components/ChatHistorySidebar';
@@ -33,6 +33,18 @@ function PortoContent() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const scrollRef = useRef(null);
 
+  // TESTE DE CONEXÃO (Botão de Pânico)
+  const runDiagnostics = async () => {
+    setDebugError("Testando conexão...");
+    try {
+      const { CapacitorHttp } = await import('@capacitor/core');
+      const response = await CapacitorHttp.get({ url: 'https://ancura.netlify.app/api/chat' });
+      setDebugError(`Status: ${response.status} | Resposta: ${JSON.stringify(response.data)}`);
+    } catch (err) {
+      setDebugError(`ERRO NATIVO: ${err.message || JSON.stringify(err)}`);
+    }
+  };
+
   const handleSendMessage = async (e) => {
     e?.preventDefault();
     if (!input.trim() || isLoading) return;
@@ -52,20 +64,14 @@ function PortoContent() {
       });
 
       if (response.status !== 200) {
-        throw new Error(response.data?.error || "Erro no servidor");
+        setDebugError(`Erro ${response.status}: ${JSON.stringify(response.data)}`);
+        return;
       }
 
-      // RESPOSTA SIMPLES E DIRETA
-      const botText = response.data?.text || "Desculpe, não consegui processar sua mensagem.";
-      
-      setMessages(prev => [...prev, { 
-        id: (Date.now()+1).toString(), 
-        role: 'assistant', 
-        content: botText 
-      }]);
+      const botText = response.data?.text || "Sem resposta da IA.";
+      setMessages(prev => [...prev, { id: (Date.now()+1).toString(), role: 'assistant', content: botText }]);
     } catch (err) {
-      console.error("Erro no envio:", err);
-      setDebugError("Falha na conexão. Verifique se o Netlify está online.");
+      setDebugError(`FALHA DE REDE: ${err.message || "Verifique sua internet."}`);
     } finally {
       setIsLoading(false);
     }
@@ -75,28 +81,18 @@ function PortoContent() {
     setIsMounted(true);
     const initialize = async () => {
       if (chatId) {
-        const { data: history } = await supabase
-          .from('messages')
-          .select('id, role, content')
-          .eq('chat_id', chatId)
-          .order('created_at', { ascending: true });
-
-        if (history && history.length > 0) {
-          setMessages(history.map(m => ({ id: m.id, role: m.role, content: m.content })));
-        }
+        const { data: history } = await supabase.from('messages').select('id, role, content').eq('chat_id', chatId).order('created_at', { ascending: true });
+        if (history?.length > 0) setMessages(history.map(m => ({ id: m.id, role: m.role, content: m.content })));
       } else if (messages.length === 0) {
         const pool = greetingPool[humor] || greetingPool.default;
-        const randomGreeting = pool[Math.floor(Math.random() * pool.length)];
-        setMessages([{ id: 'welcome', role: 'assistant', content: randomGreeting }]);
+        setMessages([{ id: 'welcome', role: 'assistant', content: pool[Math.floor(Math.random() * pool.length)] }]);
       }
     };
     initialize();
   }, [chatId, humor]);
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages, isLoading]);
 
   if (!isMounted) return null;
@@ -108,23 +104,19 @@ function PortoContent() {
 
       <header className="h-20 shrink-0 flex items-center justify-between px-6 bg-[#fdfcf7]/40 backdrop-blur-xl border-b border-white/30 z-30 pt-[env(safe-area-inset-top)]">
         <div className="flex items-center gap-4">
-          <Link href="/">
-            <button className="p-2 bg-white/60 border border-white/40 rounded-2xl text-slate-900 shadow-sm flex items-center justify-center transition-all active:scale-[0.96]">
-              <ArrowLeft size={18} />
-            </button>
-          </Link>
+          <Link href="/"><button className="p-2 bg-white/60 border border-white/40 rounded-2xl text-slate-900 shadow-sm active:scale-95"><ArrowLeft size={18} /></button></Link>
           <div className="flex flex-col">
             <h2 className="text-sm font-black text-slate-900 uppercase tracking-tighter leading-none">O Porto</h2>
-            <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-              <p className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Conectado</p>
-            </div>
+            <p className="text-[9px] font-black text-emerald-600 uppercase tracking-widest leading-none mt-1">Conectado</p>
           </div>
         </div>
-        <button onClick={() => setIsHistoryOpen(true)} className="lg:hidden p-2 bg-white/60 border border-white/40 rounded-2xl text-slate-900 flex items-center gap-2">
-          <Clock size={16} className="text-blue-600" />
-          <span className="text-[9px] font-black uppercase tracking-wider">Histórico</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <button onClick={runDiagnostics} className="p-2 bg-blue-50 border border-blue-100 rounded-xl text-blue-600 transition-all active:scale-90"><Activity size={16} /></button>
+          <button onClick={() => setIsHistoryOpen(true)} className="lg:hidden p-2 bg-white/60 border border-white/40 rounded-2xl text-slate-900 flex items-center gap-2">
+            <Clock size={16} className="text-blue-600" />
+            <span className="text-[9px] font-black uppercase tracking-wider">Histórico</span>
+          </button>
+        </div>
       </header>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-6 pb-24">
@@ -132,29 +124,23 @@ function PortoContent() {
           {messages.map((m) => (
             <motion.div key={m.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`flex gap-3 max-w-[90%] ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-lg ${m.role === 'user' ? 'bg-slate-900 text-white' : 'bg-white text-blue-600 border border-white/50'}`}>
-                  {m.role === 'user' ? <User size={16} /> : <Bot size={16} />}
-                </div>
-                <div className={`p-4 rounded-[1.8rem] text-sm leading-relaxed shadow-lg border ${m.role === 'user' ? 'bg-slate-900 text-white rounded-tr-none border-slate-800' : 'bg-white/80 text-slate-800 backdrop-blur-2xl border-white/60 rounded-tl-none'}`}>
-                  {m.content}
-                </div>
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-lg ${m.role === 'user' ? 'bg-slate-900 text-white' : 'bg-white text-blue-600 border border-white/50'}`}>{m.role === 'user' ? <User size={16} /> : <Bot size={16} />}</div>
+                <div className={`p-4 rounded-[1.8rem] text-sm leading-relaxed shadow-lg border ${m.role === 'user' ? 'bg-slate-900 text-white rounded-tr-none border-slate-800' : 'bg-white/80 text-slate-800 backdrop-blur-2xl border-white/60 rounded-tl-none'}`}>{m.content}</div>
               </div>
             </motion.div>
           ))}
           {isLoading && (
-            <div className="flex justify-start gap-3">
-              <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center border border-white/50 shadow-lg animate-pulse"><Bot size={16} className="text-blue-600" /></div>
-              <div className="bg-white/60 p-4 rounded-[1.8rem] rounded-tl-none border border-white/60 shadow-lg flex gap-1.5 items-center">
-                <span className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" />
-                <span className="w-2 h-2 bg-blue-400 rounded-full animate-bounce [animation-delay:0.2s]" />
-                <span className="w-2 h-2 bg-blue-400 rounded-full animate-bounce [animation-delay:0.4s]" />
+            <div className="flex justify-start gap-3 animate-pulse">
+              <div className="w-8 h-8 rounded-xl bg-white border border-white/50 flex items-center justify-center"><Bot size={16} className="text-blue-600" /></div>
+              <div className="bg-white/60 p-4 rounded-[1.8rem] rounded-tl-none border border-white/60">
+                <div className="flex gap-1"><span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" /><span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce [animation-delay:0.2s]" /><span className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce [animation-delay:0.4s]" /></div>
               </div>
             </div>
           )}
           {debugError && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-center gap-3 text-red-600">
-              <AlertCircle size={18} />
-              <p className="text-xs font-bold">{debugError}</p>
+            <div className="p-4 bg-slate-900 text-slate-100 rounded-[1.5rem] border border-slate-800 shadow-2xl">
+              <div className="flex items-center gap-2 text-emerald-400 font-black text-[10px] uppercase mb-2"><AlertCircle size={14} /><span>Monitor de Diagnóstico</span></div>
+              <p className="text-[10px] font-mono leading-relaxed break-all">{debugError}</p>
             </div>
           )}
         </div>
@@ -162,10 +148,8 @@ function PortoContent() {
 
       <div className="flex-none p-4 md:p-6 bg-[#fdfcf7] border-t border-slate-100 z-40 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
         <form onSubmit={handleSendMessage} className="max-w-3xl mx-auto flex items-center gap-2 bg-slate-50 border border-slate-200 shadow-sm rounded-[2rem] p-1.5 focus-within:bg-white focus-within:ring-4 ring-slate-900/5 transition-all">
-          <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Diga algo para o Guarda-Farol..." className="flex-1 bg-transparent px-6 py-3 outline-none text-slate-800 text-sm font-bold placeholder:text-slate-400" />
-          <button type="submit" disabled={!input.trim() || isLoading} className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-lg ${input.trim() && !isLoading ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-300'}`}>
-            <Send size={18} strokeWidth={2.5} />
-          </button>
+          <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Diga algo..." className="flex-1 bg-transparent px-6 py-3 outline-none text-slate-800 text-sm font-bold" />
+          <button type="submit" disabled={!input.trim() || isLoading} className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${input.trim() && !isLoading ? 'bg-slate-900 text-white shadow-lg' : 'bg-slate-100 text-slate-300'}`}><Send size={18} /></button>
         </form>
       </div>
     </main>
