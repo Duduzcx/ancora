@@ -24,16 +24,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "FALTA CHAVE API" }, { status: 500, headers: corsHeaders });
     }
 
-    // USANDO O MODELO MAIS COMPATÍVEL DO GOOGLE (GEMINI-PRO)
-    // Esse modelo funciona em 100% das chaves da API.
-    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`;
+    // Usando o modelo inteligente 1.5 Flash com a sua chave nova
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     const lastMessage = messages[messages.length - 1]?.content || "Olá";
     
     const payload = {
       contents: [{
-        parts: [{ text: `Instrução: Responda como o Guarda-Farol, assistente do app Âncora. Pergunta: ${lastMessage}` }]
-      }]
+        parts: [{ text: `Instrução: Responda como o Guarda-Farol, assistente acolhedor do app Âncora. Pergunta: ${lastMessage}` }]
+      }],
+      generationConfig: {
+        maxOutputTokens: 800,
+        temperature: 0.7
+      }
     };
 
     const response = await fetch(url, {
@@ -45,7 +48,6 @@ export async function POST(req: Request) {
     const data = await response.json();
 
     if (!response.ok) {
-      // Se der erro 404 aqui, é porque a chave da API realmente está com algum problema.
       return NextResponse.json({ error: data.error?.message || "Erro no Google" }, { status: response.status, headers: corsHeaders });
     }
 
