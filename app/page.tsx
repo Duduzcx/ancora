@@ -112,10 +112,9 @@ export default function Home() {
       </div>
 
       <div className="flex-1 overflow-x-hidden overflow-y-auto w-full custom-scrollbar overscroll-contain flex justify-center pt-12 md:pt-24 pb-40 relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.3 }}
           className="w-full max-w-6xl p-4 md:p-12 flex flex-col space-y-16 md:space-y-32"
         >
 
@@ -124,7 +123,7 @@ export default function Home() {
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: 0.05 }}
               className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-500/10 text-emerald-700 rounded-full text-[10px] font-black uppercase tracking-widest mb-14 border border-emerald-500/20 shadow-sm"
             >
               <span className="relative flex h-2 w-2">
@@ -147,7 +146,7 @@ export default function Home() {
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.4 }}
+              transition={{ delay: 0.15 }}
               className="flex justify-center"
             >
               <Link href={user ? "/porto" : "/auth"}>
