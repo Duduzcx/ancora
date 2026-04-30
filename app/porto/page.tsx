@@ -33,7 +33,7 @@ function PortoContent() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const scrollRef = useRef(null);
 
-  // FUNÇÃO DE ENVIO MANUAL (Sem useChat para não travar no Android)
+  // ENVIO COM MOTOR NATIVO (CapacitorHttp)
   const handleSendMessage = async (e) => {
     e?.preventDefault();
     if (!input.trim() || isLoading) return;
@@ -45,23 +45,25 @@ function PortoContent() {
     setDebugError(null);
 
     try {
-      const response = await fetch('https://ancura.netlify.app/api/chat', {
-        method: 'POST',
+      const { CapacitorHttp } = await import('@capacitor/core');
+      const response = await CapacitorHttp.post({
+        url: 'https://ancura.netlify.app/api/chat',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: [...messages, userMessage].map(m => ({ role: m.role, content: m.content })) })
+        data: { messages: [...messages, userMessage].map(m => ({ role: m.role, content: m.content })) }
       });
 
-      if (!response.ok) throw new Error("Falha no servidor");
+      if (response.status !== 200) throw new Error("Erro no servidor");
 
-      // Lógica simplificada de leitura da resposta
-      const data = await response.text();
-      // O streamText do Vercel manda uns prefixos (0: "texto"), vamos limpar se necessário
-      const cleanContent = data.replace(/[0-9]:"/g, '').replace(/"/g, '').replace(/\\n/g, '\n');
+      // Limpeza do formato do stream
+      let cleanContent = response.data;
+      if (typeof cleanContent === 'string') {
+        cleanContent = cleanContent.replace(/[0-9]:"/g, '').replace(/"/g, '').replace(/\\n/g, '\n');
+      }
       
-      setMessages(prev => [...prev, { id: (Date.now()+1).toString(), role: 'assistant', content: cleanContent }]);
+      setMessages(prev => [...prev, { id: (Date.now()+1).toString(), role: 'assistant', content: cleanContent || "Não obtive resposta." }]);
     } catch (err) {
-      console.error("Erro no envio:", err);
-      setDebugError("Não consegui falar com o servidor. Verifique sua internet.");
+      console.error("Erro nativo:", err);
+      setDebugError("Falha na conexão nativa. Tente novamente.");
     } finally {
       setIsLoading(false);
     }
@@ -105,7 +107,7 @@ function PortoContent() {
       <header className="h-20 shrink-0 flex items-center justify-between px-6 bg-[#fdfcf7]/40 backdrop-blur-xl border-b border-white/30 z-30 pt-[env(safe-area-inset-top)]">
         <div className="flex items-center gap-4">
           <Link href="/">
-            <button className="p-2 bg-white/60 border border-white/40 rounded-2xl text-slate-900 shadow-sm transition-all active:scale-95">
+            <button className="p-2 bg-white/60 border border-white/40 rounded-2xl text-slate-900 shadow-sm flex items-center justify-center transition-all active:scale-[0.96]">
               <ArrowLeft size={18} />
             </button>
           </Link>
