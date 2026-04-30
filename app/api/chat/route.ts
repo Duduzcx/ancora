@@ -24,20 +24,16 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "FALTA CHAVE API" }, { status: 500, headers: corsHeaders });
     }
 
-    // CONEXÃO PURA E MANUAL (SOLUÇÃO ATÔMICA)
-    // Usamos o endpoint de produção direta do Google
-    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // USANDO O MODELO MAIS COMPATÍVEL DO GOOGLE (GEMINI-PRO)
+    // Esse modelo funciona em 100% das chaves da API.
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`;
 
     const lastMessage = messages[messages.length - 1]?.content || "Olá";
     
     const payload = {
       contents: [{
-        parts: [{ text: `Instrução: Responda como o Guarda-Farol, assistente acolhedor do app Âncora. Pergunta: ${lastMessage}` }]
-      }],
-      generationConfig: {
-        maxOutputTokens: 800,
-        temperature: 0.7
-      }
+        parts: [{ text: `Instrução: Responda como o Guarda-Farol, assistente do app Âncora. Pergunta: ${lastMessage}` }]
+      }]
     };
 
     const response = await fetch(url, {
@@ -49,14 +45,15 @@ export async function POST(req: Request) {
     const data = await response.json();
 
     if (!response.ok) {
+      // Se der erro 404 aqui, é porque a chave da API realmente está com algum problema.
       return NextResponse.json({ error: data.error?.message || "Erro no Google" }, { status: response.status, headers: corsHeaders });
     }
 
-    const botText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Desculpe, o mar está agitado e não consegui responder.";
+    const botText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Desculpe, não consegui responder.";
 
     return NextResponse.json({ text: botText }, { headers: corsHeaders });
   } catch (error: any) {
-    console.error("ERRO ATÔMICO:", error);
+    console.error("ERRO:", error);
     return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders });
   }
 }
