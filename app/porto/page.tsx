@@ -2,7 +2,6 @@
 "use client";
 
 import React, { useState, useEffect, useRef, Suspense } from 'react';
-import { useChat } from '@ai-sdk/react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Bot, User, Sparkles, Anchor, ArrowLeft, AlertCircle, Clock } from 'lucide-react';
@@ -26,27 +25,51 @@ function PortoContent() {
   const humor = searchParams.get('humor') || 'default';
   const supabase = createClient();
   
-  const [user, setUser] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [debugError, setDebugError] = useState(null);
   const [isMounted, setIsMounted] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-  const [debugError, setDebugError] = useState(null);
   const scrollRef = useRef(null);
 
-  const { messages, input, handleInputChange, handleSubmit, setMessages, isLoading, error } = useChat({
-    api: 'https://ancura.netlify.app/api/chat',
-    body: { chatId },
-    onError: (err) => {
-      console.error("Erro na conexão:", err);
-      setDebugError(err.message || JSON.stringify(err));
+  // FUNÇÃO DE ENVIO MANUAL (Sem useChat para não travar no Android)
+  const handleSendMessage = async (e) => {
+    e?.preventDefault();
+    if (!input.trim() || isLoading) return;
+
+    const userMessage = { id: Date.now().toString(), role: 'user', content: input };
+    setMessages(prev => [...prev, userMessage]);
+    setInput("");
+    setIsLoading(true);
+    setDebugError(null);
+
+    try {
+      const response = await fetch('https://ancura.netlify.app/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [...messages, userMessage].map(m => ({ role: m.role, content: m.content })) })
+      });
+
+      if (!response.ok) throw new Error("Falha no servidor");
+
+      // Lógica simplificada de leitura da resposta
+      const data = await response.text();
+      // O streamText do Vercel manda uns prefixos (0: "texto"), vamos limpar se necessário
+      const cleanContent = data.replace(/[0-9]:"/g, '').replace(/"/g, '').replace(/\\n/g, '\n');
+      
+      setMessages(prev => [...prev, { id: (Date.now()+1).toString(), role: 'assistant', content: cleanContent }]);
+    } catch (err) {
+      console.error("Erro no envio:", err);
+      setDebugError("Não consegui falar com o servidor. Verifique sua internet.");
+    } finally {
+      setIsLoading(false);
     }
-  });
+  };
 
   useEffect(() => {
     setIsMounted(true);
     const initialize = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) setUser(session.user);
-      
       if (chatId) {
         const { data: history } = await supabase
           .from('messages')
@@ -64,7 +87,7 @@ function PortoContent() {
       }
     };
     initialize();
-  }, [chatId, supabase, setMessages, humor]);
+  }, [chatId, humor]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -82,7 +105,7 @@ function PortoContent() {
       <header className="h-20 shrink-0 flex items-center justify-between px-6 bg-[#fdfcf7]/40 backdrop-blur-xl border-b border-white/30 z-30 pt-[env(safe-area-inset-top)]">
         <div className="flex items-center gap-4">
           <Link href="/">
-            <button className="p-2 bg-white/60 border border-white/40 rounded-2xl text-slate-900 shadow-sm flex items-center justify-center active:scale-[0.96]">
+            <button className="p-2 bg-white/60 border border-white/40 rounded-2xl text-slate-900 shadow-sm transition-all active:scale-95">
               <ArrowLeft size={18} />
             </button>
           </Link>
@@ -90,7 +113,7 @@ function PortoContent() {
             <h2 className="text-sm font-black text-slate-900 uppercase tracking-tighter leading-none">O Porto</h2>
             <div className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-              <p className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Acolhimento</p>
+              <p className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Conectado</p>
             </div>
           </div>
         </div>
@@ -124,23 +147,18 @@ function PortoContent() {
               </div>
             </div>
           )}
-          {(error || debugError) && (
-            <div className="p-6 bg-red-50 border-2 border-red-200 rounded-[2rem] space-y-2">
-              <div className="flex items-center gap-2 text-red-600 font-black uppercase text-[10px]">
-                <AlertCircle size={16} />
-                <span>Erro de Conexão</span>
-              </div>
-              <p className="text-[9px] text-red-500 font-mono bg-white p-3 rounded-xl border border-red-100 overflow-x-auto">
-                {error?.message || debugError || "Verifique sua conexão."}
-              </p>
+          {debugError && (
+            <div className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-center gap-3 text-red-600">
+              <AlertCircle size={18} />
+              <p className="text-xs font-bold">{debugError}</p>
             </div>
           )}
         </div>
       </div>
 
       <div className="flex-none p-4 md:p-6 bg-[#fdfcf7] border-t border-slate-100 z-40 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
-        <form onSubmit={handleSubmit} className="max-w-3xl mx-auto flex items-center gap-2 bg-slate-50 border border-slate-200 shadow-sm rounded-[2rem] p-1.5 focus-within:bg-white focus-within:ring-4 ring-slate-900/5 transition-all">
-          <input value={input} onChange={handleInputChange} placeholder="Diga algo para o Guarda-Farol..." className="flex-1 bg-transparent px-6 py-3 outline-none text-slate-800 text-sm font-bold placeholder:text-slate-400" />
+        <form onSubmit={handleSendMessage} className="max-w-3xl mx-auto flex items-center gap-2 bg-slate-50 border border-slate-200 shadow-sm rounded-[2rem] p-1.5 focus-within:bg-white focus-within:ring-4 ring-slate-900/5 transition-all">
+          <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Diga algo para o Guarda-Farol..." className="flex-1 bg-transparent px-6 py-3 outline-none text-slate-800 text-sm font-bold placeholder:text-slate-400" />
           <button type="submit" disabled={!input.trim() || isLoading} className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-lg ${input.trim() && !isLoading ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-300'}`}>
             <Send size={18} strokeWidth={2.5} />
           </button>
