@@ -24,8 +24,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "FALTA CHAVE API" }, { status: 500, headers: corsHeaders });
     }
 
-    // Usando o GEMINI-PRO (O modelo que funciona em todas as chaves novas instantaneamente)
-    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`;
+    // TENTANDO A VERSÃO V1BETA COM O MODELO FLASH
+    // Algumas chaves novas só funcionam aqui no início.
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
     const lastMessage = messages[messages.length - 1]?.content || "Olá";
     
@@ -44,7 +45,10 @@ export async function POST(req: Request) {
     const data = await response.json();
 
     if (!response.ok) {
-      return NextResponse.json({ error: data.error?.message || "Erro no Google" }, { status: response.status, headers: corsHeaders });
+      return NextResponse.json({ 
+        error: data.error?.message || "Erro no Google",
+        details: data // Mandando os detalhes para o monitor de diagnóstico
+      }, { status: response.status, headers: corsHeaders });
     }
 
     const botText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Desculpe, não consegui responder.";
