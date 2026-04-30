@@ -12,7 +12,7 @@
   "dependencies": {
     "@ai-sdk/google": "^3.0.65",
     "@ai-sdk/groq": "^1.1.0",
-    "@ai-sdk/react": "^1.1.0",
+    "@ai-sdk/react": "^3.0.172",
     "@capacitor/android": "^8.3.1",
     "@capacitor/app": "^8.1.0",
     "@capacitor/assets": "^3.0.5",
@@ -24,7 +24,7 @@
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.105.1",
     "@types/canvas-confetti": "^1.9.0",
-    "ai": "^4.1.0",
+    "ai": "^6.0.170",
     "canvas-confetti": "^1.9.4",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.11.0",
