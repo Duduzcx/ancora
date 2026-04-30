@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:mobile": "set IS_CAPACITOR_BUILD=true&& next build",
+    "build:mobile": "ren app\\api app\\_api && set IS_CAPACITOR_BUILD=true && next build && ren app\\_api api",
     "start": "next start",
     "lint": "eslint"
   },
