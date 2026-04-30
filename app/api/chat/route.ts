@@ -31,19 +31,16 @@ export async function POST(req: Request) {
 
     // Chamada direta e simples, sem dependência de banco de dados por enquanto
     const result = await streamText({
-      model: google('gemini-1.5-flash') as any,
+      model: google('gemini-1.5-flash'),
       messages: [
         { role: 'system', content: "Você é o Guarda-Farol, assistente do app Âncora. Seja breve e acolhedor." },
         ...messages,
       ],
     });
 
-    const response = result.toDataStreamResponse();
-    Object.entries(corsHeaders).forEach(([key, value]) => {
-      response.headers.set(key, value);
+    return result.toDataStreamResponse({
+      headers: corsHeaders
     });
-
-    return response;
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders });
   }
