@@ -46,7 +46,7 @@ function PortoContent() {
           .order('created_at', { ascending: true });
 
         if (history) {
-          setMessages(history.map(m => ({
+          setMessages(history.map((m: any) => ({
             id: m.id,
             role: m.role as any,
             content: m.content
