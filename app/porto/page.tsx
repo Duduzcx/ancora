@@ -10,40 +10,43 @@ import { createClient } from '@/lib/supabase-client';
 import Link from 'next/link';
 import ChatHistorySidebar from '@/components/ChatHistorySidebar';
 import AnimatedBackground from '@/components/AnimatedBackground';
-import { getApiUrl } from '@/lib/api-utils';
 
-// Definição de tipo para evitar erros no Netlify
-interface ChatMessage {
-  id: string;
-  role: 'user' | 'assistant' | 'system' | 'data';
-  content: string;
-}
+const greetingPool = {
+  calmo: ["Que bom que o mar está tranquilo hoje.", "Navegar em águas calmas é ótimo.", "O horizonte está limpo."],
+  nebuloso: ["A neblina confunde mesmo a visão.", "Dias nublados fazem parte da viagem.", "É normal perder a direção às vezes."],
+  agitado: ["As ondas estão altas, mas o seu barco é forte.", "O mar está revolto, mas você está seguro aqui.", "Respire fundo. A tempestade vai passar."],
+  ajuda: ["Estou aqui. Você não está sozinho(a).", "Aqui é o seu porto seguro.", "Eu te ouço."],
+  default: ["Bem-vindo ao Porto. Como posso te ajudar?", "As portas do Porto estão abertas.", "É muito bom ter você por aqui."]
+};
 
 function PortoContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const chatId = searchParams.get('chatId');
+  const humor = searchParams.get('humor') || 'default';
   const supabase = createClient();
   
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState(null);
   const [isMounted, setIsMounted] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-  const [debugError, setDebugError] = useState<string | null>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [debugError, setDebugError] = useState(null);
+  const scrollRef = useRef(null);
 
-  // @ts-ignore - Forçando o build para restaurar a conexão da IA
   const { messages, input, handleInputChange, handleSubmit, setMessages, isLoading, error } = useChat({
     api: 'https://ancura.netlify.app/api/chat',
     body: { chatId },
     onError: (err) => {
-      console.error("Erro useChat:", err);
+      console.error("Erro na conexão:", err);
       setDebugError(err.message || JSON.stringify(err));
     }
   });
 
   useEffect(() => {
     setIsMounted(true);
-    const loadHistory = async () => {
+    const initialize = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) setUser(session.user);
+      
       if (chatId) {
         const { data: history } = await supabase
           .from('messages')
@@ -51,25 +54,17 @@ function PortoContent() {
           .eq('chat_id', chatId)
           .order('created_at', { ascending: true });
 
-        if (history) {
-          // Tipagem explícita aqui
-          const formattedMessages: ChatMessage[] = history.map((m: any) => ({
-            id: m.id,
-            role: m.role as any,
-            content: m.content
-          }));
-          setMessages(formattedMessages as any);
+        if (history && history.length > 0) {
+          setMessages(history.map(m => ({ id: m.id, role: m.role, content: m.content })));
         }
       } else if (messages.length === 0) {
-        setMessages([{
-          id: 'welcome',
-          role: 'assistant',
-          content: 'Bem-vindo ao Porto. Sou o seu Guarda-Farol. Como está o seu mar hoje?'
-        }] as any);
+        const pool = greetingPool[humor] || greetingPool.default;
+        const randomGreeting = pool[Math.floor(Math.random() * pool.length)];
+        setMessages([{ id: 'welcome', role: 'assistant', content: randomGreeting }]);
       }
     };
-    loadHistory();
-  }, [chatId, supabase, setMessages]);
+    initialize();
+  }, [chatId, supabase, setMessages, humor]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -82,69 +77,46 @@ function PortoContent() {
   return (
     <main className="fixed inset-0 flex flex-col overflow-hidden bg-slate-50 z-10 lg:pl-72 overscroll-none">
       <AnimatedBackground subtle />
-      
-      <ChatHistorySidebar 
-        isOpen={isHistoryOpen} 
-        onClose={() => setIsHistoryOpen(false)} 
-      />
+      <ChatHistorySidebar isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
 
       <header className="h-20 shrink-0 flex items-center justify-between px-6 bg-[#fdfcf7]/40 backdrop-blur-xl border-b border-white/30 z-30 pt-[env(safe-area-inset-top)]">
         <div className="flex items-center gap-4">
           <Link href="/">
-            <button className="p-2 bg-white/60 border border-white/40 rounded-2xl text-slate-900 shadow-sm flex items-center justify-center transition-all active:scale-[0.96]">
+            <button className="p-2 bg-white/60 border border-white/40 rounded-2xl text-slate-900 shadow-sm flex items-center justify-center active:scale-[0.96]">
               <ArrowLeft size={18} />
             </button>
           </Link>
           <div className="flex flex-col">
             <h2 className="text-sm font-black text-slate-900 uppercase tracking-tighter leading-none">O Porto</h2>
-            <p className="text-[8px] font-black text-emerald-600 uppercase tracking-widest leading-tight">Conectado</p>
+            <div className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+              <p className="text-[9px] font-black text-emerald-600 uppercase tracking-widest">Acolhimento</p>
+            </div>
           </div>
         </div>
-        
-        <button 
-          onClick={() => setIsHistoryOpen(true)}
-          className="lg:hidden p-2 bg-white/60 border border-white/40 rounded-2xl text-slate-900 flex items-center gap-2"
-        >
+        <button onClick={() => setIsHistoryOpen(true)} className="lg:hidden p-2 bg-white/60 border border-white/40 rounded-2xl text-slate-900 flex items-center gap-2">
           <Clock size={16} className="text-blue-600" />
           <span className="text-[9px] font-black uppercase tracking-wider">Histórico</span>
         </button>
       </header>
 
-      <div 
-        ref={scrollRef}
-        className="flex-1 overflow-y-auto px-4 py-6 pb-24"
-      >
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-6 pb-24">
         <div className="max-w-3xl w-full mx-auto space-y-8">
           {messages.map((m) => (
-            <motion.div
-              key={m.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
+            <motion.div key={m.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`flex gap-3 max-w-[90%] ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-lg ${
-                  m.role === 'user' ? 'bg-slate-900 text-white' : 'bg-white text-blue-600 border border-white/50'
-                }`}>
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-lg ${m.role === 'user' ? 'bg-slate-900 text-white' : 'bg-white text-blue-600 border border-white/50'}`}>
                   {m.role === 'user' ? <User size={16} /> : <Bot size={16} />}
                 </div>
-                <div className={`
-                  p-4 rounded-[1.8rem] text-sm leading-relaxed shadow-lg border
-                  ${m.role === 'user' 
-                    ? 'bg-slate-900 text-white rounded-tr-none border-slate-800' 
-                    : 'bg-white/80 text-slate-800 backdrop-blur-2xl border-white/60 rounded-tl-none'}
-                `}>
+                <div className={`p-4 rounded-[1.8rem] text-sm leading-relaxed shadow-lg border ${m.role === 'user' ? 'bg-slate-900 text-white rounded-tr-none border-slate-800' : 'bg-white/80 text-slate-800 backdrop-blur-2xl border-white/60 rounded-tl-none'}`}>
                   {m.content}
                 </div>
               </div>
             </motion.div>
           ))}
-          
           {isLoading && (
             <div className="flex justify-start gap-3">
-              <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center border border-white/50 shadow-lg animate-pulse">
-                <Bot size={16} className="text-blue-600" />
-              </div>
+              <div className="w-8 h-8 rounded-xl bg-white flex items-center justify-center border border-white/50 shadow-lg animate-pulse"><Bot size={16} className="text-blue-600" /></div>
               <div className="bg-white/60 p-4 rounded-[1.8rem] rounded-tl-none border border-white/60 shadow-lg flex gap-1.5 items-center">
                 <span className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" />
                 <span className="w-2 h-2 bg-blue-400 rounded-full animate-bounce [animation-delay:0.2s]" />
@@ -152,43 +124,25 @@ function PortoContent() {
               </div>
             </div>
           )}
-
           {(error || debugError) && (
-            <div className="p-6 bg-red-50 border-2 border-red-200 rounded-[2rem] space-y-3">
-              <div className="flex items-center gap-2 text-red-600 font-black uppercase text-xs">
-                <AlertCircle size={20} />
-                <span>Falha Crítica de Conexão</span>
+            <div className="p-6 bg-red-50 border-2 border-red-200 rounded-[2rem] space-y-2">
+              <div className="flex items-center gap-2 text-red-600 font-black uppercase text-[10px]">
+                <AlertCircle size={16} />
+                <span>Erro de Conexão</span>
               </div>
-              <p className="text-[10px] text-red-500 font-mono bg-white p-4 rounded-xl border border-red-100 overflow-x-auto">
-                {error?.message || debugError || "Erro desconhecido"}
-              </p>
-              <p className="text-[9px] text-slate-500 italic">
-                Verifique se o seu celular tem internet e se a GEMINI_API_KEY está no Netlify.
+              <p className="text-[9px] text-red-500 font-mono bg-white p-3 rounded-xl border border-red-100 overflow-x-auto">
+                {error?.message || debugError || "Verifique sua conexão."}
               </p>
             </div>
           )}
         </div>
       </div>
 
-      <div className="flex-none p-4 bg-[#fdfcf7] border-t border-slate-100 z-40 pb-[calc(env(safe-area-inset-bottom)+1rem)] lg:pb-6">
-        <form 
-          onSubmit={handleSubmit}
-          className="max-w-3xl mx-auto flex items-center gap-2 bg-slate-50 border border-slate-200 shadow-sm rounded-[2rem] p-1.5 focus-within:bg-white focus-within:ring-4 ring-slate-900/5 transition-all"
-        >
-          <input
-            value={input}
-            onChange={handleInputChange}
-            placeholder="Diga algo para o Guarda-Farol..."
-            className="flex-1 bg-transparent px-6 py-3 outline-none text-slate-800 text-sm font-bold placeholder:text-slate-400"
-          />
-          <button 
-            type="submit"
-            disabled={!input.trim() || isLoading}
-            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-lg ${
-              input.trim() && !isLoading ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-300'
-            }`}
-          >
-            <Send size={18} />
+      <div className="flex-none p-4 md:p-6 bg-[#fdfcf7] border-t border-slate-100 z-40 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+        <form onSubmit={handleSubmit} className="max-w-3xl mx-auto flex items-center gap-2 bg-slate-50 border border-slate-200 shadow-sm rounded-[2rem] p-1.5 focus-within:bg-white focus-within:ring-4 ring-slate-900/5 transition-all">
+          <input value={input} onChange={handleInputChange} placeholder="Diga algo para o Guarda-Farol..." className="flex-1 bg-transparent px-6 py-3 outline-none text-slate-800 text-sm font-bold placeholder:text-slate-400" />
+          <button type="submit" disabled={!input.trim() || isLoading} className={`w-12 h-12 rounded-full flex items-center justify-center transition-all shadow-lg ${input.trim() && !isLoading ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-300'}`}>
+            <Send size={18} strokeWidth={2.5} />
           </button>
         </form>
       </div>
@@ -197,9 +151,5 @@ function PortoContent() {
 }
 
 export default function PortoPage() {
-  return (
-    <Suspense fallback={null}>
-      <PortoContent />
-    </Suspense>
-  );
+  return <Suspense fallback={null}><PortoContent /></Suspense>;
 }
