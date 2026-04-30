@@ -25,13 +25,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "API KEY Faltando" }, { status: 500, headers: corsHeaders });
     }
 
+    // FORÇANDO A VERSÃO V1 (PRODUÇÃO)
     const google = createGoogleGenerativeAI({
+      baseURL: 'https://generativelanguage.googleapis.com/v1',
       apiKey: process.env.GEMINI_API_KEY,
     });
 
-    // MUDANÇA: Usando o nome exato que o Google exige agora
     const { text } = await generateText({
-      model: google('gemini-1.5-flash-latest'),
+      model: google('gemini-1.5-flash'),
       messages: [
         { role: 'system', content: "Você é o Guarda-Farol, assistente do app Âncora. Seja breve e acolhedor." },
         ...messages,
