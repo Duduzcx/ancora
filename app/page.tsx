@@ -112,6 +112,7 @@ export default function Home() {
       </div>
 
       <div className="flex-1 overflow-x-hidden overflow-y-auto w-full custom-scrollbar overscroll-contain flex justify-center pt-12 md:pt-24 pb-40 relative z-10">
+        <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
