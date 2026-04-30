@@ -1,6 +1,5 @@
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { streamText } from 'ai';
-import { createServerSupabaseClient } from '@/lib/supabase-server';
 import { NextResponse } from 'next/server';
 
 const google = createGoogleGenerativeAI({
@@ -10,14 +9,12 @@ const google = createGoogleGenerativeAI({
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-chat-id',
-  'Access-Control-Expose-Headers': 'x-chat-id',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Access-Control-Max-Age': '86400',
 };
 
-const SYSTEM_PROMPT = "Você é o Guarda-Farol, a inteligência emocional do aplicativo Âncora. Responda de forma curta e empática.";
-
 export async function GET() {
-  return NextResponse.json({ status: "Âncora API está Online!", model: "Gemini 1.5 Flash" }, { headers: corsHeaders });
+  return NextResponse.json({ status: "ONLINE", model: "Gemini 1.5 Flash" }, { headers: corsHeaders });
 }
 
 export async function OPTIONS() {
@@ -25,51 +22,20 @@ export async function OPTIONS() {
 }
 
 export async function POST(req: Request) {
-  console.log("[API] Recebendo requisição POST");
-  
   try {
-    const { messages, chatId: reqChatId, type } = await req.json();
-    let chatId = reqChatId;
+    const { messages } = await req.json();
 
     if (!process.env.GEMINI_API_KEY) {
-      console.error("[API] GEMINI_API_KEY ausente");
-      return NextResponse.json(
-        { error: "GEMINI_API_KEY não configurada no Netlify" },
-        { status: 500, headers: corsHeaders }
-      );
+      return NextResponse.json({ error: "Chave GEMINI_API_KEY faltando no Netlify" }, { status: 500, headers: corsHeaders });
     }
 
-    // Tenta usar o Supabase, mas NÃO TRAVA se falhar
-    let user = null;
-    try {
-      const supabase = await createServerSupabaseClient();
-      const { data } = await supabase.auth.getUser();
-      user = data?.user;
-    } catch (dbError) {
-      console.warn("[API] Erro ao conectar com Supabase, seguindo apenas com IA", dbError);
-    }
-
+    // Chamada direta e simples, sem dependência de banco de dados por enquanto
     const result = await streamText({
       model: google('gemini-1.5-flash') as any,
       messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'system', content: "Você é o Guarda-Farol, assistente do app Âncora. Seja breve e acolhedor." },
         ...messages,
       ],
-      onFinish: async (event) => {
-        // Só tenta salvar se o usuário e o chat existirem
-        if (chatId && user && type !== 'arena') {
-          try {
-            const supabase = await createServerSupabaseClient();
-            await supabase.from('messages').insert({
-              chat_id: chatId,
-              role: 'assistant',
-              content: event.text
-            });
-          } catch (saveError) {
-            console.error("[API] Erro ao salvar resposta:", saveError);
-          }
-        }
-      },
     });
 
     const response = result.toDataStreamResponse();
@@ -78,12 +44,7 @@ export async function POST(req: Request) {
     });
 
     return response;
-
   } catch (error: any) {
-    console.error('[API] Erro Fatal:', error);
-    return NextResponse.json(
-      { error: "Erro na conexão", details: error.message },
-      { status: 500, headers: corsHeaders }
-    );
+    return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders });
   }
 }
