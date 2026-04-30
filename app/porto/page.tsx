@@ -56,7 +56,13 @@ function PortoContent() {
   const { messages, input, handleInputChange, handleSubmit, setMessages, isLoading, error } = useChat({
     api: getApiUrl('/api/chat'),
     body: { chatId },
+    onError: (err) => {
+      console.error("%c [API-ERROR] Falha na conexão:", "color: #ff0000; font-weight: bold;", err);
+      // Alerta forçado para aparecer na tela do celular do Dudu
+      alert("ERRO DE CONEXÃO DETALHADO:\n" + JSON.stringify(err));
+    },
     onResponse: (response) => {
+      console.log("%c [API-SUCCESS] Resposta recebida!", "color: #00ff00;", response.status);
       const newChatId = response.headers.get('x-chat-id');
       if (newChatId && newChatId !== chatId) {
         router.replace(`/porto?chatId=${newChatId}`, { scroll: false });
