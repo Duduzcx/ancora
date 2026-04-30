@@ -2,12 +2,6 @@ import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { streamText } from 'ai';
 import { NextResponse } from 'next/server';
 
-export const dynamic = 'force-dynamic';
-
-const google = createGoogleGenerativeAI({
-  apiKey: process.env.GEMINI_API_KEY,
-});
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
@@ -31,7 +25,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Chave GEMINI_API_KEY faltando no Netlify" }, { status: 500, headers: corsHeaders });
     }
 
-    // Chamada direta e simples, sem dependência de banco de dados por enquanto
+    const google = createGoogleGenerativeAI({
+      apiKey: process.env.GEMINI_API_KEY,
+    });
+
     const result = await streamText({
       model: google('gemini-1.5-flash'),
       messages: [
