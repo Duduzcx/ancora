@@ -11,11 +11,17 @@ import ChatHistorySidebar from '@/components/ChatHistorySidebar';
 import AnimatedBackground from '@/components/AnimatedBackground';
 import { getApiUrl } from '@/lib/api-utils';
 
+// Definição de tipo para evitar erros no Netlify
+interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant' | 'system' | 'data';
+  content: string;
+}
+
 function PortoContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const chatId = searchParams.get('chatId');
-  const humor = searchParams.get('humor');
   const supabase = createClient();
   
   const [user, setUser] = useState<any>(null);
@@ -24,9 +30,8 @@ function PortoContent() {
   const [debugError, setDebugError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // useChat configurado para ser o mais simples possível
   const { messages, input, handleInputChange, handleSubmit, setMessages, isLoading, error } = useChat({
-    api: 'https://ancura.netlify.app/api/chat', // URL direta para não ter erro
+    api: 'https://ancura.netlify.app/api/chat',
     body: { chatId },
     onError: (err) => {
       console.error("Erro useChat:", err);
@@ -36,7 +41,6 @@ function PortoContent() {
 
   useEffect(() => {
     setIsMounted(true);
-    // Tenta carregar mensagens se tiver chatId
     const loadHistory = async () => {
       if (chatId) {
         const { data: history } = await supabase
@@ -46,23 +50,24 @@ function PortoContent() {
           .order('created_at', { ascending: true });
 
         if (history) {
-          setMessages(history.map((m: any) => ({
+          // Tipagem explícita aqui
+          const formattedMessages: ChatMessage[] = history.map((m: any) => ({
             id: m.id,
             role: m.role as any,
             content: m.content
-          })));
+          }));
+          setMessages(formattedMessages as any);
         }
-      } else {
-        // Mensagem inicial se for novo chat
+      } else if (messages.length === 0) {
         setMessages([{
           id: 'welcome',
           role: 'assistant',
           content: 'Bem-vindo ao Porto. Sou o seu Guarda-Farol. Como está o seu mar hoje?'
-        }]);
+        }] as any);
       }
     };
     loadHistory();
-  }, [chatId, setMessages, supabase]);
+  }, [chatId, supabase, setMessages]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -103,7 +108,6 @@ function PortoContent() {
         </button>
       </header>
 
-      {/* ÁREA DE MENSAGENS */}
       <div 
         ref={scrollRef}
         className="flex-1 overflow-y-auto px-4 py-6 pb-24"
@@ -147,7 +151,6 @@ function PortoContent() {
             </div>
           )}
 
-          {/* PAINEL DE DEBUG GIGANTE SE DER ERRO */}
           {(error || debugError) && (
             <div className="p-6 bg-red-50 border-2 border-red-200 rounded-[2rem] space-y-3">
               <div className="flex items-center gap-2 text-red-600 font-black uppercase text-xs">
