@@ -16,6 +16,10 @@ const corsHeaders = {
 
 const SYSTEM_PROMPT = "Você é o Guarda-Farol, a inteligência emocional do aplicativo Âncora. Responda de forma curta e empática.";
 
+export async function GET() {
+  return NextResponse.json({ status: "Âncora API está Online!", model: "Gemini 1.5 Flash" }, { headers: corsHeaders });
+}
+
 export async function OPTIONS() {
   return new Response(null, { status: 204, headers: corsHeaders });
 }
