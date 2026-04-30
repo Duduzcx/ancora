@@ -7,7 +7,6 @@ const google = createGoogleGenerativeAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
 
-// Headers que liberam o acesso total (Android/Capacitor/Web)
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
@@ -15,75 +14,56 @@ const corsHeaders = {
   'Access-Control-Expose-Headers': 'x-chat-id',
 };
 
-const SYSTEM_PROMPT = `
-Você é o Guarda-Farol, a inteligência emocional do aplicativo Âncora. Seu objetivo é ser um porto seguro para os usuários. Sua personalidade é: calma, empática, levemente sábia e carismática.
-Use metáforas náuticas sutis. Respostas curtas e reconfortantes.
-Trate o usuário (Eduardo) com proximidade.
-`;
-
-const ARENA_PROMPT = `
-Você é o oponente no "Simulador de Diálogos" (A Arena). Faça roleplay de uma pessoa real em uma conversa difícil. Seja direto, use no máximo 3 frases e provoque uma reação.
-`;
+const SYSTEM_PROMPT = "Você é o Guarda-Farol, a inteligência emocional do aplicativo Âncora. Responda de forma curta e empática.";
 
 export async function OPTIONS() {
-  return new Response(null, {
-    status: 204,
-    headers: corsHeaders,
-  });
+  return new Response(null, { status: 204, headers: corsHeaders });
 }
 
 export async function POST(req: Request) {
+  console.log("[API] Recebendo requisição POST");
+  
   try {
-    const { messages, chatId: reqChatId, type, scenario } = await req.json();
+    const { messages, chatId: reqChatId, type } = await req.json();
     let chatId = reqChatId;
 
     if (!process.env.GEMINI_API_KEY) {
+      console.error("[API] GEMINI_API_KEY ausente");
       return NextResponse.json(
-        { error: "GEMINI_API_KEY não encontrada no Netlify" },
+        { error: "GEMINI_API_KEY não configurada no Netlify" },
         { status: 500, headers: corsHeaders }
       );
     }
 
-    const supabase = await createServerSupabaseClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    // Lógica de gravação e criação de chat (Porto)
-    if (user && type !== 'arena') {
-      const lastUserMessage = messages[messages.length - 1];
-      if (!chatId && lastUserMessage.role === 'user') {
-        const { data: newChat } = await supabase
-          .from('chats')
-          .insert({ user_id: user.id, title: "Nova Conversa" })
-          .select()
-          .single();
-        if (newChat) chatId = newChat.id;
-      }
-      if (chatId && lastUserMessage.role === 'user') {
-        await supabase.from('messages').insert({
-          chat_id: chatId,
-          role: 'user',
-          content: lastUserMessage.content
-        });
-      }
+    // Tenta usar o Supabase, mas NÃO TRAVA se falhar
+    let user = null;
+    try {
+      const supabase = await createServerSupabaseClient();
+      const { data } = await supabase.auth.getUser();
+      user = data?.user;
+    } catch (dbError) {
+      console.warn("[API] Erro ao conectar com Supabase, seguindo apenas com IA", dbError);
     }
 
-    const activePrompt = type === 'arena' 
-      ? ARENA_PROMPT.replace('{SCENARIO}', scenario || 'Conversa difícil')
-      : SYSTEM_PROMPT;
-
     const result = await streamText({
-      model: google('gemini-1.5-flash') as any, // Modelo solicitado pelo usuário (com cast para evitar erro no build)
+      model: google('gemini-1.5-flash') as any,
       messages: [
-        { role: 'system', content: activePrompt },
+        { role: 'system', content: SYSTEM_PROMPT },
         ...messages,
       ],
       onFinish: async (event) => {
+        // Só tenta salvar se o usuário e o chat existirem
         if (chatId && user && type !== 'arena') {
-          await supabase.from('messages').insert({
-            chat_id: chatId,
-            role: 'assistant',
-            content: event.text
-          });
+          try {
+            const supabase = await createServerSupabaseClient();
+            await supabase.from('messages').insert({
+              chat_id: chatId,
+              role: 'assistant',
+              content: event.text
+            });
+          } catch (saveError) {
+            console.error("[API] Erro ao salvar resposta:", saveError);
+          }
         }
       },
     });
@@ -92,15 +72,11 @@ export async function POST(req: Request) {
     Object.entries(corsHeaders).forEach(([key, value]) => {
       response.headers.set(key, value);
     });
-    
-    if (chatId) {
-      response.headers.set('x-chat-id', chatId);
-    }
 
     return response;
 
   } catch (error: any) {
-    console.error('Erro na IA:', error);
+    console.error('[API] Erro Fatal:', error);
     return NextResponse.json(
       { error: "Erro na conexão", details: error.message },
       { status: 500, headers: corsHeaders }
