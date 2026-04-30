@@ -21,7 +21,7 @@ export default function ArenaPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const hasStarted = useRef(false);
   
-  const { messages, input, handleInputChange, handleSubmit, setMessages, append, isLoading } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, setMessages, append, isLoading, error } = useChat({
     api: getApiUrl('/api/chat'),
     body: {
       type: 'arena',

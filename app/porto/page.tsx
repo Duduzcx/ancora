@@ -239,9 +239,14 @@ function PortoContent() {
 
           {error && (
             <div className="flex justify-center">
-              <div className="bg-red-50/50 backdrop-blur-md text-red-600 px-6 py-3 rounded-2xl flex items-center gap-3 border border-red-200/50 text-xs font-black uppercase tracking-widest shadow-xl">
-                <AlertCircle size={16} />
-                Erro na conexão.
+              <div className="bg-red-50/50 backdrop-blur-md text-red-600 px-6 py-3 rounded-2xl flex flex-col items-center gap-2 border border-red-200/50 text-[10px] font-black uppercase tracking-widest shadow-xl">
+                <div className="flex items-center gap-2">
+                  <AlertCircle size={14} />
+                  <span>Erro de Conexão</span>
+                </div>
+                <div className="text-[8px] opacity-70 lowercase font-mono">
+                  {error.message || "Verifique sua internet ou servidor"}
+                </div>
               </div>
             </div>
           )}

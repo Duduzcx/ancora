@@ -3,15 +3,12 @@
  */
 
 // URL de produção do seu backend no Netlify
-const prodUrl = 'https://ancura.netlify.app'; 
-
 export const getApiUrl = (path: string) => {
-  // Garante que o path comece com /
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  // Forçamos a URL absoluta para o Netlify
+  const finalUrl = `https://ancura.netlify.app${cleanPath}`;
   
-  // Log para debug no Android Studio
-  const finalUrl = `${prodUrl}${cleanPath}`;
-  console.log('[API] Chamada para:', finalUrl);
+  console.log("%c [API-DEBUG] Tentando conexão com:", "color: #00ff00; font-weight: bold;", finalUrl);
   
   return finalUrl;
 };
