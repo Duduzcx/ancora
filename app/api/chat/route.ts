@@ -25,22 +25,24 @@ export async function POST(req: Request) {
     }
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    
+    // COMBINAÇÃO DE OURO: Modelo Pro + Versão v1 (Produção)
+    const model = genAI.getGenerativeModel(
+      { model: "gemini-pro" },
+      { apiVersion: 'v1' }
+    );
 
-    // AJUSTE DE LOGICA: O Google exige que a conversa comece com 'user'
-    // Vamos filtrar o histórico para garantir que ele comece corretamente
     let formattedHistory = messages.map((m: any) => ({
       role: m.role === 'user' ? 'user' : 'model',
       parts: [{ text: m.content }],
     }));
 
-    // Se o primeiro for 'model', removemos ele do histórico para o Google não reclamar
     while (formattedHistory.length > 0 && formattedHistory[0].role !== 'user') {
       formattedHistory.shift();
     }
 
-    // A última mensagem é o que você acabou de digitar
-    const lastMessage = formattedHistory.pop()?.parts[0].text || "";
+    const lastMessageObj = formattedHistory.pop();
+    const lastMessage = lastMessageObj?.parts[0].text || "";
 
     const chat = model.startChat({
       history: formattedHistory,
@@ -52,7 +54,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ text }, { headers: corsHeaders });
   } catch (error: any) {
-    console.error("ERRO GOOGLE:", error);
+    console.error("ERRO FINAL:", error);
     return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders });
   }
 }
