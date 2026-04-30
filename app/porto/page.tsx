@@ -33,7 +33,6 @@ function PortoContent() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const scrollRef = useRef(null);
 
-  // ENVIO COM MOTOR NATIVO (CapacitorHttp)
   const handleSendMessage = async (e) => {
     e?.preventDefault();
     if (!input.trim() || isLoading) return;
@@ -52,18 +51,21 @@ function PortoContent() {
         data: { messages: [...messages, userMessage].map(m => ({ role: m.role, content: m.content })) }
       });
 
-      if (response.status !== 200) throw new Error("Erro no servidor");
-
-      // Limpeza do formato do stream
-      let cleanContent = response.data;
-      if (typeof cleanContent === 'string') {
-        cleanContent = cleanContent.replace(/[0-9]:"/g, '').replace(/"/g, '').replace(/\\n/g, '\n');
+      if (response.status !== 200) {
+        throw new Error(response.data?.error || "Erro no servidor");
       }
+
+      // RESPOSTA SIMPLES E DIRETA
+      const botText = response.data?.text || "Desculpe, não consegui processar sua mensagem.";
       
-      setMessages(prev => [...prev, { id: (Date.now()+1).toString(), role: 'assistant', content: cleanContent || "Não obtive resposta." }]);
+      setMessages(prev => [...prev, { 
+        id: (Date.now()+1).toString(), 
+        role: 'assistant', 
+        content: botText 
+      }]);
     } catch (err) {
-      console.error("Erro nativo:", err);
-      setDebugError("Falha na conexão nativa. Tente novamente.");
+      console.error("Erro no envio:", err);
+      setDebugError("Falha na conexão. Verifique se o Netlify está online.");
     } finally {
       setIsLoading(false);
     }

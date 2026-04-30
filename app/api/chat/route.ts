@@ -1,5 +1,5 @@
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import { streamText } from 'ai';
+import { generateText } from 'ai';
 import { NextResponse } from 'next/server';
 
 const corsHeaders = {
@@ -10,7 +10,7 @@ const corsHeaders = {
 };
 
 export async function GET() {
-  return NextResponse.json({ status: "ONLINE", model: "Gemini 1.5 Flash" }, { headers: corsHeaders });
+  return NextResponse.json({ status: "ONLINE" }, { headers: corsHeaders });
 }
 
 export async function OPTIONS() {
@@ -22,14 +22,15 @@ export async function POST(req: Request) {
     const { messages } = await req.json();
 
     if (!process.env.GEMINI_API_KEY) {
-      return NextResponse.json({ error: "Chave GEMINI_API_KEY faltando no Netlify" }, { status: 500, headers: corsHeaders });
+      return NextResponse.json({ error: "API KEY Faltando" }, { status: 500, headers: corsHeaders });
     }
 
     const google = createGoogleGenerativeAI({
       apiKey: process.env.GEMINI_API_KEY,
     });
 
-    const result = await streamText({
+    // MUDANÇA: generateText em vez de streamText para ser instantâneo no mobile
+    const { text } = await generateText({
       model: google('gemini-1.5-flash'),
       messages: [
         { role: 'system', content: "Você é o Guarda-Farol, assistente do app Âncora. Seja breve e acolhedor." },
@@ -37,10 +38,9 @@ export async function POST(req: Request) {
       ],
     });
 
-    return result.toTextStreamResponse({
-      headers: corsHeaders
-    });
+    return NextResponse.json({ text }, { headers: corsHeaders });
   } catch (error: any) {
+    console.error("Erro na API:", error);
     return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders });
   }
 }
