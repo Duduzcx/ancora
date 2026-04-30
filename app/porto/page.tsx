@@ -56,13 +56,26 @@ function PortoContent() {
   const { messages, input, handleInputChange, handleSubmit, setMessages, isLoading, error } = useChat({
     api: getApiUrl('/api/chat'),
     body: { chatId },
+    // SOLUÇÃO NINJA: Usa o motor nativo do Capacitor para a chamada
+    fetch: async (url, options) => {
+      const { CapacitorHttp } = await import('@capacitor/core');
+      const response = await CapacitorHttp.post({
+        url: url.toString(),
+        data: JSON.parse(options?.body as string),
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      // Converte a resposta nativa de volta para o formato que o useChat entende
+      return new Response(typeof response.data === 'string' ? response.data : JSON.stringify(response.data), {
+        status: response.status,
+        headers: new Headers(response.headers as any)
+      });
+    },
     onError: (err) => {
-      console.error("%c [API-ERROR] Falha na conexão:", "color: #ff0000; font-weight: bold;", err);
-      // Alerta forçado para aparecer na tela do celular do Dudu
-      alert("ERRO DE CONEXÃO DETALHADO:\n" + JSON.stringify(err));
+      console.error("[API-ERROR]", err);
+      alert("ERRO FINAL DE CONEXÃO:\n" + JSON.stringify(err));
     },
     onResponse: (response) => {
-      console.log("%c [API-SUCCESS] Resposta recebida!", "color: #00ff00;", response.status);
       const newChatId = response.headers.get('x-chat-id');
       if (newChatId && newChatId !== chatId) {
         router.replace(`/porto?chatId=${newChatId}`, { scroll: false });
