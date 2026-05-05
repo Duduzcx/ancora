@@ -61,7 +61,7 @@ export default function MobileMenu() {
                 <div className="p-2 bg-slate-900 text-rose-400 rounded-xl">
                   <Anchor size={24} />
                 </div>
-                <span className="text-2xl font-black tracking-tighter text-slate-900">Âncora</span>
+                <span className="text-2xl font-black tracking-tighter text-slate-900">Nórica</span>
               </div>
               <button 
                 onClick={() => setIsOpen(false)}

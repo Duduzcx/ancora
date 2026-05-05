@@ -55,7 +55,7 @@ const reflections = [
   "O mar se acalma após a tormenta. O mesmo acontece com a sua mente.",
   "Um mar calmo nunca fez um marinheiro habilidoso.",
   "As estrelas brilham mais forte na escuridão profunda do oceano.",
-  "A âncora não impede a tempestade, mas garante que você ainda esteja aqui quando ela passar.",
+  "A Nórica não impede a tempestade, mas garante que você ainda esteja aqui quando ela passar.",
   "Você não pode controlar o vento, mas pode ajustar as suas velas.",
   "O Porto não é o fim da jornada, é onde você recupera as forças para o próximo horizonte.",
   "Cada onda que quebra na areia leva um pouco do peso que você carregava.",
@@ -82,6 +82,16 @@ export default function LogPage() {
   useEffect(() => {
     setIsMounted(true);
     
+    // Ajuste da StatusBar para tema claro
+    const setLightStatus = async () => {
+      try {
+        const { StatusBar, Style } = await import('@capacitor/status-bar');
+        await StatusBar.setBackgroundColor({ color: '#f8fafc' });
+        await StatusBar.setStyle({ style: Style.Light });
+      } catch (e) {}
+    };
+    setLightStatus();
+
     // Gera posições aleatórias apenas no cliente
     const isMobile = window.innerWidth < 768;
     setParticlePos([...Array(isMobile ? 8 : 20)].map(() => ({
@@ -92,16 +102,16 @@ export default function LogPage() {
 
     // Lógica de reset diário e salvamento por data
     const today = new Date().toISOString().split('T')[0];
-    const savedDate = localStorage.getItem('ancora-last-date');
+    const savedDate = localStorage.getItem('norica-last-date');
 
     try {
       if (savedDate !== today) {
         // Novo dia! Reseta as tarefas no estado, mas mantém o histórico se necessário (opcional)
         setTasks(defaultTasks);
-        localStorage.setItem('ancora-last-date', today);
-        localStorage.setItem('ancora-tasks', JSON.stringify(defaultTasks));
+        localStorage.setItem('norica-last-date', today);
+        localStorage.setItem('norica-tasks', JSON.stringify(defaultTasks));
       } else {
-        const saved = localStorage.getItem('ancora-tasks');
+        const saved = localStorage.getItem('norica-tasks');
         if (saved) {
           const parsed = JSON.parse(saved);
           if (Array.isArray(parsed) && parsed.length > 0) {
@@ -125,8 +135,8 @@ export default function LogPage() {
     const newProgress = tasks.length > 0 ? (count / tasks.length) * 100 : 0;
     setProgress(newProgress);
     
-    localStorage.setItem('ancora-tasks', JSON.stringify(tasks));
-    localStorage.setItem('ancora-progress', newProgress.toString());
+    localStorage.setItem('norica-tasks', JSON.stringify(tasks));
+    localStorage.setItem('norica-progress', newProgress.toString());
 
     if (newProgress === 100 && !showVictory) {
       setTimeout(() => {
@@ -169,7 +179,7 @@ export default function LogPage() {
         <Anchor size={800} strokeWidth={0.5} className="text-slate-900" />
       </div>
 
-      <div className="flex-1 overflow-y-auto w-full custom-scrollbar overscroll-contain p-4 pt-24 md:p-8 md:pt-32 lg:p-12 lg:pt-32 pb-48 relative z-10">
+      <div className="flex-1 overflow-y-auto w-full custom-scrollbar overscroll-contain p-4 pt-[calc(env(safe-area-inset-top,64px)+3rem)] md:p-8 md:pt-32 lg:p-12 lg:pt-32 pb-24 relative z-10">
         <div className="max-w-[1400px] mx-auto space-y-8">
         
         {/* Status Section (Sem botão de voltar) */}
@@ -361,6 +371,7 @@ export default function LogPage() {
           </div>
         </div>
       </div>
+    </div>
 
       {/* MODAL REFLEXÃO */}
       <AnimatePresence>
@@ -408,7 +419,6 @@ export default function LogPage() {
           </motion.div>
         )}
       </AnimatePresence>
-        </div>
     </main>
   );
 }

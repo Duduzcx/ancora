@@ -23,7 +23,7 @@ export default function CofrePage() {
   const handleSave = () => {
     if (!text) return;
     setIsSaving(true);
-    localStorage.setItem('ancora_vault_latest', text);
+    localStorage.setItem('norica_vault_latest', text);
     
     setTimeout(() => {
       setIsSaving(false);
@@ -83,7 +83,7 @@ export default function CofrePage() {
             key="intro"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0, scale: 1.1 }}
+            exit={{ opacity: 0 }}
             className="flex-1 flex flex-col items-center relative z-10"
           >
             {/* Mobile Menu removed as requested */}
@@ -96,7 +96,7 @@ export default function CofrePage() {
             >
               <Lock size={32} />
             </motion.div>
-            <h2 className="text-4xl font-black text-white tracking-tight mb-4 uppercase italic">O Cofre</h2>
+            <h2 className="text-4xl font-black text-white tracking-tight mb-4 uppercase italic">O COFRE</h2>
             <p className="text-emerald-500/60 font-mono text-[10px] tracking-[0.3em] uppercase max-w-xs leading-relaxed mb-10">
               Espaço sagrado para o que não pode ser dito, apenas guardado.
             </p>
@@ -105,9 +105,9 @@ export default function CofrePage() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setHasStarted(true)}
-                className="w-full py-5 bg-white text-black font-black rounded-3xl text-xs uppercase tracking-widest shadow-xl"
+                className="w-full py-5 bg-white text-black font-black rounded-3xl text-[10px] uppercase tracking-[0.2em] shadow-xl"
               >
-                Abrir Santuário
+                ABRIR SANTUÁRIO
               </motion.button>
               <button 
                 onClick={() => router.push('/')}
@@ -121,8 +121,8 @@ export default function CofrePage() {
         ) : (
           <motion.div 
             key="vault-content"
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             className="flex-1 flex flex-col p-6 md:p-12 relative z-10 overflow-hidden"
           >
             {/* Header Flex-none */}

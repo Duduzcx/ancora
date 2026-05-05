@@ -7,6 +7,8 @@ import { Sword, Briefcase, Users, Heart, ArrowLeft, Send, Bot, User, Anchor, Men
 import Link from 'next/link';
 import { useChat } from '@ai-sdk/react';
 import AnimatedBackground from '@/components/AnimatedBackground';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 const scenarios = [
   { id: 1, title: "Reunião de Feedback", desc: "Pratique como lidar com críticas construtivas e pedir aumento.", icon: Briefcase, color: "text-blue-400" },
@@ -22,14 +24,55 @@ export default function ArenaPage() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const hasStarted = useRef(false);
   
-  // @ts-ignore - Forçando o build para restaurar a conexão da IA
-  const { messages, input, handleInputChange, handleSubmit, setMessages, append, isLoading, error } = useChat({
-    api: getApiUrl('/api/chat'),
-    body: {
-      type: 'arena',
-      scenario: selected?.title
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const handleInputChange = (e) => setInput(e.target.value);
+
+  const sendMessage = async (content) => {
+    if (!content.trim() || isLoading) return;
+    
+    const userMessage = { id: Date.now().toString(), role: 'user', content };
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
+    setInput("");
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const { CapacitorHttp } = await import('@capacitor/core');
+      const response = await CapacitorHttp.post({
+        url: 'https://ancura.netlify.app/api/chat',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        data: { 
+          type: 'arena',
+          scenario: selected?.title,
+          messages: newMessages.map(m => ({ role: m.role, content: m.content })) 
+        }
+      });
+
+      if (response.status < 200 || response.status >= 300) {
+        throw new Error(`Erro ${response.status}`);
+      }
+
+      const botText = response.data?.text || "Sem resposta da IA.";
+      setMessages(prev => [...prev, { id: (Date.now()+1).toString(), role: 'assistant', content: botText }]);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
     }
-  }) as any;
+  };
+
+  const append = async ({ role, content }) => {
+    // Para compatibilidade com o início da simulação
+    sendMessage(content);
+  };
 
   useEffect(() => {
     setIsMounted(true);
@@ -65,7 +108,7 @@ export default function ArenaPage() {
   const handleCustomSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
-    handleSubmit(e);
+    sendMessage(input);
   };
 
   return (
@@ -75,13 +118,13 @@ export default function ArenaPage() {
         {!selected ? (
           <motion.div 
             key="grid"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             className="flex-1 overflow-y-auto w-full custom-scrollbar overscroll-contain"
           >
             {/* Header Arena */}
-            <div className="flex-none p-4 md:p-8 flex items-center justify-between z-50 pt-4 md:pt-8">
+            <div className="flex-none p-4 md:p-8 flex items-center justify-between z-50 pt-6">
               <div className="flex items-center gap-4">
                 <Link href="/">
                   <button className="p-2 bg-white/60 border border-slate-200 rounded-2xl text-slate-900 shadow-sm flex items-center justify-center hover:bg-white transition-all active:scale-[0.96]">
@@ -135,13 +178,13 @@ export default function ArenaPage() {
         ) : (
           <motion.div 
             key="chat"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="flex-1 flex flex-col overflow-hidden w-full max-w-4xl mx-auto md:p-4"
           >
             {/* Header Simulação */}
-            <div className="flex-none p-4 md:p-6 border-b border-slate-200/50 flex items-center justify-between bg-white/40 backdrop-blur-xl md:rounded-t-[40px] z-30 pt-4 md:pt-6">
+            <div className="flex-none p-4 md:p-6 border-b border-slate-200/50 flex items-center justify-between bg-white/40 backdrop-blur-xl md:rounded-t-[40px] z-30 pt-6 md:pt-10">
               <div className="flex items-center gap-2">
                 <Link href="/" className="hidden lg:block">
                   <button className="flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors group ml-2">
@@ -201,7 +244,15 @@ export default function ArenaPage() {
                           ? 'bg-slate-900 text-white rounded-tr-none' 
                           : 'bg-white/80 text-slate-800 backdrop-blur-xl border border-white/60 rounded-tl-none'}
                       `}>
-                        {m.content}
+                        <ReactMarkdown 
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                            p: ({node, ...props}) => <p className="mb-3 last:mb-0" {...props} />,
+                            strong: ({node, ...props}) => <b className="font-black text-emerald-600" {...props} />,
+                          }}
+                        >
+                          {m.content}
+                        </ReactMarkdown>
                       </div>
                     </div>
                   </motion.div>
@@ -222,7 +273,7 @@ export default function ArenaPage() {
             </div>
 
             {/* Input Fixo */}
-            <div className="flex-none p-4 md:p-6 bg-white border-t border-slate-100 md:rounded-b-[40px] z-40 pb-[calc(env(safe-area-inset-bottom)+1rem)] lg:pb-6">
+            <div className="flex-none p-4 md:p-6 bg-transparent border-none md:rounded-b-[40px] z-40 pb-[calc(env(safe-area-inset-bottom)+1rem)] lg:pb-6">
               <form 
                 onSubmit={handleCustomSubmit}
                 className="max-w-3xl mx-auto"

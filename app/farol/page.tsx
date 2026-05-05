@@ -25,9 +25,19 @@ export default function FarolPage() {
   useEffect(() => {
     setIsMounted(true);
     
+    // Ajuste da StatusBar para tema claro
+    const setLightStatus = async () => {
+      try {
+        const { StatusBar, Style } = await import('@capacitor/status-bar');
+        await StatusBar.setBackgroundColor({ color: '#f8fafc' });
+        await StatusBar.setStyle({ style: Style.Light });
+      } catch (e) {}
+    };
+    setLightStatus();
+
     // Carregamento inicial do progresso
     const loadProgress = () => {
-      const savedProgress = localStorage.getItem('ancora-progress');
+      const savedProgress = localStorage.getItem('norica-progress');
       setProgress(savedProgress !== null ? parseFloat(savedProgress) : 0);
     };
     
@@ -39,12 +49,22 @@ export default function FarolPage() {
     else setTimeState("Noite");
 
     const getProfile = async () => {
+      // Tenta pegar da sessão atual imediatamente (mais rápido)
       const { data: { session } } = await supabase.auth.getSession();
       const user = session?.user;
+      
       if (user) {
+        // Prioridade: Metadata da sessão (instantâneo) -> Banco de dados
+        const metaName = user.user_metadata?.display_name || user.user_metadata?.full_name;
+        if (metaName) {
+          setUserName(metaName.split(' ')[0].charAt(0).toUpperCase() + metaName.split(' ')[0].slice(1));
+        }
+
+        // Busca no banco apenas para garantir sincronia, mas sem bloquear a UI
         const { data: profile } = await supabase.from('profiles').select('display_name').eq('id', user.id).maybeSingle();
-        let name = profile?.display_name || user.user_metadata?.display_name || "Amigo";
-        setUserName(name.charAt(0).toUpperCase() + name.slice(1));
+        if (profile?.display_name) {
+          setUserName(profile.display_name.split(' ')[0].charAt(0).toUpperCase() + profile.display_name.split(' ')[0].slice(1));
+        }
       }
     };
     getProfile();
@@ -59,7 +79,7 @@ export default function FarolPage() {
   const getStatusData = () => {
     if (progress === 0) return {
       title: "Radar de Início",
-      message: `${userName}, o Farol detectou águas calmas até demais. Que tal agitar um pouco com o primeiro hábito do dia?`,
+      message: `${userName}, Nórica detectou águas calmas até demais. Que tal agitar um pouco com o primeiro hábito do dia?`,
       trigger: "ajuda para começar meu dia",
       glow: "shadow-blue-500/20",
       energy: "Em Espera",
@@ -82,8 +102,8 @@ export default function FarolPage() {
       flow: "Harmônico"
     };
     return {
-      title: "Farol de Vitória",
-      message: `Missão cumprida! O Farol agora emite um sinal de paz total. Seu ecossistema está em equilíbrio perfeito hoje.`,
+      title: "Vitória Nórica",
+      message: `Missão cumprida! Nórica agora emite um sinal de paz total. Seu ecossistema está em equilíbrio perfeito hoje.`,
       trigger: "celebrar minhas vitórias",
       glow: "shadow-amber-500/40",
       energy: "Plena",
@@ -96,7 +116,7 @@ export default function FarolPage() {
   return (
     <main className="flex flex-col h-[100dvh] overflow-hidden bg-slate-50 relative transition-all overscroll-none touch-pan-y">
       <AnimatedBackground subtle />
-      <div className="flex-1 overflow-y-auto w-full custom-scrollbar overscroll-contain flex flex-col items-center p-4 pt-8 md:p-8 md:pt-12 lg:p-12 lg:pt-16">
+      <div className="flex-1 overflow-y-auto w-full custom-scrollbar overscroll-contain flex flex-col items-center p-4 pt-[calc(env(safe-area-inset-top,44px)+3rem)] md:p-8 md:pt-24 lg:p-12 lg:pt-24">
 
       {/* Efeito de Radar */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
@@ -107,7 +127,7 @@ export default function FarolPage() {
         />
       </div>
 
-      <div className="max-w-7xl w-full relative z-10 space-y-8 pb-40">
+      <div className="max-w-7xl w-full relative z-10 space-y-8 pb-24">
         
         {/* NAV BAR (Desktop) */}
         <div className="hidden lg:flex items-center justify-between bg-white/40 backdrop-blur-3xl p-6 rounded-[3rem] border border-white shadow-2xl">
@@ -117,14 +137,14 @@ export default function FarolPage() {
                 <Radio size={20} className="text-emerald-500 animate-pulse" />
               </div>
               <div>
-                <h2 className="text-xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">O Farol</h2>
+                <h2 className="text-xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Nórica</h2>
                 <p className="text-xs font-black text-slate-400 uppercase tracking-widest mt-1">Centro de Inteligência</p>
               </div>
             </div>
           </div>
           <div className="flex items-center gap-4">
             <div className="flex px-6 py-2 bg-slate-900 text-white rounded-full text-xs font-black uppercase tracking-widest gap-2">
-              <Activity size={14} className="text-emerald-400" />
+
               Monitoramento Ativo
             </div>
           </div>
@@ -160,7 +180,7 @@ export default function FarolPage() {
                 <Link href="/log">
                   <motion.button whileHover={{ scale: 1.05, y: -5 }} className="px-10 py-6 bg-slate-900 text-white rounded-[2.5rem] font-black flex items-center gap-4 shadow-2xl hover:bg-slate-800 transition-all text-sm">
                     <Map size={24} className="text-emerald-400" />
-                    Abrir Log de Sobrevivência
+                    Abrir Registro Nórica
                   </motion.button>
                 </Link>
                 <motion.button 

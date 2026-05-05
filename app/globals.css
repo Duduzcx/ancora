@@ -23,7 +23,7 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  background-color: #0f172a;
+  background-color: #f8fafc;
   color: var(--foreground);
   -webkit-font-smoothing: antialiased;
   cursor: default;
@@ -44,24 +44,7 @@ html, body {
   display: none;
 }
 
-/* Otimização de Scrollbars Customizados (para casos específicos onde queira mostrar) */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-  display: block; /* Força exibir se a classe for usada */
-}
 
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(15, 23, 42, 0.1);
-  border-radius: 10px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(15, 23, 42, 0.2);
-}
 
 /* Utilitários de Performance */
 .gpu-accelerated {
@@ -81,7 +64,91 @@ html, body {
   animation: spin 0.4s linear infinite;
 }
 
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+@keyframes tide {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-5px) scale(1.02); }
+}
+
+.animate-tide {
+  display: inline-block;
+  animation: tide 4s ease-in-out infinite;
+}
+
+@keyframes brain-pulse {
+  0%, 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 5px rgba(244, 114, 182, 0.4)); }
+  50% { transform: scale(1.05) rotate(2deg); filter: drop-shadow(0 0 15px rgba(244, 114, 182, 0.6)); }
+}
+
+.animate-brain {
+  animation: brain-pulse 3s ease-in-out infinite;
+  color: #f472b6; /* pink-400 - cor de cérebro */
+}
+
+@keyframes water-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.text-water {
+  background: linear-gradient(
+    to right,
+    #3b82f6 20%,
+    #60a5fa 40%,
+    #0ea5e9 60%,
+    #3b82f6 80%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: wave 3s linear infinite;
+}
+
+@keyframes wave {
+  to { background-position: 200% center; }
+}
+
+.text-sailor {
+  color: #1e3a8a; /* Navy Blue - Cor de Marujo */
+  text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.font-brain {
+  font-family: 'Pacifico', cursive; /* Fonte que lembra curvas cerebrais */
+  color: #f472b6;
+  text-transform: none;
+}
+
+@keyframes pink-soft-glow {
+  0%, 100% { color: #f472b6; opacity: 1; }
+  50% { color: #ec4899; opacity: 0.8; }
+}
+
+.text-pink-wave {
+  animation: pink-soft-glow 3s ease-in-out infinite;
+  display: inline-block;
+}
+
+.text-breath {
+  background: linear-gradient(135deg, #0ea5e9, #2dd4bf);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  filter: drop-shadow(0 2px 4px rgba(14, 165, 233, 0.1));
+}
+
+@keyframes tide {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.animate-tide {
+  display: inline-block;
+  animation: tide 6s ease-in-out infinite;
+}
+
+.float-slow {
+  animation: tide 8s ease-in-out infinite;
 }

@@ -90,7 +90,7 @@ export default function ChatHistorySidebar({ isOpen, onClose }: ChatHistorySideb
       </AnimatePresence>
 
       <aside className={`
-        w-72 h-[100dvh] fixed top-0 bg-white lg:bg-slate-50 border-r border-slate-200 p-4 flex flex-col z-[110] transition-all duration-500
+        w-72 h-[100dvh] fixed top-0 bg-white lg:bg-slate-50 border-r border-slate-200 p-4 pt-[calc(env(safe-area-inset-top,44px)+2rem)] flex flex-col z-[110] transition-all duration-500
         ${isOpen ? 'left-0' : '-left-full'}
         md:left-0
       `}>

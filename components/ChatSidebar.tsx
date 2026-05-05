@@ -25,7 +25,7 @@ export default function ChatSidebar({ onSelectChat, currentChatId }: { onSelectC
       let allChats: Chat[] = [];
 
       // 1. Carrega do Cache Local (Instantâneo)
-      const localChats = JSON.parse(localStorage.getItem('ancora-local-chats') || '[]');
+      const localChats = JSON.parse(localStorage.getItem('norica-local-chats') || '[]');
       allChats = [...localChats];
 
       // 2. Carrega do Supabase (Se logado)
@@ -55,7 +55,7 @@ export default function ChatSidebar({ onSelectChat, currentChatId }: { onSelectC
 
   const handleNewChat = () => {
     if (!user) {
-      localStorage.removeItem('ancora-guest-chat');
+      localStorage.removeItem('norica-guest-chat');
     }
     onSelectChat('');
   };

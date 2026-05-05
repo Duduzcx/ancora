@@ -29,7 +29,7 @@ function CallbackContent() {
         if (session) {
           router.push(next);
         } else {
-          router.push("/auth");
+          router.push("/");
         }
       }
     };
@@ -38,7 +38,7 @@ function CallbackContent() {
   }, [searchParams, router, supabase]);
 
   return (
-    <div className="min-h-[100dvh] relative flex flex-col items-center justify-center p-6 bg-slate-900 overflow-hidden">
+    <div className="min-h-[100dvh] relative flex flex-col items-center justify-center p-6 bg-transparent overflow-hidden">
       <AnimatedBackground subtle />
       
       <div className="relative z-10 flex flex-col items-center gap-8 text-center">

@@ -57,7 +57,7 @@ export default function GuardaFarolGreeting() {
       </div>
 
       <div className="space-y-2 text-center md:text-left relative z-10">
-        <p className="text-[10px] font-black text-rose-500 uppercase tracking-[0.3em]">IA Guarda-Farol</p>
+        <p className="text-[10px] font-black text-rose-500 uppercase tracking-[0.3em]">IA Nórica</p>
         <h3 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tighter leading-tight">
           {finalGreeting}
         </h3>

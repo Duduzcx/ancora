@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Pacifico } from "next/font/google";
 import "./globals.css";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import LayoutWrapper from "@/components/LayoutWrapper";
 
 const inter = Inter({ subsets: ["latin"] });
+const pacifico = Pacifico({ weight: '400', subsets: ['latin'], variable: '--font-pacifico' });
 
 export const metadata: Metadata = {
   title: "Âncora: Mental Navigation",
@@ -21,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className={`${inter.className} antialiased bg-[#fdfcf7] overscroll-none`}>
+      <body className={`${inter.className} antialiased bg-slate-50 overscroll-none`}>
         <LayoutWrapper>
           {children}
         </LayoutWrapper>

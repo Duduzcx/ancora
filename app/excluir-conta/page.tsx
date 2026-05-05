@@ -6,14 +6,14 @@ export default function ExclusaoConta() {
         
         <p className="mb-6 text-slate-600">
           Na <strong>ZCX Studios</strong>, valorizamos a sua privacidade e autonomia sobre seus dados. 
-          Esta página fornece as instruções necessárias para excluir sua conta e dados associados ao aplicativo <strong>Âncora</strong>.
+          Esta página fornece as instruções necessárias para excluir sua conta e dados associados ao aplicativo <strong>Nórica</strong>.
         </p>
 
         <div className="space-y-8">
           <section className="bg-blue-50 p-6 rounded-2xl border border-blue-100">
             <h2 className="text-lg font-bold text-[#001f3f] mb-3">Como solicitar a exclusão:</h2>
             <ol className="list-decimal pl-5 space-y-3 text-slate-700 font-medium">
-              <li>Abra o aplicativo <strong>Âncora</strong> no seu dispositivo.</li>
+              <li>Abra o aplicativo <strong>Nórica</strong> no seu dispositivo.</li>
               <li>Acesse o menu de <strong>Configurações</strong> ou <strong>Perfil</strong>.</li>
               <li>Clique na opção <strong>"Excluir Minha Conta"</strong> no final da página.</li>
               <li>Confirme a ação. Sua conta será desativada instantaneamente.</li>
@@ -29,7 +29,7 @@ export default function ExclusaoConta() {
             <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600">
               <li><strong>Informações de Perfil:</strong> Nome, e-mail e foto de perfil.</li>
               <li><strong>Histórico Emocional:</strong> Todos os registros de triagem realizados com a Bússola (IA).</li>
-              <li><strong>Logs de Atividade:</strong> Registros de uso e preferências dentro do ecossistema Âncora.</li>
+              <li><strong>Logs de Atividade:</strong> Registros de uso e preferências dentro do ecossistema Nórica.</li>
             </ul>
           </section>
 

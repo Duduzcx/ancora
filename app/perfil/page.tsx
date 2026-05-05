@@ -3,16 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createClient } from '@/lib/supabase-client';
-import { User, Save, CheckCircle2, ArrowLeft, ShieldCheck, Anchor, Trash2, LifeBuoy } from 'lucide-react';
-import Link from 'next/link';
+import { 
+  User, Save, CheckCircle2, ArrowLeft, ShieldCheck, 
+  Anchor, Trash2, LifeBuoy, Mail, Calendar, 
+  MapPin, LogOut, Settings, Bell, Fingerprint, AlertCircle
+} from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import AnimatedBackground from '@/components/AnimatedBackground';
-
-interface AnchorPoint {
-  id: number;
-  x: number;
-  y: number;
-  size: number;
-}
 
 export default function PerfilPage() {
   const [name, setName] = useState('');
@@ -21,9 +18,14 @@ export default function PerfilPage() {
   const [saved, setSaved] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [hasChangedName, setHasChangedName] = useState(false);
-  const [anchors, setAnchors] = useState<AnchorPoint[]>([]);
+  const [hasChangedBirthDate, setHasChangedBirthDate] = useState(false);
+  const [age, setAge] = useState<number | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
+  
   const supabase = createClient();
+  const router = useRouter();
 
   useEffect(() => {
     setIsMounted(true);
@@ -33,63 +35,77 @@ export default function PerfilPage() {
       
       if (sessionUser) {
         setUser(sessionUser);
-        setName(sessionUser.user_metadata?.display_name || '');
         
-        // Formatação inicial da data de nascimento se vier do auth
-        if (sessionUser.user_metadata?.birth_date) {
-          const [y, m, d] = sessionUser.user_metadata.birth_date.split('-');
-          setBirthDate(`${d}/${m}/${y}`);
-        }
-
-        // Perfil em segundo plano
-        supabase.from('profiles')
+        const { data: profile } = await supabase.from('profiles')
           .select('display_name, name_changed, birth_date')
           .eq('id', sessionUser.id)
-          .maybeSingle()
-          .then(({ data: profile }: any) => {
-            if (profile) {
-              setName(profile.display_name || sessionUser.user_metadata?.display_name || '');
-              setHasChangedName(profile.name_changed === true);
-              if (profile.birth_date) {
-                const [y, m, d] = profile.birth_date.split('-');
-                setBirthDate(`${d}/${m}/${y}`);
-              }
-            }
-          });
+          .maybeSingle();
+
+        if (profile) {
+          setName(profile.display_name || sessionUser.user_metadata?.display_name || '');
+          setHasChangedName(profile.name_changed === true);
+          if (profile.birth_date) {
+            setHasChangedBirthDate(true);
+            const [y, m, d] = profile.birth_date.split('-');
+            setBirthDate(`${d}/${m}/${y}`);
+            calculateAge(`${d}/${m}/${y}`);
+          }
+        } else {
+          setName(sessionUser.user_metadata?.display_name || '');
+        }
+        setIsDataLoaded(true);
       }
     };
     getProfile();
   }, [supabase]);
 
-  if (!isMounted) return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-      <Anchor size={48} className="text-slate-900 animate-spin-slow" />
-    </div>
-  );
+  const calculateAge = (dateStr: string) => {
+    if (dateStr.length !== 10) return;
+    const [d, m, y] = dateStr.split('/').map(Number);
+    const birth = new Date(y, m - 1, d);
+    const today = new Date();
+    let ageVal = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      ageVal--;
+    }
+    setAge(ageVal > 0 ? ageVal : 0);
+  };
 
-  const dropAnchor = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const newAnchor: AnchorPoint = {
-      id: Date.now(),
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-      size: Math.random() * 10 + 20,
-    };
-    setAnchors(prev => [...prev.slice(-15), newAnchor]);
+  const handleBirthDateChange = (val: string) => {
+    const cleaned = val.replace(/\D/g, '').slice(0, 8);
+    let formatted = cleaned;
+    if (cleaned.length > 2) formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2)}`;
+    if (cleaned.length > 4) formatted = `${cleaned.slice(0, 2)}/${cleaned.slice(2, 4)}/${cleaned.slice(4)}`;
+    setBirthDate(formatted);
+    if (formatted.length === 10) calculateAge(formatted);
+  };
+
+  const toggleDock = (show: boolean) => {
+    window.dispatchEvent(new CustomEvent('toggleDock', { detail: show }));
   };
 
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || loading) return;
+    
+    setError(null);
+
+    if (!name.trim()) {
+      setError("O nome de exibição é obrigatório.");
+      return;
+    }
+    if (birthDate.length !== 10) {
+      setError("A data de nascimento completa é obrigatória.");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // Formata a data para YYYY-MM-DD
       let finalBirthDate = '';
-      if (birthDate.length === 10) {
-        const [d, m, y] = birthDate.split('/');
-        finalBirthDate = `${y}-${m}-${d}`;
-      }
+      const [d, m, y] = birthDate.split('/');
+      finalBirthDate = `${y}-${m}-${d}`;
 
       const updates: any = {
         id: user.id,
@@ -97,8 +113,7 @@ export default function PerfilPage() {
         updated_at: new Date().toISOString(),
       };
 
-      // Só atualiza o nome se ainda não tiver sido alterado
-      if (!hasChangedName && name.trim()) {
+      if (!hasChangedName) {
         updates.display_name = name.trim();
         updates.name_changed = true;
       }
@@ -106,198 +121,254 @@ export default function PerfilPage() {
       const { error: dbError } = await supabase.from('profiles').upsert(updates);
       if (dbError) throw dbError;
 
-      // Também atualiza os metadados da sessão para consistência imediata
       const authUpdates: any = { birth_date: finalBirthDate };
-      if (!hasChangedName && name.trim()) authUpdates.display_name = name.trim();
+      if (!hasChangedName) authUpdates.display_name = name.trim();
       
       await supabase.auth.updateUser({ data: authUpdates });
 
       setSaved(true);
       if (updates.name_changed) setHasChangedName(true);
+      setHasChangedBirthDate(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (error: any) {
       console.error('Erro ao atualizar:', error.message);
+      setError("Erro ao salvar. Tente novamente.");
     } finally {
       setLoading(false);
     }
   };
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.replace('/');
+  };
+
+  if (!isMounted) return null;
+
+  const isFullyConfigured = hasChangedName && hasChangedBirthDate;
+
   return (
-    <main className="fixed inset-0 flex flex-col overflow-hidden bg-slate-50 z-10 lg:pl-72 overscroll-none touch-pan-y">
-      <AnimatedBackground />
+    <>
+      <div className="fixed inset-0 bg-slate-50 -z-50" />
+      <main className="min-h-[100dvh] bg-slate-50 relative overflow-x-hidden pb-12">
+        <AnimatedBackground subtle />
+      
+      <div className="absolute top-0 inset-x-0 h-64 bg-gradient-to-b from-emerald-500/10 to-transparent pointer-events-none" />
 
-      {/* Background Watermarks - Consistência com a Home */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-[0.03] z-0">
-        <Anchor size={120} strokeWidth={2} className="text-slate-900 absolute top-20 left-10 rotate-[-15deg]" />
-        <Anchor size={100} strokeWidth={2} className="text-slate-900 absolute bottom-40 right-10 rotate-[15deg]" />
-        <Anchor size={150} strokeWidth={2} className="text-slate-900 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-        <Anchor size={80} strokeWidth={2} className="text-slate-900 absolute top-1/4 right-1/4 rotate-[45deg]" />
-      </div>
-
-      <div className="flex-1 overflow-y-auto w-full custom-scrollbar flex flex-col items-center justify-start p-4 pt-8 md:pt-16 pb-40 relative z-10">
-      <motion.div 
-        layout
-        className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-12 gap-8 bg-white/60 backdrop-blur-3xl border border-white/80 rounded-[2.5rem] md:rounded-[4rem] p-6 md:p-10 shadow-2xl relative z-10"
-      >
-        <div className="lg:col-span-5 space-y-8 border-r border-slate-200/50 pr-0 lg:pr-8">
-          <Link href="/">
-            <motion.button 
-              whileHover={{ x: -5 }}
-              className="flex items-center gap-2 text-slate-400 font-black text-[10px] mb-8 hover:text-slate-900 transition-colors uppercase tracking-[0.3em]"
+      <div className="max-w-2xl mx-auto px-6 relative z-10 pt-[calc(env(safe-area-inset-top)+1.5rem)]">
+        
+        {/* Header Section */}
+        <div className="flex flex-col items-center text-center mb-10 space-y-4">
+          <div className="relative">
+            <div className="w-24 h-24 bg-slate-900 rounded-[2.5rem] flex items-center justify-center shadow-2xl relative z-10">
+              <User size={40} className="text-emerald-500" />
+            </div>
+            <div className="absolute -inset-2 bg-emerald-500/20 rounded-[3rem] blur-xl opacity-50" />
+            <motion.div 
+              initial={{ scale: 0 }} animate={{ scale: 1 }}
+              className="absolute -bottom-1 -right-1 w-8 h-8 bg-emerald-500 border-4 border-slate-50 rounded-full flex items-center justify-center shadow-lg z-20"
             >
-              <ArrowLeft size={14} />
-              Retornar ao Porto
-            </motion.button>
-          </Link>
-
-          <div className="space-y-2 text-center lg:text-left">
-            <h1 className="text-4xl font-black tracking-tighter text-slate-900 leading-none">Minha Base</h1>
-            <p className="text-slate-400 font-bold text-xs uppercase tracking-widest">Sua Identidade Digital</p>
+              <ShieldCheck size={14} className="text-white" />
+            </motion.div>
           </div>
+          
+          <div className="space-y-1">
+            <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase italic flex justify-center flex-wrap min-h-[40px]">
+              {isDataLoaded ? (
+                (name || "Navegador").split('').map((char, index) => (
+                  <motion.span
+                    key={index}
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ 
+                      duration: 0.5, 
+                      delay: 0.1 * index,
+                      ease: "easeOut"
+                    }}
+                  >
+                    {char === ' ' ? '\u00A0' : char}
+                  </motion.span>
+                ))
+              ) : (
+                <div className="w-32 h-8 bg-slate-200 animate-pulse rounded-lg" />
+              )}
+            </h1>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Membro Nórica Premium</p>
+          </div>
+        </div>
 
-          <div className="space-y-6 pt-6">
-            <div className="p-6 bg-slate-900/5 rounded-3xl border border-white space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Identidade Confirmada</span>
-                <ShieldCheck size={14} className="text-emerald-500" />
-              </div>
-              <p className="text-slate-900 font-black text-sm truncate">{user?.email}</p>
+        {/* Content Sections */}
+        <div className="space-y-6">
+          
+          {/* Section: Identidade */}
+          <div className="bg-white border border-slate-200 rounded-[2rem] p-6 md:p-8 shadow-xl shadow-slate-200/40 space-y-6">
+            <div className="flex items-center gap-3 mb-2 px-2">
+              <Fingerprint size={18} className="text-emerald-500" />
+              <h2 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Identidade</h2>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-5 bg-white/60 rounded-3xl border border-slate-100 space-y-2 shadow-sm">
-                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Membro Desde</span>
-                <p className="text-slate-900 font-black text-xs">
-                  {user?.created_at ? new Date(user.created_at).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }) : 'Abril 2026'}
+            {isDataLoaded && (!hasChangedName || !hasChangedBirthDate) && (
+              <div className="px-4 py-3 bg-amber-50 border border-amber-100 rounded-2xl flex items-start gap-3">
+                <AlertCircle size={16} className="text-amber-600 mt-0.5 shrink-0" />
+                <p className="text-[10px] font-bold text-amber-700 leading-relaxed uppercase tracking-tight">
+                  Importante: Você só pode definir seu nome e data uma única vez para garantir a integridade do seu log.
                 </p>
               </div>
-              <div className="p-5 bg-white/60 rounded-3xl border border-slate-100 space-y-2 shadow-sm">
-                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Nascimento</span>
-                <p className="text-slate-900 font-black text-xs">
-                  {user?.user_metadata?.birth_date ? new Date(user.user_metadata.birth_date).toLocaleDateString('pt-BR') : '--/--/----'}
-                </p>
-              </div>
-            </div>
-
-            <form onSubmit={handleUpdate} className="space-y-4">
+            )}
+            
+            <form onSubmit={handleUpdate} className="space-y-5">
               <div className="space-y-4">
-                <div className="relative">
-                  <User className="absolute left-5 top-5 text-slate-400" size={18} />
-                  <input
-                    disabled={hasChangedName || loading}
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Seu Nome no Âncora"
-                    className={`w-full bg-white/80 border border-white/60 rounded-2xl px-12 py-5 outline-none transition-all text-slate-800 font-black ${hasChangedName ? 'opacity-50 grayscale cursor-not-allowed' : 'focus:ring-4 focus:ring-emerald-500/10'}`}
-                  />
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center px-4">
+                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Nome de Exibição</label>
+                    {hasChangedName && <span className="text-[7px] font-black text-emerald-500 uppercase tracking-widest">Definido</span>}
+                  </div>
+                  <div className="relative">
+                    <User className={`absolute left-5 top-1/2 -translate-y-1/2 transition-colors ${hasChangedName ? 'text-emerald-500/40' : 'text-slate-300'}`} size={16} />
+                    <input
+                      disabled={hasChangedName || loading || !isDataLoaded}
+                      type="text"
+                      value={name}
+                      onFocus={() => toggleDock(false)}
+                      onBlur={() => toggleDock(true)}
+                      onChange={(e) => setName(e.target.value)}
+                      className={`
+                        w-full rounded-2xl px-12 py-4 outline-none transition-all text-xs font-black
+                        ${hasChangedName 
+                          ? 'bg-slate-100/50 border-slate-100 text-slate-400 cursor-not-allowed shadow-inner' 
+                          : 'bg-slate-50 border border-slate-100 text-slate-800 focus:border-emerald-500/30 focus:bg-white focus:ring-4 focus:ring-emerald-500/5'}
+                        ${!isDataLoaded ? 'animate-pulse' : ''}
+                      `}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center px-4">
+                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">
+                      Data de Nascimento {age !== null && <span className="text-emerald-500 ml-2">({age} anos)</span>}
+                    </label>
+                    {hasChangedBirthDate && <span className="text-[7px] font-black text-emerald-500 uppercase tracking-widest">Definida</span>}
+                  </div>
+                  <div className="relative">
+                    <Calendar className={`absolute left-5 top-1/2 -translate-y-1/2 transition-colors ${hasChangedBirthDate ? 'text-emerald-500/40' : 'text-slate-300'}`} size={16} />
+                    <input
+                      disabled={hasChangedBirthDate || loading || !isDataLoaded}
+                      type="text"
+                      inputMode="numeric"
+                      value={birthDate}
+                      placeholder="DD/MM/AAAA"
+                      onFocus={() => toggleDock(false)}
+                      onBlur={() => toggleDock(true)}
+                      onChange={(e) => handleBirthDateChange(e.target.value)}
+                      className={`
+                        w-full rounded-2xl px-12 py-4 outline-none transition-all text-xs font-black
+                        ${hasChangedBirthDate 
+                          ? 'bg-slate-100/50 border-slate-100 text-slate-400 cursor-not-allowed shadow-inner' 
+                          : 'bg-slate-50 border border-slate-100 text-slate-800 focus:border-emerald-500/30 focus:bg-white focus:ring-4 focus:ring-emerald-500/5'}
+                        ${!isDataLoaded ? 'animate-pulse' : ''}
+                      `}
+                    />
+                  </div>
                 </div>
               </div>
 
+              <AnimatePresence>
+                {error && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="p-3 bg-rose-50 border border-rose-100 rounded-xl flex items-center gap-2 text-rose-600"
+                  >
+                    <AlertCircle size={14} />
+                    <span className="text-[9px] font-black uppercase tracking-tighter">{error}</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               <motion.button
-                disabled={loading || !name.trim()}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full bg-slate-900 text-white font-black py-5 rounded-full flex items-center justify-center gap-3 hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 disabled:opacity-30"
+                disabled={loading || isFullyConfigured || !isDataLoaded}
+                whileHover={!loading && !isFullyConfigured && isDataLoaded ? { scale: 1.02 } : {}}
+                whileTap={!loading && !isFullyConfigured && isDataLoaded ? { scale: 0.98 } : {}}
+                className={`
+                  w-full font-black py-4 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-lg
+                  ${isFullyConfigured 
+                    ? 'bg-slate-100 text-slate-400 border border-slate-200 shadow-none cursor-not-allowed' 
+                    : 'bg-emerald-500 text-slate-950 hover:bg-emerald-400 shadow-emerald-500/20'}
+                  ${loading || !isDataLoaded ? 'opacity-70' : ''}
+                `}
               >
-                Ancorar Alterações
-                <Save size={18} />
+                <span className="text-[10px] uppercase tracking-widest">
+                  {!isDataLoaded ? "Carregando..." : loading ? "Sincronizando..." : saved ? "Perfil Atualizado!" : isFullyConfigured ? "Perfil Já Configurado" : "Salvar Alterações"}
+                </span>
+                {isDataLoaded && !loading && (saved ? <CheckCircle2 size={16} /> : <Save size={16} />)}
+                {!isDataLoaded && <Loader2 size={16} className="animate-spin" />}
               </motion.button>
-              
-              {hasChangedName && (
-                <p className="text-[9px] text-center text-slate-400 font-bold uppercase tracking-widest px-4">
-                  Sua identidade já foi fixada e não pode mais ser alterada.
-                </p>
-              )}
             </form>
+          </div>
 
-            <div className="pt-8 border-t border-slate-100">
-              <motion.button
-                whileHover={{ scale: 1.02, backgroundColor: '#fff1f2' }}
-                whileTap={{ scale: 0.98 }}
-                onClick={async () => {
-                  await supabase.auth.signOut();
-                  window.location.href = '/';
-                }}
-                className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-rose-50 text-rose-600 rounded-2xl font-black text-xs uppercase tracking-widest transition-all border border-rose-100 shadow-sm group"
+          {/* Section: Conta & Segurança */}
+          <div className="bg-white border border-slate-200 rounded-[2rem] p-6 md:p-8 shadow-xl shadow-slate-200/40 space-y-5">
+            <div className="flex items-center gap-3 mb-2 px-2">
+              <ShieldCheck size={18} className="text-blue-500" />
+              <h2 className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Conta & Segurança</h2>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 gap-4">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm shrink-0">
+                    <Mail size={16} className="text-slate-400" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">E-mail Vinculado</p>
+                    <p className="text-[9px] font-black text-slate-500 break-all">{user?.email}</p>
+                  </div>
+                </div>
+                <div className="px-2 py-0.5 bg-emerald-500/10 text-emerald-600 text-[7px] font-black uppercase rounded-full border border-emerald-500/20 shrink-0">
+                  Ativo
+                </div>
+              </div>
+
+              <button 
+                onClick={() => router.push('/auth/forgot-password')}
+                className="w-full flex items-center justify-between p-4 hover:bg-slate-50 rounded-2xl transition-colors group"
               >
-                <LifeBuoy size={18} className="group-hover:rotate-45 transition-transform" />
-                Sair da Conta
-              </motion.button>
-            </div>
-          </div>
-        </div>
-
-        <div className="lg:col-span-7 flex flex-col space-y-6 h-[400px] lg:h-auto">
-          <div 
-            className="flex-1 relative bg-slate-950 rounded-[3.5rem] overflow-hidden cursor-crosshair group active:scale-[0.99] transition-transform shadow-inner"
-            onClick={dropAnchor}
-          >
-            <svg className="absolute inset-0 w-full h-full pointer-events-none">
-              {anchors.map((anchor, i) => (
-                anchors.slice(i + 1).map((nextAnchor, j) => {
-                  const dist = Math.hypot(anchor.x - nextAnchor.x, anchor.y - nextAnchor.y);
-                  if (dist < 200) {
-                    return (
-                      <motion.line
-                        key={`${anchor.id}-${nextAnchor.id}`}
-                        x1={anchor.x} y1={anchor.y}
-                        x2={nextAnchor.x} y2={nextAnchor.y}
-                        stroke="rgba(16,185,129,0.15)"
-                        strokeWidth="1"
-                        strokeDasharray="4 4"
-                        initial={{ pathLength: 0, opacity: 0 }}
-                        animate={{ pathLength: 1, opacity: 1 }}
-                      />
-                    );
-                  }
-                  return null;
-                })
-              ))}
-            </svg>
-
-            <AnimatePresence>
-              {anchors.map((anchor) => (
-                <motion.div
-                  key={anchor.id}
-                  initial={{ y: -50, opacity: 0, scale: 0.5 }}
-                  animate={{ y: 0, opacity: 1, scale: 1 }}
-                  exit={{ scale: 0, opacity: 0 }}
-                  className="absolute text-emerald-400 drop-shadow-[0_0_10px_rgba(16,185,129,0.5)]"
-                  style={{ left: anchor.x - (anchor.size/2), top: anchor.y - (anchor.size/2) }}
-                >
-                  <Anchor size={anchor.size} />
-                </motion.div>
-              ))}
-            </AnimatePresence>
-
-            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none space-y-4">
-              <LifeBuoy size={48} className="text-emerald-500/10 animate-spin-slow" />
-              <p className="text-white/20 font-black text-[9px] uppercase tracking-[0.6em] text-center max-w-xs leading-relaxed">
-                Clique para lançar âncoras <br/> e criar sua rede de segurança
-              </p>
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                    <Settings size={16} className="text-slate-400" />
+                  </div>
+                  <p className="text-xs font-black text-slate-800 uppercase tracking-widest">Redefinir Senha</p>
+                </div>
+                <ArrowLeft size={16} className="text-slate-300 rotate-180 group-hover:text-emerald-500 transition-all" />
+              </button>
             </div>
           </div>
 
-          <div className="flex items-center justify-between px-6">
-            <div className="flex items-center gap-3 text-slate-500">
-              <Anchor size={14} className="text-emerald-500" />
-              <span className="text-[10px] font-black uppercase tracking-widest">{anchors.length}/15 Pontos de Firmeza</span>
-            </div>
-            
+          {/* Danger Zone */}
+          <div className="pt-4 px-2 space-y-4">
             <motion.button
-              whileHover={{ scale: 1.05, color: '#ef4444' }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setAnchors([])}
-              className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest transition-colors"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleLogout}
+              className="w-full py-5 bg-slate-900 text-white rounded-full font-black text-[10px] uppercase tracking-[0.3em] flex items-center justify-center gap-3 shadow-xl shadow-slate-900/10"
             >
-              <Trash2 size={14} />
-              Limpar
+              <LogOut size={16} />
+              Encerrar Sessão
             </motion.button>
+
+            <button 
+              onClick={() => router.push('/excluir-conta')}
+              className="w-full py-2 text-[9px] font-black text-slate-300 hover:text-rose-500 transition-colors uppercase tracking-widest"
+            >
+              Excluir minha conta permanentemente
+            </button>
           </div>
+
         </div>
-      </motion.div>
       </div>
-    </main>
+      </main>
+    </>
   );
 }

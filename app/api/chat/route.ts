@@ -1,65 +1,59 @@
 import { NextResponse } from 'next/server';
 
+export const runtime = "edge";
+
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  'Access-Control-Max-Age': '86400',
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
 };
 
-export async function GET() {
-  return NextResponse.json({ status: "ONLINE" }, { headers: corsHeaders });
-}
-
 export async function OPTIONS() {
-  return new Response(null, { status: 204, headers: corsHeaders });
+  return NextResponse.json({}, { headers: corsHeaders });
 }
 
 export async function POST(req: Request) {
   try {
     const { messages } = await req.json();
-    const apiKey = process.env.GROQ_API_KEY;
 
-    if (!apiKey) {
-      return NextResponse.json({ error: "FALTA CHAVE GROQ" }, { status: 500, headers: corsHeaders });
-    }
-
-    // CONEXÃO COM O GROQ (LLAMA 3)
-    const url = "https://api.groq.com/openai/v1/chat/completions";
-
-    const payload = {
-      model: "llama-3.1-8b-instant",
-      messages: [
-        { role: "system", content: "Você é o Guarda-Farol, assistente acolhedor do app Âncora. Seja breve e responda em português." },
-        ...messages.map((m: any) => ({
-          role: m.role === 'user' ? 'user' : 'assistant',
-          content: m.content
-        }))
-      ],
-      temperature: 0.7,
-      max_tokens: 1024
+    // Injetando o "Cérebro" da Nórica antes de tudo
+    const systemMessage = {
+      role: "system",
+      content: `Você é a assistente inteligente e bússola mental do aplicativo Nórica. 
+      Regras inquebráveis: 
+      1. Seu nome é Nórica. NUNCA use a palavra 'Âncora' sob nenhuma circunstância. 
+      2. Seja extremamente concisa. Responda com no máximo 2 parágrafos curtos. 
+      3. Inclua emojis amigáveis e naturais para deixar a leitura mais leve. 
+      4. Use formatação Markdown (como **negrito**) para destacar pontos chaves da sua fala.`
     };
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+    const formattedMessages = [systemMessage, ...messages.map((m: any) => ({
+      role: m.role,
+      content: m.content
+    }))];
+
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        model: "llama-3.1-8b-instant", // Usando o modelo estável e rápido
+        messages: formattedMessages,
+        temperature: 0.7,
+      }),
     });
 
     const data = await response.json();
+    
+    // Retornando no formato que o frontend espera (.text) e com CORS
+    return NextResponse.json({ 
+      text: data.choices?.[0]?.message?.content || "Sem resposta da IA." 
+    }, { headers: corsHeaders });
 
-    if (!response.ok) {
-      return NextResponse.json({ error: data.error?.message || "Erro no Groq" }, { status: response.status, headers: corsHeaders });
-    }
-
-    const botText = data.choices?.[0]?.message?.content || "O mar está calmo demais, tente novamente.";
-
-    return NextResponse.json({ text: botText }, { headers: corsHeaders });
-  } catch (error: any) {
-    console.error("ERRO GROQ:", error);
-    return NextResponse.json({ error: error.message }, { status: 500, headers: corsHeaders });
+  } catch (error) {
+    console.error("Erro na API da Groq:", error);
+    return NextResponse.json({ error: "Erro ao conectar com O Porto." }, { status: 500, headers: corsHeaders });
   }
 }

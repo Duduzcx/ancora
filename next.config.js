@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: process.env.IS_CAPACITOR_BUILD === 'true' ? 'export' : undefined,
+  output: 'export',
+  trailingSlash: true,
+  images: {
+    unoptimized: true,
+  },
   typescript: {
     ignoreBuildErrors: true,
   },

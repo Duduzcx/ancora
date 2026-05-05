@@ -8,7 +8,7 @@ export default function Privacidade() {
         <div className="space-y-8 text-sm leading-relaxed text-slate-600">
           <section>
             <h2 className="text-lg font-bold text-[#001f3f] mb-3">1. Introdução</h2>
-            <p>A ZCX Studios, desenvolvedora do aplicativo Âncora, compromete-se a proteger a sua privacidade. Esta política detalha como coletamos, usamos e protegemos suas informações pessoais em nosso ecossistema de saúde mental.</p>
+            <p>A ZCX Studios, desenvolvedora do aplicativo Nórica, compromete-se a proteger a sua privacidade. Esta política detalha como coletamos, usamos e protegemos suas informações pessoais em nosso ecossistema de saúde mental.</p>
           </section>
 
           <section>

@@ -52,7 +52,7 @@ export default function FarolCompanion() {
 
       if (streakDays > 3) {
         return {
-          text: `Sua resiliência é inspiradora. ${streakDays} dias seguidos mantendo a sua âncora firme em solo seguro.`,
+          text: `Sua resiliência é inspiradora. ${streakDays} dias seguidos mantendo a sua Nórica firme em solo seguro.`,
           actionLabel: "Ver Farol",
           actionHref: "/farol",
           color: "bg-blue-400",
@@ -125,7 +125,7 @@ export default function FarolCompanion() {
               <div className="flex-1 text-center md:text-left space-y-2">
                 <div className="flex items-center justify-center md:justify-start gap-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
                   <Sparkles size={12} className={insight.type === 'alert' ? 'text-orange-400' : 'text-emerald-400'} />
-                  Intuição do Farol
+                  Intuição Nórica
                 </div>
                 <p className="text-slate-700 text-lg md:text-xl font-medium leading-tight tracking-tight">
                   {insight.text}
