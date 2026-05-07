@@ -47,23 +47,28 @@ export default function RespiracaoPage() {
           {/* Pulsing Circle */}
           <motion.div
             animate={{ 
-              scale: [1, 1.4, 1],
-              backgroundColor: ['rgba(16, 185, 129, 0.05)', 'rgba(16, 185, 129, 0.15)', 'rgba(16, 185, 129, 0.05)']
+              scale: [1, 1.7, 1],
+              backgroundColor: ['rgba(16, 185, 129, 0.05)', 'rgba(16, 185, 129, 0.3)', 'rgba(16, 185, 129, 0.05)'],
+              boxShadow: [
+                '0 0 50px rgba(16, 185, 129, 0.1)',
+                '0 0 120px rgba(16, 185, 129, 0.5)',
+                '0 0 50px rgba(16, 185, 129, 0.1)'
+              ]
             }}
             transition={{ 
-              duration: 8, 
+              duration: 10, 
               repeat: Infinity, 
               ease: "easeInOut" 
             }}
-            className="w-64 h-64 md:w-80 md:h-80 rounded-full border border-emerald-500/20 flex items-center justify-center relative z-10 shadow-[0_0_50px_rgba(16,185,129,0.1)]"
+            className="w-64 h-64 md:w-80 md:h-80 rounded-full border border-emerald-500/30 flex items-center justify-center relative z-10"
           >
             <motion.div
               animate={{
-                scale: [0.8, 1.2, 0.8],
-                rotate: [0, 5, -5, 0]
+                scale: [0.8, 1.4, 0.8],
+                rotate: [0, 15, -15, 0]
               }}
               transition={{ 
-                duration: 8, 
+                duration: 10, 
                 repeat: Infinity, 
                 ease: "easeInOut" 
               }}

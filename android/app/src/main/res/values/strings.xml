@@ -3,5 +3,5 @@
     <string name="app_name">Nórica</string>
     <string name="title_activity_main">Nórica</string>
     <string name="package_name">com.zcx.ancora</string>
-    <string name="custom_url_scheme">com.zcx.ancora</string>
+    <string name="custom_url_scheme">com.zcx.norica</string>
 </resources>

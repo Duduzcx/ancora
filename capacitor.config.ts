@@ -4,6 +4,7 @@ const config: CapacitorConfig = {
   appId: 'com.zcx.ancora',
   appName: 'Nórica',
   webDir: 'out',
+  bundledWebRuntime: false,
   server: {
     androidScheme: 'https'
   },
@@ -14,7 +15,7 @@ const config: CapacitorConfig = {
     SplashScreen: {
       launchShowDuration: 1000,
       launchAutoHide: true,
-      backgroundColor: "#fdfcf7",
+      backgroundColor: "#080D19",
       androidScaleType: "CENTER_CROP",
       showSpinner: false,
       splashFullScreen: true,

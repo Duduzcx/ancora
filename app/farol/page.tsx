@@ -55,15 +55,21 @@ export default function FarolPage() {
       
       if (user) {
         // Prioridade: Metadata da sessão (instantâneo) -> Banco de dados
-        const metaName = user.user_metadata?.display_name || user.user_metadata?.full_name;
-        if (metaName) {
-          setUserName(metaName.split(' ')[0].charAt(0).toUpperCase() + metaName.split(' ')[0].slice(1));
+        const metaName = user.user_metadata?.display_name;
+        const metaNameAlt = user.user_metadata?.name;
+        
+        if (metaName && metaName.trim() !== "") {
+          setUserName(metaName.split(' ').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' '));
+        } else if (metaNameAlt && !metaNameAlt.includes('@')) {
+           setUserName(metaNameAlt.split(' ').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' '));
+        } else {
+           setUserName("Navegador");
         }
 
         // Busca no banco apenas para garantir sincronia, mas sem bloquear a UI
         const { data: profile } = await supabase.from('profiles').select('display_name').eq('id', user.id).maybeSingle();
         if (profile?.display_name) {
-          setUserName(profile.display_name.split(' ')[0].charAt(0).toUpperCase() + profile.display_name.split(' ')[0].slice(1));
+          setUserName(profile.display_name.split(' ').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' '));
         }
       }
     };
@@ -114,9 +120,9 @@ export default function FarolPage() {
   const status = getStatusData();
 
   return (
-    <main className="flex flex-col h-[100dvh] overflow-hidden bg-slate-50 relative transition-all overscroll-none touch-pan-y">
-      <AnimatedBackground subtle />
-      <div className="flex-1 overflow-y-auto w-full custom-scrollbar overscroll-contain flex flex-col items-center p-4 pt-[calc(env(safe-area-inset-top,44px)+3rem)] md:p-8 md:pt-24 lg:p-12 lg:pt-24">
+    <main className="min-h-screen relative overflow-y-auto overflow-x-hidden pb-40">
+      <AnimatedBackground subtle={true} />
+      <div className="relative z-10 w-full flex flex-col items-center p-4 pt-[calc(env(safe-area-inset-top,44px)+3rem)] md:p-8 md:pt-24 lg:p-12 lg:pt-24">
 
       {/* Efeito de Radar */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">

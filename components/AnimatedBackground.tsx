@@ -23,60 +23,63 @@ const AnimatedBackground = ({ subtle = false }: AnimatedBackgroundProps) => {
 
   useEffect(() => {
     const isMobile = window.innerWidth < 768;
-    const count = isMobile ? 6 : 15;
+    // Aumentado para máxima imersão
+    const count = isMobile ? 15 : 25;
     const newIcons = [...Array(count)].map((_, i) => ({
       id: i,
       top: `${Math.random() * 100}%`,
       left: `${Math.random() * 100}%`,
       rotate: Math.random() * 360,
-      scale: 0.5 + Math.random() * 0.5,
-      size: 30 + Math.random() * 40,
-      duration: 20 + Math.random() * 15,
+      scale: 0.3 + Math.random() * 0.8, // Variação maior de tamanho
+      size: 20 + Math.random() * 60,   // Variação maior de tamanho
+      duration: 20 + Math.random() * 20,
+      stroke: 1.5 + Math.random() * 2.5, // Variação de grossura
     }));
     setIcons(newIcons);
   }, []);
 
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+    <div className="fixed inset-0 -z-20 overflow-hidden pointer-events-none bg-slate-50">
       {/* Malha de Gradiente Nórica */}
-      <div className="absolute inset-0 opacity-50" style={{
+      <div className="absolute inset-0 opacity-40" style={{
         backgroundImage: `
-          radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.2) 0px, transparent 50%),
-          radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
-          radial-gradient(at 100% 100%, rgba(20, 184, 166, 0.15) 0px, transparent 50%),
-          radial-gradient(at 0% 100%, rgba(16, 185, 129, 0.2) 0px, transparent 50%)
+          radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
+          radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.1) 0px, transparent 50%),
+          radial-gradient(at 100% 100%, rgba(20, 184, 166, 0.1) 0px, transparent 50%),
+          radial-gradient(at 0% 100%, rgba(16, 185, 129, 0.15) 0px, transparent 50%)
         `
       }} />
 
-      {/* Âncoras flutuantes */}
+      {/* Âncoras flutuantes Verdes */}
       {icons.map((icon) => (
         <motion.div
           key={icon.id}
-          className={`absolute ${subtle ? 'text-emerald-500/[0.1]' : 'text-emerald-500/[0.2]'}`}
+          className={`absolute ${subtle ? 'text-emerald-500/[0.08]' : 'text-emerald-500/[0.15]'}`}
           animate={{
-            y: [0, -60, 0],
-            rotate: [icon.rotate, icon.rotate + 30, icon.rotate],
+            y: [0, -50, 0],
+            x: [0, 20, 0],
+            rotate: [icon.rotate, icon.rotate + 20, icon.rotate],
           }}
           transition={{
             duration: icon.duration,
             repeat: Infinity,
-            ease: "easeInOut",
+            ease: "linear", // Linear para movimento mais constante
           }}
           style={{ 
             top: icon.top,
             left: icon.left,
             rotate: icon.rotate,
             scale: icon.scale,
-            filter: 'drop-shadow(0 0 10px rgba(16, 185, 129, 0.05))',
+            filter: 'drop-shadow(0 0 10px rgba(16, 185, 129, 0.1))',
             willChange: 'transform'
           }}
         >
-          <Anchor size={icon.size} strokeWidth={3} />
+          <Anchor size={icon.size} strokeWidth={icon.stroke} />
         </motion.div>
       ))}
 
       {/* Noise Texture */}
-      <div className="absolute inset-0 opacity-[0.02] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+      <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
     </div>
   );
 };

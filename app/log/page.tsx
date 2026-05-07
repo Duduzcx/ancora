@@ -101,15 +101,17 @@ export default function LogPage() {
     setBubbleLefts([...Array(isMobile ? 5 : 10)].map(() => Math.random() * 100));
 
     // Lógica de reset diário e salvamento por data
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD estável
     const savedDate = localStorage.getItem('norica-last-date');
 
     try {
       if (savedDate !== today) {
-        // Novo dia! Reseta as tarefas no estado, mas mantém o histórico se necessário (opcional)
+        // Novo dia! Reseta as tarefas no estado e limpa o progresso
         setTasks(defaultTasks);
         localStorage.setItem('norica-last-date', today);
         localStorage.setItem('norica-tasks', JSON.stringify(defaultTasks));
+        localStorage.setItem('norica-progress', '0');
+        console.log("Nórica: Novo dia detectado. Logs resetados.");
       } else {
         const saved = localStorage.getItem('norica-tasks');
         if (saved) {

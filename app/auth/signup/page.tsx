@@ -2,11 +2,10 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { supabase } from '@/lib/supabase-client';
+import { createClient } from '@/lib/supabase-client';
 import { useRouter } from 'next/navigation';
-import { Mail, Lock, ArrowRight, Anchor, ArrowLeft, Sparkles, User, CheckCircle2, Search } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Anchor, ArrowLeft, Sparkles, User, CheckCircle2 } from 'lucide-react';
 import AnimatedBackground from '@/components/AnimatedBackground';
-import Link from 'next/link';
 
 export default function SignupPage() {
   const [step, setStep] = useState(1);
@@ -20,6 +19,7 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const supabase = createClient();
   const router = useRouter();
 
   const handleBirthDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,6 +32,7 @@ export default function SignupPage() {
   };
 
   const handleNextStep = () => {
+    setError(null);
     if (step === 1) {
       if (!email || !password) {
         setError("Preencha e-mail e senha.");
@@ -53,7 +54,6 @@ export default function SignupPage() {
       }
     }
     setStep(step + 1);
-    setError(null);
   };
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -85,7 +85,7 @@ export default function SignupPage() {
             birth_date: finalBirthDate,
             referral: referral 
           },
-          emailRedirectTo: `${window.location.origin}/auth/callback`
+          emailRedirectTo: 'com.zcx.norica://login-callback'
         }
       });
 
@@ -99,8 +99,16 @@ export default function SignupPage() {
           referral: referral,
           updated_at: new Date().toISOString()
         });
+
+        // 2. A Mágica do Redirecionamento Direto
+        // Se a confirmação de e-mail estiver desligada no Supabase, o data.session existirá.
+        if (data.session) {
+          router.push('/'); // Redireciona direto para o Dashboard/Home
+        } else {
+          // Fallback: se o Supabase ainda exigir confirmação (como decidido agora), mostra o Step 4
+          setStep(4);
+        }
       }
-      setStep(4);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -109,30 +117,30 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-[100dvh] relative flex items-center justify-center p-4 md:p-8 overflow-hidden bg-transparent">
-      <AnimatedBackground subtle />
-
+    <div className="h-[100dvh] w-full bg-[#080D19] flex flex-col items-center justify-start p-6 relative overflow-hidden font-sans selection:bg-[#00D88B]/30 touch-none overscroll-none">
+      <AnimatedBackground subtle={false} />
+      
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="w-full max-w-lg mx-auto relative z-10"
+        className="w-full max-w-[420px] flex flex-col items-center z-10 pt-4 pointer-events-auto"
       >
-        <div className="flex justify-between items-center mb-6 px-4">
+        <div className="w-full flex justify-between items-center mb-6 px-2 shrink-0">
           <button 
-            onClick={() => router.push('/')}
-            className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-emerald-500 transition-colors"
+            onClick={() => step > 1 && step < 4 ? setStep(step - 1) : router.push('/')}
+            className="flex items-center gap-2 text-[10px] font-black text-white/40 uppercase tracking-widest hover:text-[#00D88B] transition-colors"
           >
             <ArrowLeft size={16} /> Voltar
           </button>
           <div className="flex gap-2">
             {[1, 2, 3].map(s => (
-              <div key={s} className={`w-8 h-1 rounded-full transition-all ${s <= step ? 'bg-emerald-500' : 'bg-white/10'}`} />
+              <div key={s} className={`w-8 h-1 rounded-full transition-all ${s <= step ? 'bg-[#00D88B]' : 'bg-white/10'}`} />
             ))}
           </div>
         </div>
 
-        <div className="bg-slate-900/40 backdrop-blur-3xl border border-white/5 rounded-[2.5rem] p-6 md:p-10 shadow-[0_0_100px_rgba(0,0,0,0.5)]">
-          <form onSubmit={handleSignup} className="space-y-6">
+        <div className="w-full bg-[#101726]/80 backdrop-blur-3xl rounded-[2.5rem] p-6 md:p-8 border border-white/5 shadow-2xl flex-none overflow-hidden">
+          <form onSubmit={handleSignup} className="space-y-4">
             <AnimatePresence mode="wait">
               {step === 1 && (
                 <motion.div
@@ -140,44 +148,44 @@ export default function SignupPage() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  className="space-y-6"
+                  className="space-y-5"
                 >
-                  <div className="space-y-2">
-                    <h2 className="text-3xl font-black text-white italic uppercase tracking-tighter">Acesso Seguro</h2>
-                    <p className="text-slate-500 font-bold text-xs uppercase tracking-widest">Passo 1: Credenciais de entrada</p>
+                  <div className="text-center space-y-2">
+                    <h2 className="text-[24px] font-black text-white italic uppercase tracking-tighter leading-none">Acesso Seguro</h2>
+                    <p className="text-[#00D88B]/60 font-black text-[9px] uppercase tracking-[0.3em]">Passo 1: Credenciais</p>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     <div className="group relative">
-                      <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-emerald-400 transition-colors" size={18} />
+                      <Mail className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-[#00D88B] transition-colors" size={16} />
                       <input
                         required
                         type="email"
                         placeholder="E-mail"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 rounded-full px-16 py-5 outline-none focus:border-emerald-500/50 focus:bg-white/10 transition-all text-white font-bold"
+                        className="w-full h-[56px] bg-white/5 border border-white/10 rounded-full px-14 text-sm font-bold text-white outline-none focus:border-[#00D88B]/40 focus:bg-white/10 transition-all placeholder:text-white/10"
                       />
                     </div>
                     <div className="group relative">
-                      <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-emerald-400 transition-colors" size={18} />
+                      <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-[#00D88B] transition-colors" size={16} />
                       <input
                         required
                         type="password"
                         placeholder="Senha"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 rounded-full px-16 py-5 outline-none focus:border-emerald-500/50 focus:bg-white/10 transition-all text-white font-bold"
+                        className="w-full h-[56px] bg-white/5 border border-white/10 rounded-full px-14 text-sm font-bold text-white outline-none focus:border-[#00D88B]/40 focus:bg-white/10 transition-all placeholder:text-white/10"
                       />
                     </div>
                     <div className="group relative">
-                      <CheckCircle2 className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-emerald-400 transition-colors" size={18} />
+                      <CheckCircle2 className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-[#00D88B] transition-colors" size={16} />
                       <input
                         required
                         type="password"
                         placeholder="Confirmar Senha"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 rounded-full px-16 py-5 outline-none focus:border-emerald-500/50 focus:bg-white/10 transition-all text-white font-bold"
+                        className="w-full h-[56px] bg-white/5 border border-white/10 rounded-full px-14 text-sm font-bold text-white outline-none focus:border-[#00D88B]/40 focus:bg-white/10 transition-all placeholder:text-white/10"
                       />
                     </div>
                   </div>
@@ -190,44 +198,44 @@ export default function SignupPage() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  className="space-y-6"
+                  className="space-y-5"
                 >
-                  <div className="space-y-2">
-                    <h2 className="text-3xl font-black text-white italic uppercase tracking-tighter">Sobre Você</h2>
-                    <p className="text-slate-500 font-bold text-xs uppercase tracking-widest">Passo 2: Identidade e Perfil</p>
+                  <div className="text-center space-y-2">
+                    <h2 className="text-[24px] font-black text-white italic uppercase tracking-tighter leading-none">Sobre Você</h2>
+                    <p className="text-[#00D88B]/60 font-black text-[9px] uppercase tracking-[0.3em]">Passo 2: Identidade</p>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     <div className="group relative">
-                      <User className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-emerald-400 transition-colors" size={18} />
+                      <User className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-[#00D88B] transition-colors" size={16} />
                       <input
                         required
                         type="text"
                         placeholder="Nome Completo"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 rounded-full px-16 py-5 outline-none focus:border-emerald-500/50 focus:bg-white/10 transition-all text-white font-bold text-xs"
+                        className="w-full h-[56px] bg-white/5 border border-white/10 rounded-full px-14 text-sm font-bold text-white outline-none focus:border-[#00D88B]/40 focus:bg-white/10 transition-all placeholder:text-white/10"
                       />
                     </div>
                     <div className="group relative">
-                      <Anchor className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-emerald-400 transition-colors" size={18} />
+                      <Anchor className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-[#00D88B] transition-colors" size={16} />
                       <input
                         required
                         type="text"
                         placeholder="Como quer ser chamado?"
                         value={displayName}
                         onChange={(e) => setDisplayName(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 rounded-full px-16 py-5 outline-none focus:border-emerald-500/50 focus:bg-white/10 transition-all text-white font-bold text-xs"
+                        className="w-full h-[56px] bg-white/5 border border-white/10 rounded-full px-14 text-xs font-bold text-white outline-none focus:border-[#00D88B]/40 focus:bg-white/10 transition-all placeholder:text-white/10"
                       />
                     </div>
                     <div className="group relative">
-                      <Sparkles className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-emerald-400 transition-colors" size={18} />
+                      <Sparkles className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-[#00D88B] transition-colors" size={16} />
                       <input
                         required
                         type="text"
-                        placeholder="Nascimento"
+                        placeholder="Nascimento (DD/MM/AAAA)"
                         value={birthDate}
                         onChange={handleBirthDateChange}
-                        className="w-full bg-white/5 border border-white/10 rounded-full px-16 py-5 outline-none focus:border-emerald-500/50 focus:bg-white/10 transition-all text-white font-bold text-xs"
+                        className="w-full h-[56px] bg-white/5 border border-white/10 rounded-full px-14 text-sm font-bold text-white outline-none focus:border-[#00D88B]/40 focus:bg-white/10 transition-all placeholder:text-white/10"
                       />
                     </div>
                   </div>
@@ -240,19 +248,19 @@ export default function SignupPage() {
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  className="space-y-6"
+                  className="space-y-5"
                 >
-                  <div className="space-y-2">
-                    <h2 className="text-3xl font-black text-white italic uppercase tracking-tighter">Último Passo</h2>
-                    <p className="text-slate-500 font-bold text-xs uppercase tracking-widest">Passo 3: Como nos conheceu?</p>
+                  <div className="text-center space-y-2">
+                    <h2 className="text-[24px] font-black text-white italic uppercase tracking-tighter leading-none">Último Passo</h2>
+                    <p className="text-[#00D88B]/60 font-black text-[9px] uppercase tracking-[0.3em]">Passo 3: Conexão</p>
                   </div>
-                  <div className="grid grid-cols-1 gap-3">
+                  <div className="grid grid-cols-1 gap-2">
                     {['Instagram', 'TikTok', 'Recomendação', 'Anúncio', 'Outros'].map((opt) => (
                       <button
                         key={opt}
                         type="button"
                         onClick={() => setReferral(opt)}
-                        className={`py-5 rounded-full text-xs font-black uppercase tracking-[0.2em] transition-all border flex items-center justify-center gap-3 ${referral === opt ? 'bg-emerald-500 text-slate-950 border-emerald-500 shadow-lg' : 'bg-white/5 text-slate-400 border-white/10 hover:bg-white/10'}`}
+                        className={`h-[52px] rounded-full text-[10px] font-black uppercase tracking-widest transition-all border flex items-center justify-center gap-3 ${referral === opt ? 'bg-[#00D88B] text-[#080D19] border-[#00D88B] shadow-lg' : 'bg-white/5 text-white/40 border-white/10 hover:bg-white/10'}`}
                       >
                         {referral === opt && <CheckCircle2 size={16} />}
                         {opt}
@@ -267,19 +275,21 @@ export default function SignupPage() {
                   key="step4"
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  className="text-center space-y-8 py-4"
+                  className="text-center space-y-6 py-4"
                 >
-                  <div className="w-24 h-24 bg-emerald-500/20 text-emerald-500 rounded-[2rem] flex items-center justify-center mx-auto shadow-xl border border-emerald-500/20">
-                    <CheckCircle2 size={48} />
+                  <div className="w-20 h-20 bg-[#00D88B]/20 text-[#00D88B] rounded-full flex items-center justify-center mx-auto shadow-2xl border border-[#00D88B]/20">
+                    <CheckCircle2 size={40} />
                   </div>
-                  <div className="space-y-4">
-                    <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter">Conta Criada!</h3>
-                    <p className="text-slate-500 font-bold text-xs uppercase tracking-widest leading-loose">
-                      Enviamos um link de confirmação para:<br/>
-                      <span className="text-emerald-400 font-black">{email}</span>
-                    </p>
-                    <p className="text-slate-600 text-[10px] font-bold leading-relaxed px-4">
-                      Acesse o seu e-mail e clique no link para ativar seu acesso à Nórica.
+                  <div className="space-y-3">
+                    <h3 className="text-2xl font-black text-white italic uppercase tracking-tighter leading-none">Protocolo Enviado!</h3>
+                    <div className="bg-white/5 py-3 px-4 rounded-2xl border border-white/5">
+                      <p className="text-white/30 font-bold text-[9px] uppercase tracking-widest leading-loose mb-1">
+                        Confirme no e-mail:
+                      </p>
+                      <p className="text-[#00D88B] font-black text-sm truncate">{email}</p>
+                    </div>
+                    <p className="text-white/40 text-[10px] font-bold leading-relaxed px-4">
+                      Acesse o seu e-mail e clique no link de ativação para liberar seu acesso à Nórica.
                     </p>
                   </div>
                 </motion.div>
@@ -287,19 +297,19 @@ export default function SignupPage() {
             </AnimatePresence>
 
             {error && (
-              <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-400 text-[10px] font-black uppercase tracking-widest text-center">
+              <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-[9px] font-black uppercase tracking-widest text-center">
                 {error}
               </div>
             )}
 
             {step < 4 && (
               <motion.button
-                whileHover={{ scale: 1.02, y: -2 }}
+                whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 disabled={loading || (step === 3 && !referral)}
-                className="w-full bg-emerald-500 text-slate-950 font-black py-6 rounded-full flex items-center justify-center gap-3 hover:bg-emerald-400 transition-all shadow-[0_20px_40px_rgba(16,185,129,0.25)]"
+                className="w-full bg-[#00D88B] text-[#080D19] font-black h-[60px] rounded-full flex items-center justify-center gap-3 transition-all shadow-xl shadow-[#00D88B]/10 disabled:opacity-50"
               >
-                <span className="text-xs uppercase tracking-[0.3em]">
+                <span className="text-[10px] uppercase tracking-widest">
                   {loading ? 'Sincronizando...' : (step < 3 ? 'Continuar' : 'Finalizar Cadastro')}
                 </span>
                 {!loading && <ArrowRight size={18} />}
@@ -312,9 +322,9 @@ export default function SignupPage() {
                 onClick={() => router.push('/')}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full bg-white/5 text-white border border-white/10 rounded-full py-5 font-black uppercase tracking-widest text-[10px] hover:bg-white/10 transition-all"
+                className="w-full bg-white text-[#080D19] rounded-full h-[60px] font-black uppercase tracking-widest text-[10px] shadow-xl transition-all"
               >
-                Ir para o Login
+                Voltar para Login
               </motion.button>
             )}
           </form>

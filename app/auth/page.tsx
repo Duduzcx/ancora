@@ -41,7 +41,7 @@ export default function AuthPage() {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: 'com.zcx.ancora://login-callback',
+          redirectTo: 'com.zcx.norica://login-callback',
           queryParams: { prompt: 'select_account' },
           skipBrowserRedirect: true
         },
