@@ -56,6 +56,8 @@ export default function PerfilPage() {
   const [error, setError] = useState<string | null>(null);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   
+  const [isExiting, setIsExiting] = useState(false);
+  
   const supabase = createClient();
   const router = useRouter();
 
@@ -162,8 +164,12 @@ export default function PerfilPage() {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.replace('/');
+    setIsExiting(true);
+    // Aguarda animação de "afundar" antes de deslogar
+    setTimeout(async () => {
+      await supabase.auth.signOut();
+      router.replace('/');
+    }, 1500);
   };
 
   if (!isMounted) return null;
@@ -172,27 +178,73 @@ export default function PerfilPage() {
     <main className="min-h-screen relative transition-all overflow-x-hidden pb-40 selection:bg-emerald-500/10 bg-slate-50">
       <AnimatedBackground subtle />
       
+      <AnimatePresence>
+        {isExiting && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 z-[9999] bg-blue-600 flex items-center justify-center overflow-hidden"
+          >
+            {/* Efeito de Bolhas / Água */}
+            <motion.div 
+              animate={{ y: [-1000, 1000] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+              className="absolute inset-0 opacity-20"
+              style={{ background: 'radial-gradient(circle, white 10%, transparent 10%)', backgroundSize: '100px 100px' }}
+            />
+            <div className="relative z-10 text-center space-y-4">
+              <motion.div
+                animate={{ y: [0, 20], rotate: [0, 15] }}
+                transition={{ duration: 1.5, ease: "easeIn" }}
+              >
+                <Anchor size={80} className="text-white/80 mx-auto" />
+              </motion.div>
+              <p className="text-white font-black uppercase tracking-[0.5em] animate-pulse">Saindo do Porto...</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <header className="fixed top-0 inset-x-0 h-20 bg-white/40 backdrop-blur-3xl border-b border-emerald-100/30 z-50 flex items-center justify-center px-6 pt-[calc(env(safe-area-inset-top)+0.5rem)]">
         <h2 className="text-[11px] font-black text-emerald-600 uppercase tracking-[0.5em] italic">Comando Central</h2>
       </header>
 
-      <div className="max-w-md mx-auto px-6 pt-32 relative z-10 space-y-8">
+      <motion.div
+        animate={isExiting ? { scale: 0.8, opacity: 0, y: 100 } : { scale: 1, opacity: 1, y: 0 }}
+        transition={{ duration: 1.2, ease: "easeInOut" }}
+        className="max-w-md mx-auto px-6 pt-32 relative z-10 space-y-8"
+      >
         
         {/* Avatar Card */}
-        <div className="bg-white/80 backdrop-blur-2xl border border-white rounded-[4rem] p-10 shadow-2xl shadow-emerald-500/10 text-center space-y-6 relative overflow-hidden">
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          whileTap={{ scale: 0.98 }}
+          style={{ willChange: 'transform, opacity' }}
+          className="bg-white/80 backdrop-blur-2xl border border-white rounded-[4rem] p-10 shadow-2xl shadow-emerald-500/10 text-center space-y-6 relative overflow-hidden cursor-default"
+        >
           <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/[0.03] rounded-bl-full -mr-8 -mt-8" />
           
           <div className="relative inline-block">
+            {/* Timão Oscilante */}
             <motion.div 
-              animate={{ rotate: isLocked ? 0 : [0, 5, -5, 0] }}
-              transition={{ duration: 4, repeat: Infinity }}
+              animate={{ rotate: [0, 8, -8, 0] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
               className="w-32 h-32 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-[3.2rem] flex items-center justify-center border-[6px] border-white shadow-2xl relative z-10"
             >
               <ShipWheel size={56} className="text-white" />
             </motion.div>
-            <div className="absolute -bottom-2 -left-2 bg-white text-emerald-500 p-2.5 rounded-2xl shadow-lg z-20 border-2 border-emerald-50">
+            
+            {/* Âncora Flutuante */}
+            <motion.div 
+              animate={{ y: [0, -8, 0] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -bottom-2 -left-2 bg-white text-emerald-500 p-2.5 rounded-2xl shadow-lg z-20 border-2 border-emerald-50"
+            >
                <Anchor size={20} />
-            </div>
+            </motion.div>
           </div>
 
           <div className="space-y-1">
@@ -201,10 +253,17 @@ export default function PerfilPage() {
             </h1>
             <p className="text-[10px] font-black text-emerald-600/60 uppercase tracking-[0.4em]">Navegador Ativo</p>
           </div>
-        </div>
+        </motion.div>
 
         {/* Data Form */}
-        <div className="bg-white border border-slate-100 rounded-[3.5rem] p-8 shadow-xl space-y-8 relative overflow-hidden">
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          style={{ willChange: 'transform, opacity' }}
+          className="bg-white border border-slate-100 rounded-[3.5rem] p-8 shadow-xl space-y-8 relative overflow-hidden"
+        >
            <form onSubmit={handleUpdate} className="space-y-6 relative z-10">
               {error && (
                 <div className="p-4 bg-rose-50 text-rose-500 text-xs font-bold rounded-2xl border border-rose-100 flex items-center gap-3">
@@ -216,7 +275,7 @@ export default function PerfilPage() {
               <div className="space-y-3">
                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Identidade de Bordo</label>
                 <div className="relative group">
-                  <div className="absolute left-6 top-1/2 -translate-y-1/2 text-emerald-500/30 group-focus-within:text-emerald-500 transition-colors">
+                  <div className="absolute left-6 top-1/2 -translate-y-1/2 text-emerald-600 group-focus-within:text-emerald-500 transition-colors">
                     <Fingerprint size={20} />
                   </div>
                   <input
@@ -231,9 +290,9 @@ export default function PerfilPage() {
               </div>
 
               <div className="space-y-3">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Ciclo de Vida</label>
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2">Data de nascimento</label>
                 <div className="relative group">
-                  <div className="absolute left-6 top-1/2 -translate-y-1/2 text-emerald-500/30 group-focus-within:text-emerald-500 transition-colors">
+                  <div className="absolute left-6 top-1/2 -translate-y-1/2 text-emerald-600 group-focus-within:text-emerald-500 transition-colors">
                     <Calendar size={20} />
                   </div>
                   <input
@@ -252,6 +311,7 @@ export default function PerfilPage() {
                     <motion.div 
                       initial={{ opacity: 0, y: 10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
+                      whileTap={{ scale: 0.98 }}
                       className="relative mt-4 p-6 rounded-[2.5rem] bg-gradient-to-br from-emerald-500 via-teal-600 to-emerald-700 text-white shadow-2xl shadow-emerald-500/20 overflow-hidden border-2 border-white/20"
                     >
                       <div className="absolute -right-4 -top-4 text-white/10 rotate-12">
@@ -270,8 +330,9 @@ export default function PerfilPage() {
                         <div className="h-1 flex-1 bg-white/20 rounded-full overflow-hidden">
                            <motion.div 
                             initial={{ width: 0 }}
-                            animate={{ width: '100%' }}
-                            transition={{ duration: 2 }}
+                            whileInView={{ width: '100%' }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 1.5, ease: "easeOut", delay: 0.4 }}
                             className="h-full bg-white/60"
                            />
                         </div>
@@ -283,15 +344,21 @@ export default function PerfilPage() {
               </div>
 
               {!isLocked ? (
-                <button
+                <motion.button
+                  whileTap={{ scale: 0.96 }}
                   disabled={loading || !isDataLoaded}
                   type="submit"
-                  className="w-full py-6 bg-slate-900 text-white rounded-full font-black text-[12px] uppercase tracking-[0.4em] transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3 hover:bg-emerald-600"
+                  className="w-full py-6 bg-slate-900 text-white rounded-full font-black text-[12px] uppercase tracking-[0.4em] transition-all shadow-xl flex items-center justify-center gap-3 hover:bg-emerald-600"
                 >
                   {loading ? <Loader2 className="animate-spin" size={20} /> : "Registrar Identidade"}
-                </button>
+                </motion.button>
               ) : (
-                <div className="p-6 bg-emerald-50 rounded-[2.5rem] border border-emerald-100 flex items-center gap-4">
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="p-6 bg-emerald-50 rounded-[2.5rem] border border-emerald-100 flex items-center gap-4"
+                >
                   <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center text-emerald-500 shadow-sm">
                     <ShieldCheck size={24} />
                   </div>
@@ -299,32 +366,38 @@ export default function PerfilPage() {
                     <p className="text-[10px] font-black text-emerald-700 uppercase tracking-widest leading-none">Identidade Ancorada</p>
                     <p className="text-[9px] font-bold text-slate-400 uppercase mt-1 leading-none">Registro seguro no porto.</p>
                   </div>
-                </div>
+                </motion.div>
               )}
            </form>
-        </div>
+        </motion.div>
 
         {/* Logout */}
-        <button 
+        <motion.button 
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          whileTap={{ scale: 0.96 }}
+          style={{ willChange: 'transform, opacity' }}
           onClick={handleLogout}
           className="w-full flex items-center justify-between p-7 bg-white border border-slate-100 rounded-[2.5rem] shadow-sm hover:bg-rose-50 transition-all group"
         >
           <div className="flex items-center gap-4">
-             <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-400">
+             <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-500 group-hover:rotate-12 transition-transform">
                 <LogOut size={24} />
              </div>
              <div className="text-left">
                 <h3 className="text-sm font-black text-slate-900 uppercase tracking-tighter italic">Sair</h3>
-                <p className="text-[9px] font-black text-rose-400/60 uppercase tracking-widest leading-none mt-1">Encerrar Sessão</p>
+                <p className="text-[9px] font-black text-rose-500/60 uppercase tracking-widest leading-none mt-1">Encerrar Sessão</p>
              </div>
           </div>
           <ChevronRight size={20} className="text-slate-300 group-hover:translate-x-1 transition-transform" />
-        </button>
+        </motion.button>
 
         <p className="text-center text-[10px] font-black text-slate-300 uppercase tracking-[0.5em] italic pt-10">
           Nórica • Sistema de Navegação Mental
         </p>
-      </div>
+      </motion.div>
     </main>
   );
 }

@@ -1,9 +1,8 @@
-// @ts-nocheck
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sword, Briefcase, Users, Heart, ArrowLeft, Send, Bot, User, X, Loader2, Sparkles, ArrowRight } from 'lucide-react';
+import { Sword, Briefcase, Heart, ArrowLeft, Send, User, X, Loader2, Sparkles, ArrowRight, Mic, MicOff, Bot } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import AnimatedBackground from '@/components/AnimatedBackground';
 import ReactMarkdown from 'react-markdown';
@@ -11,7 +10,7 @@ import remarkGfm from 'remark-gfm';
 
 const scenarios = [
   { id: 1, title: "Reunião de Feedback", desc: "Pratique como lidar com críticas construtivas e pedir aumento.", icon: Briefcase, color: "text-blue-500", bg: "bg-blue-50" },
-  { id: 2, title: "Conflito Familiar", desc: "Resolva desentendimentos com comunicação não-violenta.", icon: Users, color: "text-emerald-500", bg: "bg-emerald-50" },
+  { id: 2, title: "Conflito Familiar", desc: "Resolva desentendimentos com comunicação não-violenta.", icon: Heart, color: "text-rose-500", bg: "bg-rose-50" },
   { id: 3, title: "Primeiro Encontro", desc: "Quebre o gelo e mantenha a autenticidade sob pressão.", icon: Heart, color: "text-rose-500", bg: "bg-rose-50" },
 ];
 
@@ -28,10 +27,15 @@ export default function ArenaPage() {
   const [selected, setSelected] = useState(null);
   const [isMounted, setIsMounted] = useState(false);
   const scrollRef = useRef(null);
+  const textareaRef = useRef(null);
   
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const mediaRecorder = useRef(null);
+  const audioChunks = useRef([]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -46,6 +50,7 @@ export default function ArenaPage() {
       const userMessage = { id: Date.now().toString(), role: 'user', content };
       setMessages(prev => [...prev, userMessage]);
       setInput("");
+      if (textareaRef.current) textareaRef.current.style.height = '44px';
     }
     
     setIsLoading(true);
@@ -71,10 +76,10 @@ export default function ArenaPage() {
       const data = await response.json();
       const botText = data.choices?.[0]?.message?.content || "Estou pronto para o desafio. Comece você.";
       
+      setIsLoading(false);
       setMessages(prev => [...prev, { id: (Date.now()+1).toString(), role: 'assistant', content: botText }]);
     } catch (err) {
       console.error("ERRO_ARENA_DIRETO:", err);
-    } finally {
       setIsLoading(false);
     }
   };
@@ -87,7 +92,65 @@ export default function ArenaPage() {
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [messages, isLoading]);
+  }, [messages, isLoading, isRecording, isTranscribing]);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = '44px';
+      const scrollHeight = textareaRef.current.scrollHeight;
+      textareaRef.current.style.height = scrollHeight > 44 ? `${scrollHeight}px` : '44px';
+    }
+  }, [input]);
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mimeType = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg']
+        .find(type => MediaRecorder.isTypeSupported(type)) || '';
+      mediaRecorder.current = new MediaRecorder(stream, { mimeType });
+      audioChunks.current = [];
+      mediaRecorder.current.ondataavailable = (event) => {
+        if (event.data.size > 0) audioChunks.current.push(event.data);
+      };
+      mediaRecorder.current.onstop = async () => {
+        const audioBlob = new Blob(audioChunks.current, { type: mediaRecorder.current?.mimeType || 'audio/webm' });
+        await transcribeAudio(audioBlob);
+      };
+      mediaRecorder.current.start();
+      setIsRecording(true);
+    } catch (err) {
+      alert("Não foi possível acessar o microfone.");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder.current && isRecording) {
+      mediaRecorder.current.stop();
+      setIsRecording(false);
+      mediaRecorder.current.stream.getTracks().forEach(track => track.stop());
+    }
+  };
+
+  const transcribeAudio = async (blob) => {
+    setIsTranscribing(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', blob, 'recording.webm');
+      formData.append('model', 'whisper-large-v3');
+      formData.append('language', 'pt');
+      const response = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${process.env.NEXT_PUBLIC_GROQ_API_KEY}` },
+        body: formData,
+      });
+      const data = await response.json();
+      if (data.text) setInput(data.text);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsTranscribing(false);
+    }
+  };
 
   if (!isMounted) return null;
 
@@ -156,15 +219,15 @@ export default function ArenaPage() {
               </div>
             </header>
 
-            <div ref={scrollRef} className="flex-1 p-4 overflow-y-auto space-y-8 bg-slate-50/50 custom-scrollbar">
-              <div className="max-w-3xl mx-auto space-y-8">
+            <div ref={scrollRef} className="flex-1 p-4 overflow-y-auto bg-slate-50/50 custom-scrollbar overscroll-contain">
+              <div className="max-w-3xl mx-auto space-y-8 py-8">
                 {visibleMessages.map((m) => (
                   <motion.div key={m.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`flex gap-4 max-w-[90%] ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                      <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 shadow-xl ${m.role === 'user' ? 'bg-slate-900 text-white' : 'bg-white text-rose-600 border border-slate-100'}`}>
-                        {m.role === 'user' ? <User size={20} /> : <Sword size={20} />}
+                    <div className={`flex gap-3 max-w-[90%] ${m.role === 'user' ? 'flex-row-reverse' : ''}`}>
+                      <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-lg ${m.role === 'user' ? 'bg-slate-900 text-white' : 'bg-white text-rose-600 border border-slate-100'}`}>
+                        {m.role === 'user' ? <User size={20} /> : <Bot size={20} />}
                       </div>
-                      <div className={`p-6 rounded-[2.5rem] text-sm leading-relaxed shadow-2xl border ${m.role === 'user' ? 'bg-slate-900 text-white rounded-tr-none border-slate-800' : 'bg-white text-slate-800 border-slate-100 rounded-tl-none'}`}>
+                      <div className={`p-5 rounded-[2rem] text-sm leading-relaxed shadow-xl border ${m.role === 'user' ? 'bg-slate-900 text-white rounded-tr-none border-slate-800' : 'bg-white text-slate-800 border-slate-100 rounded-tl-none'}`}>
                         <ReactMarkdown 
                           remarkPlugins={[remarkGfm]}
                           components={{
@@ -178,33 +241,99 @@ export default function ArenaPage() {
                     </div>
                   </motion.div>
                 ))}
+                
                 {isLoading && (
-                  <div className="flex justify-start gap-4 animate-pulse">
-                    <div className="w-11 h-11 rounded-2xl bg-white border border-slate-100 flex items-center justify-center shadow-md"><Sword size={20} className="text-rose-500" /></div>
-                    <div className="bg-white p-5 rounded-[2rem] rounded-tl-none border border-slate-100 shadow-sm"><Loader2 className="animate-spin text-rose-500" size={20} /></div>
-                  </div>
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex justify-start gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-white border border-slate-100 flex items-center justify-center shadow-sm">
+                      <Bot size={20} className="text-rose-500" />
+                    </div>
+                    <div className="bg-white p-5 rounded-[2rem] rounded-tl-none border border-slate-100 shadow-sm flex items-center justify-center min-w-[80px]">
+                      <div className="flex gap-1.5">
+                        <motion.span animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1 }} className="w-1.5 h-1.5 bg-rose-400 rounded-full" />
+                        <motion.span animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-1.5 h-1.5 bg-rose-400 rounded-full" />
+                        <motion.span animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-1.5 h-1.5 bg-rose-400 rounded-full" />
+                      </div>
+                    </div>
+                  </motion.div>
                 )}
+
+                <AnimatePresence>
+                  {isRecording && (
+                    <motion.div initial={{ opacity: 0, scale: 0.9, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 10 }} className="flex justify-end gap-3">
+                      <div className="bg-slate-900 p-5 rounded-[2rem] rounded-tr-none shadow-xl flex items-center justify-center min-w-[80px] border border-slate-800">
+                        <div className="flex gap-1.5">
+                          <motion.span animate={{ scale: [1, 1.3, 1], opacity: [0.6, 1, 0.6] }} transition={{ repeat: Infinity, duration: 0.8 }} className="w-1.5 h-1.5 bg-white/60 rounded-full" />
+                          <motion.span animate={{ scale: [1, 1.3, 1], opacity: [0.6, 1, 0.6] }} transition={{ repeat: Infinity, duration: 0.8, delay: 0.2 }} className="w-1.5 h-1.5 bg-white/60 rounded-full" />
+                          <motion.span animate={{ scale: [1, 1.3, 1], opacity: [0.6, 1, 0.6] }} transition={{ repeat: Infinity, duration: 0.8, delay: 0.4 }} className="w-1.5 h-1.5 bg-white/60 rounded-full" />
+                        </div>
+                      </div>
+                      <div className="w-10 h-10 rounded-2xl bg-slate-900 text-rose-400 flex items-center justify-center shadow-lg border border-slate-800 animate-pulse">
+                        <User size={20} />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
 
-            <div className="flex-none p-4 md:p-6 bg-white/80 backdrop-blur-2xl border-t border-slate-100 z-40 pb-[calc(env(safe-area-inset-bottom)+1.5rem)]">
-              <form onSubmit={handleSendMessage} className="max-w-3xl mx-auto flex items-center gap-3 bg-white border border-slate-200 shadow-xl rounded-[2.5rem] p-2 focus-within:ring-4 ring-rose-500/5 transition-all">
-                <input 
-                  value={input} onChange={(e) => setInput(e.target.value)} 
-                  placeholder="Sua resposta tática..." 
-                  className="flex-1 bg-transparent px-6 py-4 outline-none text-slate-800 text-sm font-bold placeholder-slate-400" 
+            <div className="flex-none p-4 md:p-6 bg-transparent z-40 pb-[calc(env(safe-area-inset-bottom)+1.5rem)]">
+              <form 
+                onSubmit={handleSendMessage} 
+                className="max-w-3xl mx-auto flex items-center gap-2 bg-white border border-slate-200 shadow-[0_-10px_40px_rgba(0,0,0,0.03)] rounded-[2.5rem] p-1.5 focus-within:ring-4 ring-rose-500/20 transition-all min-h-[52px]"
+              >
+                <textarea 
+                  ref={textareaRef}
+                  value={input} 
+                  onChange={(e) => setInput(e.target.value)} 
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendMessage();
+                    }
+                  }}
+                  placeholder={isRecording ? "Ouvindo você..." : isTranscribing ? "Processando voz..." : "Sua resposta tática..."} 
+                  className="flex-1 bg-transparent px-6 py-3 outline-none text-slate-800 text-sm font-semibold placeholder-slate-400/80 resize-none max-h-40 min-h-[44px] custom-scrollbar leading-relaxed overflow-y-auto" 
+                  rows={1}
                 />
-                <button 
-                  type="submit" disabled={!input.trim() || isLoading}
-                  className={`w-14 h-14 rounded-full flex items-center justify-center transition-all ${input.trim() && !isLoading ? 'bg-rose-600 text-white shadow-lg' : 'bg-slate-50 text-slate-300'}`}
-                >
-                  <Send size={22} />
-                </button>
+                
+                <div className="flex items-center justify-center pr-1.5 h-full">
+                  <AnimatePresence mode="wait">
+                    {!input.trim() && !isTranscribing ? (
+                      <motion.button
+                        key="mic"
+                        initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}
+                        type="button"
+                        whileTap={{ scale: 0.9 }}
+                        onClick={isRecording ? stopRecording : startRecording}
+                        className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 transition-all ${isRecording ? 'bg-rose-500 text-white animate-pulse' : 'bg-slate-50 text-slate-400 hover:text-rose-500'}`}
+                      >
+                        {isRecording ? <MicOff size={20} /> : <Mic size={20} />}
+                      </motion.button>
+                    ) : (
+                      <motion.button 
+                        key="send"
+                        initial={{ opacity: 0, scale: 0.8, rotate: -45 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} exit={{ opacity: 0, scale: 0.8, rotate: 45 }}
+                        whileTap={{ scale: 0.90 }}
+                        type="submit" 
+                        disabled={isLoading || isTranscribing} 
+                        className="w-12 h-12 rounded-full flex items-center justify-center shrink-0 bg-slate-900 text-white shadow-lg shadow-slate-900/20"
+                      >
+                        {isLoading ? <Loader2 className="animate-spin" size={20} /> : <Send size={20} />}
+                      </motion.button>
+                    )}
+                  </AnimatePresence>
+                </div>
               </form>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.05); border-radius: 10px; }
+      `}</style>
     </main>
   );
 }

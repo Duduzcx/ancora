@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Anchor, Mail, Lock, ArrowRight, Loader2, User, Wind, Cloud, Zap, LifeBuoy, MessageCircle, Sword, Lightbulb, CheckCircle2, Shield, Eye, EyeOff } from 'lucide-react';
+import { Anchor, Mail, Lock, ArrowRight, Loader2, User, Wind, Cloud, Zap, LifeBuoy, MessageCircle, Sword, Lightbulb, CheckCircle2, Shield, Eye, EyeOff, Compass } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createClient } from '@/lib/supabase-client';
 import { useRouter } from 'next/navigation';
 import { Browser } from '@capacitor/browser';
 import { App } from '@capacitor/app';
 import AnimatedBackground from '@/components/AnimatedBackground';
+import NeblinaSOS from '@/components/NeblinaSOS';
 
 const LighthouseIcon = (props: any) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 24} height={props.size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={props.strokeWidth || 2} strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -33,11 +34,12 @@ const cardVariants = {
   visible: {
     y: 0,
     opacity: 1,
-    transition: { duration: 0.4, ease: "easeOut" }
+    transition: { duration: 0.5, ease: "easeOut" }
   }
 };
 
 export default function Home() {
+  const [mostrarNeblina, setMostrarNeblina] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [email, setEmail] = useState('');
@@ -73,6 +75,13 @@ export default function Home() {
     });
     return () => subscription.unsubscribe();
   }, [supabase]);
+
+  useEffect(() => {
+    // Esconde o menu global quando a neblina está ativa
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('toggleDock', { detail: !mostrarNeblina }));
+    }
+  }, [mostrarNeblina]);
 
   const handleNavigate = (e: React.MouseEvent | React.FormEvent, href: string) => {
     if (e) e.preventDefault();
@@ -143,11 +152,16 @@ export default function Home() {
 
   if (user) {
     return (
-      <main className="min-h-screen relative transition-all overflow-x-hidden pb-40 selection:bg-emerald-500/10">
+      <main className="min-h-screen relative transition-all overflow-x-hidden pb-24 selection:bg-emerald-500/10">
         <AnimatedBackground subtle={false} />
         
-        {/* Top Section */}
-        <div className="pt-16 pb-8 px-6 text-center space-y-5 relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
+          {/* Top Section */}
+          <div className="pt-16 pb-8 px-6 text-center space-y-5 relative z-10">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 text-emerald-500 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-500/20 shadow-sm">
             <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
             Protocolo de Segurança Mental
@@ -162,78 +176,129 @@ export default function Home() {
             A vida é um mar que não obedece a ninguém. Nórica é o seu sistema de navegação emocional.
           </p>
 
-          <button 
+          <motion.button 
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.95 }}
             onClick={(e) => handleNavigate(e, '/porto/')}
             className="mt-2 px-10 py-4 bg-slate-900 text-white rounded-full font-black text-[12px] uppercase tracking-widest inline-flex items-center gap-3 shadow-2xl active:scale-95 transition-transform"
           >
             Entrar no Porto
             <ArrowRight size={16} />
-          </button>
+          </motion.button>
         </div>
 
-        {/* Cais / Humor Section */}
-        <div className="mx-6 p-10 bg-white border border-slate-100 rounded-[3.5rem] shadow-2xl relative z-20 mb-12 text-center">
-          <div className="space-y-1 mb-8">
-            <h2 className="text-[28px] font-black text-slate-900 tracking-tighter leading-tight">
-              Bem-vindo ao cais, <span className="text-[#00D88B] italic">{formattedName}</span>.
-            </h2>
-          <div className="mx-auto w-full max-w-sm mt-12 mb-10 px-6 relative">
+        {/* Mood Section Wrapped in Card */}
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          style={{ willChange: 'transform, opacity' }}
+          className="mx-6 mt-12 mb-10 relative z-20"
+        >
+          <div className="bg-white/80 backdrop-blur-2xl border border-white rounded-[3rem] p-6 shadow-2xl overflow-hidden relative group">
+            {/* Shimmer Effect */}
             <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-white/40 backdrop-blur-md border border-white/50 rounded-3xl p-6 shadow-sm flex flex-col items-start justify-center overflow-visible"
-            >
-              <div className="overflow-visible w-full">
-                <motion.p 
-                  animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
-                  transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
-                  className="text-sm md:text-base font-black italic tracking-tighter leading-tight bg-gradient-to-r from-blue-600 via-sky-400 to-blue-600 bg-[length:200%_auto] bg-clip-text text-transparent py-1 text-left block transform -translate-x-1"
-                >
-                  Como está seu mar hoje?
-                </motion.p>
+              animate={{ x: ['-100%', '200%'] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "linear", repeatDelay: 2 }}
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12 pointer-events-none"
+            />
+            
+            {/* Background decoration */}
+            <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 rounded-full -mr-24 -mt-24 blur-3xl transition-transform group-hover:scale-110 duration-700" />
+            
+            <div className="relative z-10 space-y-6">
+              {/* Header */}
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div className="space-y-1">
+                  <h2 className="text-xl font-bold text-slate-800 tracking-tight leading-none">
+                    Olá, <span className="text-emerald-500 font-brain text-2xl normal-case ml-1">{formattedName}</span>.
+                  </h2>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Diário de Navegação</p>
+                </div>
+                <div className="w-11 h-11 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 border border-slate-100/50 shadow-inner">
+                  <Anchor size={18} strokeWidth={1.5} />
+                </div>
               </div>
-              <div className="h-[2px] w-8 bg-blue-500/10 rounded-full mt-3 ml-0" />
-            </motion.div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto">
-            {[{h:'CALMO', i:Wind, c:'emerald'}, {h:'ANSIOSO', i:Cloud, c:'orange'}, {h:'AGITADO', i:Zap, c:'rose'}, {h:'S.O.S', i:LifeBuoy, c:'blue'}].map((item, idx) => (
-              <motion.button 
-                key={item.h} 
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: idx * 0.1 }}
-                whileHover={{ y: -5, backgroundColor: '#f8fafc' }} 
-                whileTap={{ scale: 0.95 }} 
-                onClick={(e) => handleNavigate(e, `/porto/?humor=${item.h.toLowerCase()}`)} 
-                className="bg-white border border-slate-100 shadow-xl rounded-[2.5rem] p-6 flex flex-col items-center gap-4 transition-all"
-              >
-                <div className={`w-14 h-14 bg-slate-50 rounded-full flex items-center justify-center text-${item.c}-500 shadow-inner`}><item.i size={28} /></div>
-                <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">{item.h}</span>
-              </motion.button>
-            ))}
+              {/* Question */}
+              <div className="text-center py-1">
+                 <h3 className="text-2xl font-black text-slate-900 tracking-tighter italic leading-none">
+                   Como está seu <span className="text-water inline-block animate-tide-subtle px-1">mar</span> hoje?
+                 </h3>
+              </div>
+
+              {/* Mood Grid */}
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  {h:'Calmo', i:Wind, d:'Serenidade', from: '#10b981', to: '#059669', bg: 'bg-emerald-50', border: 'border-emerald-100'}, 
+                  {h:'Ansioso', i:Cloud, d:'Neblina', from: '#f59e0b', to: '#d97706', bg: 'bg-amber-50', border: 'border-amber-100'}, 
+                  {h:'Agitado', i:Zap, d:'Tormenta', from: '#f43f5e', to: '#e11d48', bg: 'bg-rose-50', border: 'border-rose-100'}, 
+                  {h:'S.O.S', i:LifeBuoy, d:'Resgate', from: '#3b82f6', to: '#2563eb', bg: 'bg-blue-50', border: 'border-blue-100'}
+                ].map((item, idx) => (
+                  <motion.button 
+                    key={item.h} 
+                    initial={{ opacity: 0, y: 5 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: idx * 0.05, duration: 0.4 }}
+                    style={{ willChange: 'transform, opacity' }}
+                    whileHover={{ scale: 1.02, y: -2 }} 
+                    whileTap={{ scale: 0.98 }} 
+                    onClick={(e) => {
+                      if (item.h === 'S.O.S') {
+                        setMostrarNeblina(true);
+                      } else {
+                        handleNavigate(e, `/porto/?humor=${item.h.toLowerCase()}`);
+                      }
+                    }}
+                    className={`bg-white/50 border ${item.border} rounded-[2rem] p-4 flex flex-col items-center gap-3 transition-all hover:bg-white hover:shadow-xl hover:shadow-slate-200/50`}
+                  >
+                    <div className={`w-11 h-11 ${item.bg} rounded-2xl flex items-center justify-center mx-auto shadow-inner`}>
+                      <item.i size={22} style={{ color: item.from }} strokeWidth={2.5} />
+                    </div>
+                    <div className="text-center min-w-0 w-full">
+                      <span 
+                        className="text-sm font-black tracking-tighter block leading-none uppercase italic truncate"
+                        style={{ 
+                          background: `linear-gradient(to bottom, ${item.from}, ${item.to})`,
+                          WebkitBackgroundClip: 'text',
+                          WebkitTextFillColor: 'transparent'
+                        }}
+                      >
+                        {item.h}
+                      </span>
+                      <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest block mt-1 truncate">{item.d}</span>
+                    </div>
+                  </motion.button>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        </motion.div>
 
       {/* Divisor Visual */}
-        <div className="px-10 py-12 flex items-center gap-4">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          className="px-10 py-20 flex items-center gap-4"
+        >
            <div className="h-[1px] flex-1 bg-emerald-200/50"></div>
            <span className="text-[10px] font-black text-emerald-600/60 uppercase tracking-[0.6em] italic">Sistema Nórica</span>
            <div className="h-[1px] flex-1 bg-emerald-200/50"></div>
-        </div>
+        </motion.div>
 
         {/* Modules Section */}
-        <motion.div 
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="px-6 space-y-8 max-w-md mx-auto"
-        >
+        <div className="px-6 space-y-8 max-w-md mx-auto">
           {/* O Porto */}
           <motion.div 
-            variants={cardVariants}
-            whileHover={{ y: -5, scale: 1.02 }}
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.5 }}
+            style={{ willChange: 'transform, opacity' }}
+            whileHover={{ y: -10, scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={(e) => handleNavigate(e, '/porto/')}
             className="group bg-white/90 backdrop-blur-xl border border-white rounded-[3.5rem] p-8 text-center space-y-4 shadow-xl hover:shadow-2xl transition-all relative overflow-hidden cursor-pointer"
@@ -253,8 +318,12 @@ export default function Home() {
 
           {/* A Arena */}
           <motion.div 
-            variants={cardVariants}
-            whileHover={{ y: -5, scale: 1.02 }}
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.5 }}
+            style={{ willChange: 'transform, opacity' }}
+            whileHover={{ y: -10, scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={(e) => handleNavigate(e, '/arena/')}
             className="group bg-white/90 backdrop-blur-xl border border-white rounded-[3.5rem] p-8 text-center space-y-4 shadow-xl hover:shadow-2xl transition-all relative overflow-hidden cursor-pointer"
@@ -274,8 +343,12 @@ export default function Home() {
 
           {/* O Farol */}
           <motion.div 
-            variants={cardVariants}
-            whileHover={{ y: -5, scale: 1.02 }}
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.5 }}
+            style={{ willChange: 'transform, opacity' }}
+            whileHover={{ y: -10, scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={(e) => handleNavigate(e, '/farol/')}
             className="group bg-white/90 backdrop-blur-xl border border-white rounded-[3.5rem] p-8 text-center space-y-4 shadow-xl hover:shadow-2xl transition-all relative overflow-hidden cursor-pointer"
@@ -295,8 +368,12 @@ export default function Home() {
 
           {/* O Cofre */}
           <motion.div 
-            variants={cardVariants}
-            whileHover={{ y: -5, scale: 1.02 }}
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.5 }}
+            style={{ willChange: 'transform, opacity' }}
+            whileHover={{ y: -10, scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={(e) => handleNavigate(e, '/cofre/')}
             className="group bg-white/90 backdrop-blur-xl border border-white rounded-[3.5rem] p-8 text-center space-y-4 shadow-xl hover:shadow-2xl transition-all relative overflow-hidden cursor-pointer"
@@ -316,8 +393,12 @@ export default function Home() {
 
           {/* Logs */}
           <motion.div 
-            variants={cardVariants}
-            whileHover={{ y: -5, scale: 1.02 }}
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.5 }}
+            style={{ willChange: 'transform, opacity' }}
+            whileHover={{ y: -10, scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={(e) => handleNavigate(e, '/log/')}
             className="group bg-white/90 backdrop-blur-xl border border-white rounded-[3.5rem] p-8 text-center space-y-4 shadow-xl hover:shadow-2xl transition-all relative overflow-hidden cursor-pointer"
@@ -336,48 +417,60 @@ export default function Home() {
           </motion.div>
 
           {/* Respiração Section */}
-          <div className="pt-24 pb-16 text-center space-y-6 relative overflow-hidden">
-            <div className="absolute inset-0 bg-sky-500/[0.02] blur-3xl -z-10" />
-            <motion.h3 
-              animate={{ 
-                rotate: [-1, 1, -1],
-                scale: [0.98, 1, 0.98]
-              }}
-              transition={{ 
-                duration: 6, 
-                repeat: Infinity, 
-                ease: "easeInOut" 
-              }}
-              className="text-4xl md:text-5xl font-black text-sky-600 uppercase tracking-tighter italic bg-gradient-to-b from-sky-600 to-sky-400 bg-clip-text text-transparent py-4"
-            >
-              Respiração
-            </motion.h3>
-            <p className="text-[10px] font-black text-sky-400/60 uppercase tracking-[0.6em] italic">Sincronize seu fluxo vital</p>
-            <div className="flex flex-col items-center pt-8">
-              <motion.button
-                onClick={(e) => handleNavigate(e, '/respiracao/')}
-                animate={{ 
-                  scale: [1, 1.15, 1],
-                  boxShadow: [
-                    "0 0 0px rgba(14, 165, 233, 0)",
-                    "0 0 40px rgba(14, 165, 233, 0.2)",
-                    "0 0 0px rgba(14, 165, 233, 0)"
-                  ]
-                }}
-                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                className="w-56 h-56 rounded-full bg-white border-2 border-sky-100 flex items-center justify-center relative overflow-hidden shadow-2xl active:scale-95 transition-all group"
-              >
-                <div className="absolute inset-0 bg-gradient-to-tr from-sky-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <Wind className="text-sky-500 relative z-10 group-hover:scale-110 transition-transform" size={64} />
-                <motion.div animate={{ rotate: 360 }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }} className="absolute inset-2 border-t-2 border-sky-200 rounded-full opacity-40" />
-                <motion.div animate={{ rotate: -360 }} transition={{ duration: 25, repeat: Infinity, ease: "linear" }} className="absolute inset-4 border-b-2 border-sky-100 rounded-full opacity-30" />
-              </motion.button>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="pt-16 pb-6 text-center space-y-6 relative overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-sky-500/[0.03] blur-3xl -z-10" />
+            <div className="space-y-1">
+              <p className="text-[10px] font-black text-sky-400 uppercase tracking-[0.4em]">RESPIRE FUNDO</p>
+              <h3 className="text-4xl md:text-5xl font-black text-sky-600 uppercase tracking-tighter italic bg-gradient-to-b from-sky-600 to-sky-400 bg-clip-text text-transparent">
+                Respiração
+              </h3>
             </div>
-          </div>
-        </motion.div>
-      </main>
-    );
-  }
+            
+            <div className="flex flex-col items-center pt-4">
+              <motion.div
+                animate={{ 
+                  scale: [1, 1.3, 1],
+                }}
+                transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }}
+                className="w-52 h-52 rounded-full bg-white border-2 border-sky-100 flex items-center justify-center relative overflow-hidden shadow-xl"
+              >
+                <div className="absolute inset-0 bg-gradient-to-tr from-sky-50 to-transparent opacity-30" />
+                
+                {/* Compass Icon with rotating needle effect */}
+                <div className="relative z-10 w-24 h-24 flex items-center justify-center">
+                  <Compass className="text-sky-500 opacity-40 absolute" size={80} strokeWidth={1} />
+                  <motion.div
+                    animate={{ rotate: [0, 360] }}
+                    transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                    className="relative"
+                  >
+                    <div className="w-1 h-12 bg-gradient-to-t from-sky-500 to-transparent rounded-full" />
+                  </motion.div>
+                  <div className="absolute w-2 h-2 bg-sky-500 rounded-full shadow-[0_0_10px_rgba(14,165,233,0.5)]" />
+                </div>
+              </motion.div>
+              <p className="text-[11px] font-bold text-slate-600 uppercase tracking-widest mt-8 opacity-80 italic">Sincronize seu fluxo vital</p>
+            </div>
+          </motion.div>
+        </div>
+      </motion.div>
+      {mostrarNeblina && (
+        <NeblinaSOS 
+          onClareou={() => {
+            setMostrarNeblina(false);
+            router.push('/porto/?humor=neblina');
+          }} 
+        />
+      )}
+    </main>
+  );
+}
 
   return (
     <main className="h-[100dvh] w-full bg-[#080D19] flex flex-col items-center justify-center p-6 relative overflow-hidden font-sans selection:bg-[#00D88B]/30 touch-none overscroll-none">

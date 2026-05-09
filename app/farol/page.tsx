@@ -120,7 +120,7 @@ export default function FarolPage() {
   const status = getStatusData();
 
   return (
-    <main className="min-h-screen relative overflow-y-auto overflow-x-hidden pb-40">
+    <main className="min-h-screen relative overflow-y-auto overflow-x-hidden pb-24">
       <AnimatedBackground subtle={true} />
       <div className="relative z-10 w-full flex flex-col items-center p-4 pt-[calc(env(safe-area-inset-top,44px)+3rem)] md:p-8 md:pt-24 lg:p-12 lg:pt-24">
 
@@ -133,7 +133,7 @@ export default function FarolPage() {
         />
       </div>
 
-      <div className="max-w-7xl w-full relative z-10 space-y-8 pb-24">
+      <div className="max-w-7xl w-full relative z-10 space-y-8 pb-12">
         
         {/* NAV BAR (Desktop) */}
         <div className="hidden lg:flex items-center justify-between bg-white/40 backdrop-blur-3xl p-6 rounded-[3rem] border border-white shadow-2xl">
@@ -161,7 +161,9 @@ export default function FarolPage() {
           
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
             className={`lg:col-span-8 bg-white/60 backdrop-blur-3xl rounded-[4rem] p-10 md:p-16 border border-white shadow-2xl relative overflow-hidden group ${status.glow}`}
           >
             <div className="relative z-10 space-y-10">
@@ -190,12 +192,21 @@ export default function FarolPage() {
                   </motion.button>
                 </Link>
                 <motion.button 
-                  whileHover={{ scale: 1.05, y: -5 }}
+                  initial={{ scale: 1 }}
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                  whileHover={{ scale: 1.08, y: -5 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={() => router.push(`/porto?humor=${encodeURIComponent(status.trigger)}`)}
-                  className="px-10 py-6 bg-emerald-500 text-white rounded-[2.5rem] font-black flex items-center gap-4 shadow-2xl shadow-emerald-500/20 hover:bg-emerald-600 transition-all text-sm"
+                  className="px-10 py-6 bg-emerald-500 text-white rounded-[2.5rem] font-black flex items-center gap-4 shadow-2xl shadow-emerald-500/20 hover:bg-emerald-600 transition-all text-sm relative overflow-hidden"
                 >
-                  <MessageSquare size={24} />
-                  Desabafar agora
+                  <motion.div 
+                    animate={{ x: ['-100%', '200%'] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "linear", repeatDelay: 1 }}
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"
+                  />
+                  <MessageSquare size={24} className="relative z-10" />
+                  <span className="relative z-10">Desabafar agora</span>
                 </motion.button>
               </div>
             </div>
@@ -208,12 +219,37 @@ export default function FarolPage() {
           <div className="lg:col-span-4 space-y-8">
             <motion.div 
               initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="bg-slate-900 rounded-[4rem] p-10 text-white shadow-2xl relative overflow-hidden h-full"
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              style={{ willChange: 'transform, opacity' }}
+              className="bg-slate-900 rounded-[4rem] p-10 text-white shadow-2xl relative overflow-hidden h-full border border-white/5"
             >
-              <div className="absolute top-0 right-0 p-8 text-emerald-500/10 rotate-45">
-                <Target size={180} />
-              </div>
+              {/* Ícone Target Animado como Radar (O que já estava no fundo) */}
+              <motion.div 
+                animate={{ 
+                  scale: [1, 1.1, 1],
+                  opacity: [0.05, 0.15, 0.05]
+                }}
+                transition={{ 
+                  duration: 4, 
+                  repeat: Infinity, 
+                  ease: "easeInOut" 
+                }}
+                className="absolute top-0 right-0 p-8 text-emerald-500 rotate-45 pointer-events-none"
+              >
+                <Target size={180} strokeWidth={1} />
+                
+                {/* Aneis de Pulso extras em volta do Target para dar o efeito radar sem criar "outra figura" */}
+                {[1.2, 1.4].map((s, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute inset-0 border border-emerald-500/20 rounded-full"
+                    animate={{ scale: [1, s, 1], opacity: [0.1, 0, 0.1] }}
+                    transition={{ duration: 4, repeat: Infinity, delay: i * 1 }}
+                  />
+                ))}
+              </motion.div>
               
               <div className="relative z-10 space-y-12">
                 <div className="space-y-4">
@@ -227,7 +263,9 @@ export default function FarolPage() {
                 <div className="w-full h-4 bg-white/10 rounded-full overflow-hidden border border-white/5">
                   <motion.div 
                     initial={{ width: 0 }}
-                    animate={{ width: `${progress}%` }}
+                    whileInView={{ width: `${progress}%` }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 1.5, ease: "easeOut", delay: 0.5 }}
                     className="h-full bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.8)]"
                   />
                 </div>
@@ -243,10 +281,10 @@ export default function FarolPage() {
 
         {/* BOTTOM CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <InsightCard icon={Compass} title="Norte" desc="Sua bússola hoje aponta para hábitos de autocuidado." />
-          <InsightCard icon={Star} title="Brilho" desc="Você está mantendo a constância no mar das emoções." />
-          <InsightCard icon={ShieldCheck} title="Proteção" desc="Escudo mental ativado contra gatilhos externos." />
-          <InsightCard icon={BarChart3} title="Tendência" desc="Crescimento estável de resiliência detectado." />
+          <InsightCard icon={Compass} title="Norte" desc="Sua bússola hoje aponta para hábitos de autocuidado." index={0} />
+          <InsightCard icon={Star} title="Brilho" desc="Você está mantendo a constância no mar das emoções." index={1} />
+          <InsightCard icon={ShieldCheck} title="Proteção" desc="Escudo mental ativado contra gatilhos externos." index={2} />
+          <InsightCard icon={BarChart3} title="Tendência" desc="Crescimento estável de resiliência detectado." index={3} />
         </div>
       </div>
       </div>
@@ -268,9 +306,14 @@ function HUDItem({ icon: Icon, label, value }: any) {
   );
 }
 
-function InsightCard({ icon: Icon, title, desc }: any) {
+function InsightCard({ icon: Icon, title, desc, index }: any) {
   return (
     <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.1 }}
+      transition={{ duration: 0.5, delay: 0.3 + (index * 0.1) }}
+      style={{ willChange: 'transform, opacity' }}
       whileHover={{ y: -8, scale: 1.02 }}
       className="bg-white/40 backdrop-blur-xl p-8 rounded-[3rem] border border-white shadow-xl space-y-4 hover:shadow-2xl transition-all"
     >

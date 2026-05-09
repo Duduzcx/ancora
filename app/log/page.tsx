@@ -181,7 +181,12 @@ export default function LogPage() {
         <Anchor size={800} strokeWidth={0.5} className="text-slate-900" />
       </div>
 
-      <div className="flex-1 overflow-y-auto w-full custom-scrollbar overscroll-contain p-4 pt-[calc(env(safe-area-inset-top,64px)+3rem)] md:p-8 md:pt-32 lg:p-12 lg:pt-32 pb-24 relative z-10">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="flex-1 overflow-y-auto w-full custom-scrollbar overscroll-contain p-4 pt-[calc(env(safe-area-inset-top,64px)+3rem)] md:p-8 md:pt-32 lg:p-12 lg:pt-32 pb-24 relative z-10"
+      >
         <div className="max-w-[1400px] mx-auto space-y-8">
         
         {/* Status Section (Sem botão de voltar) */}
@@ -325,7 +330,7 @@ export default function LogPage() {
           </div>
 
           {/* LISTA DE TAREFAS */}
-          <div className="lg:col-span-7 space-y-10 pb-32">
+          <div className="lg:col-span-7 space-y-10 pb-12">
             {categories.map((cat) => (
               <div key={cat} className="space-y-6">
                 <div className="flex items-center gap-4 px-2">
@@ -333,10 +338,25 @@ export default function LogPage() {
                   <div className="h-px w-full bg-slate-200" />
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <motion.div 
+                  variants={{
+                    hidden: { opacity: 0 },
+                    visible: {
+                      opacity: 1,
+                      transition: { staggerChildren: 0.05 }
+                    }
+                  }}
+                  initial="hidden"
+                  animate="visible"
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                >
                   {tasks.filter(t => t.category === cat).map((task) => (
                     <motion.div
                       key={task.id}
+                      variants={{
+                        hidden: { opacity: 0, y: 20 },
+                        visible: { opacity: 1, y: 0 }
+                      }}
                       onClick={() => toggleTask(task.id)}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
@@ -367,13 +387,13 @@ export default function LogPage() {
                       </div>
                     </motion.div>
                   ))}
-                </div>
+                </motion.div>
               </div>
             ))}
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
 
       {/* MODAL REFLEXÃO */}
       <AnimatePresence>

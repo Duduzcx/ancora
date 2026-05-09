@@ -25,8 +25,8 @@ export default function RootLayout({
       <body className={`${inter.className} antialiased bg-slate-50 overscroll-none`}>
         <LayoutWrapper>
           {children}
+          <NavigationDock />
         </LayoutWrapper>
-        <NavigationDock />
       </body>
     </html>
   );

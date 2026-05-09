@@ -58,14 +58,16 @@ export default function ChatHistorySidebar({ isOpen, onClose }: ChatHistorySideb
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      fetchChats(); // Refresh history when opening
     } else {
       document.body.style.overflow = 'unset';
     }
   }, [isOpen]);
 
   const handleNewChat = () => {
+    // Ao navegar para /porto sem chatId, o useEffect no porto/page.tsx 
+    // agora está configurado para resetar as mensagens.
     router.push('/porto');
-    fetchChats();
     if (onClose) onClose();
   };
 
@@ -89,11 +91,13 @@ export default function ChatHistorySidebar({ isOpen, onClose }: ChatHistorySideb
         )}
       </AnimatePresence>
 
-      <aside className={`
-        w-72 h-[100dvh] fixed top-0 bg-white lg:bg-slate-50 border-r border-slate-200 p-4 pt-[calc(env(safe-area-inset-top,44px)+2rem)] flex flex-col z-[110] transition-all duration-500
-        ${isOpen ? 'left-0' : '-left-full'}
-        md:left-0
-      `}>
+      <aside 
+        className={`
+          w-72 h-[100dvh] fixed top-0 left-0 bg-white lg:bg-slate-50 border-r border-slate-200 p-4 pt-[calc(env(safe-area-inset-top,44px)+2rem)] flex flex-col z-[110] transition-transform duration-500 ease-in-out
+          ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+          lg:translate-x-0
+        `}
+      >
         <div className="flex items-center justify-between mb-8 px-2 md:hidden">
           <span className="text-xs font-black text-slate-900 uppercase tracking-widest">Histórico</span>
           <button onClick={onClose} className="p-2 bg-slate-900/5 rounded-xl">
@@ -139,25 +143,34 @@ export default function ChatHistorySidebar({ isOpen, onClose }: ChatHistorySideb
               </div>
             ) : chats.length > 0 ? (
               chats.map((chat) => (
-                <motion.button
+                  <motion.button
                   key={chat.id}
                   layout
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
+                  initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: -10 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
                   onClick={() => handleSelectChat(chat.id)}
-                  className={`w-full text-left p-4 rounded-full flex items-center justify-between group transition-all ${
+                  className={`w-full text-left p-5 rounded-[2.5rem] flex items-center justify-between group transition-all mb-2 ${
                     currentChatId === chat.id 
-                      ? 'bg-slate-900 text-white shadow-lg border-none' 
-                      : 'bg-white/40 text-slate-700 border border-white/40 hover:bg-white hover:text-slate-900 shadow-sm'}
+                      ? 'bg-slate-900 text-white shadow-2xl border-none scale-[1.02]' 
+                      : 'bg-white text-slate-700 border border-slate-100 hover:bg-slate-50 hover:text-slate-900 shadow-sm'}
                   `}
                 >
-                  <div className="flex items-center gap-3 overflow-hidden flex-1">
-                    <MessageSquare size={16} className={currentChatId === chat.id ? 'text-white' : 'text-slate-500'} />
-                    <span className="text-sm font-medium truncate">
-                      {chat.title || 'Conversa sem título'}
-                    </span>
+                  <div className="flex items-center gap-4 overflow-hidden flex-1">
+                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${currentChatId === chat.id ? 'bg-white/10' : 'bg-slate-50'}`}>
+                      <MessageSquare size={18} className={currentChatId === chat.id ? 'text-white' : 'text-emerald-500'} />
+                    </div>
+                    <div className="flex flex-col overflow-hidden">
+                      <span className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-0.5">
+                        {new Date(chat.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}, {new Date(chat.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                      <span className="text-sm font-bold truncate">
+                        {chat.title || 'Conversa sem título'}
+                      </span>
+                    </div>
                   </div>
-                  <ChevronRight size={14} className={`shrink-0 transition-transform group-hover:translate-x-1 ${currentChatId === chat.id ? 'text-white/50' : 'text-slate-600'}`} />
+                  <ChevronRight size={16} className={`shrink-0 transition-transform group-hover:translate-x-1 ${currentChatId === chat.id ? 'text-white/30' : 'text-slate-300'}`} />
                 </motion.button>
               ))
             ) : (

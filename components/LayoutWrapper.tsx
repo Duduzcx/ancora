@@ -56,7 +56,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
       } catch (e) {
         console.error("Erro auth:", e);
       } finally {
-        setTimeout(() => setLoading(false), 300);
+        setTimeout(() => setLoading(false), 500);
       }
     };
 
@@ -73,13 +73,13 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
   return (
     <div className="min-h-screen bg-white relative">
-      <AnimatePresence mode="popLayout">
+      <AnimatePresence>
         {loading ? (
           <motion.div 
             key="loader"
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.8, ease: "easeInOut" }}
             className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white"
           >
             <div className="relative mb-8">
@@ -88,13 +88,18 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                 <Anchor className="text-emerald-500 animate-bounce relative z-10" size={56} strokeWidth={2.5} />
               </div>
             </div>
-            <p className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.5em] animate-pulse">Sincronizando...</p>
+            <p className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.5em] animate-pulse">Ancorando...</p>
           </motion.div>
         ) : (
-          /* REMOVED INDIVIDUAL PAGE MOTION TO LET TEMPLATE.TSX HANDLE IT */
-          <div className="min-h-screen w-full relative z-0">
+          <motion.div 
+            key="content"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="min-h-screen w-full relative z-0"
+          >
             {children}
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>

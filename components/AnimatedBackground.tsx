@@ -19,24 +19,23 @@ interface IconInstance {
 }
 
 const AnimatedBackground = ({ subtle = false }: AnimatedBackgroundProps) => {
-  const [icons, setIcons] = useState<IconInstance[]>([]);
-
-  useEffect(() => {
+  const [icons] = useState<IconInstance[]>(() => {
+    // Verificação básica de window para evitar erros em SSR
+    if (typeof window === 'undefined') return [];
+    
     const isMobile = window.innerWidth < 768;
-    // Aumentado para máxima imersão
-    const count = isMobile ? 15 : 25;
-    const newIcons = [...Array(count)].map((_, i) => ({
+    const count = isMobile ? 14 : 20;
+    return [...Array(count)].map((_, i) => ({
       id: i,
       top: `${Math.random() * 100}%`,
       left: `${Math.random() * 100}%`,
       rotate: Math.random() * 360,
-      scale: 0.3 + Math.random() * 0.8, // Variação maior de tamanho
-      size: 20 + Math.random() * 60,   // Variação maior de tamanho
-      duration: 20 + Math.random() * 20,
-      stroke: 1.5 + Math.random() * 2.5, // Variação de grossura
+      scale: 0.4 + Math.random() * 0.6,
+      size: 20 + Math.random() * 40,
+      duration: 25 + Math.random() * 25,
+      stroke: 2.5,
     }));
-    setIcons(newIcons);
-  }, []);
+  });
 
   return (
     <div className="fixed inset-0 -z-20 overflow-hidden pointer-events-none bg-slate-50">
@@ -63,7 +62,7 @@ const AnimatedBackground = ({ subtle = false }: AnimatedBackgroundProps) => {
           transition={{
             duration: icon.duration,
             repeat: Infinity,
-            ease: "linear", // Linear para movimento mais constante
+            ease: "linear",
           }}
           style={{ 
             top: icon.top,
@@ -78,8 +77,31 @@ const AnimatedBackground = ({ subtle = false }: AnimatedBackgroundProps) => {
         </motion.div>
       ))}
 
-      {/* Noise Texture */}
-      <div className="absolute inset-0 opacity-[0.03] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+      {/* Partículas / Bolhas flutuantes */}
+      {[...Array(6)].map((_, i) => (
+        <motion.div
+          key={`bubble-${i}`}
+          className="absolute rounded-full bg-white/20 blur-[2px]"
+          animate={{
+            y: [0, -100, 0],
+            x: [0, 30, 0],
+            opacity: [0, 0.5, 0],
+          }}
+          transition={{
+            duration: 10 + Math.random() * 15,
+            repeat: Infinity,
+            delay: Math.random() * 10,
+          }}
+          style={{
+            width: 4 + Math.random() * 8,
+            height: 4 + Math.random() * 8,
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            willChange: 'transform, opacity',
+            transform: 'translateZ(0)'
+          }}
+        />
+      ))}
     </div>
   );
 };
